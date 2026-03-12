@@ -173,6 +173,17 @@ io.on("connection", (socket) => {
         });
     });
 
+    // ─── STICKERS ───────────────────────────────────────────────────────────────
+    socket.on("send_sticker", ({ sticker }) => {
+        const meta = socketMap[socket.id];
+        if (!meta) return;
+        io.to(meta.roomId).emit("new_sticker", {
+            userId: socket.id,
+            name: meta.name,
+            sticker,
+        });
+    });
+
     // ─── LEAVE ROOM ─────────────────────────────────────────────────────────────
     socket.on("leave_room", () => {
         handleDisconnect(socket);
