@@ -148,18 +148,47 @@ io.on("connection", (socket) => {
         console.log(`[WebRTC] Listener ${socket.id} ready, notifying host ${hostId}`);
     });
 
-    // ─── CHAT ───────────────────────────────────────────────────────────────────
-    socket.on("send_message", ({ message }) => {
+    // ─── CHAT & IMAGES (PRIVATE COUPLE MODE) ────────────────────────────────────
+    socket.on("send_message", ({ message, targetUserId }) => {
         const meta = socketMap[socket.id];
         if (!meta) return;
         const payload = {
             id: uuidv4(),
             userId: socket.id,
             name: meta.name,
+            role: meta.role,
             message,
             timestamp: Date.now(),
         };
-        io.to(meta.roomId).emit("new_message", payload);
+        
+        if (targetUserId) {
+            io.to(targetUserId).emit("new_message", payload);
+            if (targetUserId !== socket.id) {
+                socket.emit("new_message", payload);
+            }
+        } else {
+            io.to(meta.roomId).emit("new_message", payload);
+        }
+    });
+
+    socket.on("send_image", ({ imageBase64, targetUserId }) => {
+        const meta = socketMap[socket.id];
+        if (!meta) return;
+        const payload = {
+            id: uuidv4(),
+            userId: socket.id,
+            name: meta.name,
+            role: meta.role,
+            image: imageBase64,
+            timestamp: Date.now(),
+        };
+
+        if (targetUserId) {
+            io.to(targetUserId).emit("new_message", payload);
+            if (targetUserId !== socket.id) {
+                socket.emit("new_message", payload);
+            }
+        }
     });
 
     // ─── REACTIONS ──────────────────────────────────────────────────────────────
@@ -170,17 +199,6 @@ io.on("connection", (socket) => {
             userId: socket.id,
             name: meta.name,
             emoji,
-        });
-    });
-
-    // ─── STICKERS ───────────────────────────────────────────────────────────────
-    socket.on("send_sticker", ({ sticker }) => {
-        const meta = socketMap[socket.id];
-        if (!meta) return;
-        io.to(meta.roomId).emit("new_sticker", {
-            userId: socket.id,
-            name: meta.name,
-            sticker,
         });
     });
 
