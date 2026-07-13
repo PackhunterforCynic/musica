@@ -150,7 +150,7 @@ function setupRoom(room) {
   document.getElementById('display-host-name').innerText = room.participants.find(p => p.id === room.hostId)?.name || 'Unknown';
   
   if(isHost) {
-    document.getElementById('btn-share').style.display = 'block';
+    document.getElementById('host-controls').style.display = 'flex';
   }
   
   participants = room.participants;
@@ -176,37 +176,59 @@ document.getElementById('btn-leave').onclick = () => {
 
 const videoElement = document.getElementById('stream-video');
 const videoPlaceholder = document.getElementById('video-placeholder');
-const btnShare = document.getElementById('btn-share');
+const btnShareScreen = document.getElementById('btn-share-screen');
+const btnShareMic = document.getElementById('btn-share-mic');
+const btnStopShare = document.getElementById('btn-stop-share');
 
-btnShare.onclick = async () => {
-  if(isSharing) return stopSharing();
+async function handleShare(type) {
+  if (isSharing) stopSharing();
   try {
-    localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    if (type === 'screen') {
+      localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      videoElement.srcObject = localStream;
+      videoElement.style.display = 'block';
+      videoPlaceholder.style.display = 'none';
+    } else {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+      videoElement.style.display = 'none';
+      videoPlaceholder.innerHTML = '<p style="color: var(--accent); font-size: 1.2rem;">🎤 Streaming Audio Only...</p>';
+      videoPlaceholder.style.display = 'block';
+    }
+    
     isSharing = true;
-    videoElement.srcObject = localStream;
-    videoElement.style.display = 'block';
     videoElement.muted = true;
-    videoPlaceholder.style.display = 'none';
-    btnShare.innerText = "Stop Sharing";
-    btnShare.style.background = "var(--danger)";
+    
+    btnShareScreen.style.display = 'none';
+    btnShareMic.style.display = 'none';
+    btnStopShare.style.display = 'block';
 
-    localStream.getVideoTracks()[0].onended = stopSharing;
+    const track = localStream.getVideoTracks()[0] || localStream.getAudioTracks()[0];
+    if (track) track.onended = stopSharing;
 
     participants.forEach(p => {
       if(p.id !== socket.id) createPeerConnectionForParticipant(p.id, localStream);
     });
   } catch (err) { console.error(err); }
-};
+}
+
+btnShareScreen.onclick = () => handleShare('screen');
+btnShareMic.onclick = () => handleShare('mic');
+btnStopShare.onclick = stopSharing;
 
 function stopSharing() {
   if(localStream) localStream.getTracks().forEach(t => t.stop());
   localStream = null;
   isSharing = false;
+  
   videoElement.style.display = 'none';
   videoElement.srcObject = null;
+  videoPlaceholder.innerHTML = '<p>Waiting for stream...</p>';
   videoPlaceholder.style.display = 'block';
-  btnShare.innerText = "Share Screen & Audio";
-  btnShare.style.background = "var(--accent)";
+  
+  btnShareScreen.style.display = 'block';
+  btnShareMic.style.display = 'block';
+  btnStopShare.style.display = 'none';
+  
   peerConnections.forEach(pc => pc.close());
   peerConnections.clear();
 }

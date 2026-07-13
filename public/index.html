@@ -47,7 +47,11 @@
           <p>Waiting for stream...</p>
         </div>
         <video id="stream-video" autoplay playsinline></video>
-        <button id="btn-share" class="btn-primary" style="display: none;">Share Screen & Audio</button>
+        <div id="host-controls" style="display: none; gap: 8px; position: absolute; bottom: 20px; width: 100%; justify-content: center; z-index: 10;">
+          <button id="btn-share-screen" class="btn-primary" style="width: auto;">Share Screen</button>
+          <button id="btn-share-mic" class="btn-secondary" style="width: auto; background: var(--bg-color);">Share Mic</button>
+          <button id="btn-stop-share" class="btn-primary" style="display: none; width: auto; background: var(--danger);">Stop Sharing</button>
+        </div>
       </div>
       <div class="side-panel">
         <div class="participants-container glass-panel">
