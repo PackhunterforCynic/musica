@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Musica</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div id="home-view" class="view active">
+    <div class="glass-panel main-panel">
+      <div class="header">
+        <h1>Musica</h1>
+        <p>Real-time synchronized listening</p>
+      </div>
+      <div class="tabs">
+        <button id="tab-join" class="active">Join Room</button>
+        <button id="tab-create">Create Room</button>
+      </div>
+      <div id="join-form" class="form-section active">
+        <input type="text" id="join-name" class="glass-input" placeholder="Display Name">
+        <input type="text" id="join-room" class="glass-input" placeholder="Room Code">
+        <input type="password" id="join-password" class="glass-input" placeholder="Password (Optional)">
+        <button id="btn-join" class="btn-primary">Join Room</button>
+        <p id="join-error" class="error"></p>
+        <p id="join-status" class="status"></p>
+      </div>
+      <div id="create-form" class="form-section">
+        <input type="text" id="create-name" class="glass-input" placeholder="Display Name">
+        <input type="password" id="create-password" class="glass-input" placeholder="Room Password (Optional)">
+        <button id="btn-create" class="btn-primary">Create Room</button>
+        <p id="create-error" class="error"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="room-view" class="view">
+    <header class="glass-panel">
+      <h2>Room Code: <span id="display-room-code" class="highlight"></span></h2>
+      <p>Host: <span id="display-host-name"></span></p>
+      <button id="btn-leave" class="btn-secondary">Leave Room</button>
+    </header>
+    <div class="room-layout">
+      <div class="video-container glass-panel">
+        <div id="video-placeholder">
+          <p>Waiting for stream...</p>
+        </div>
+        <video id="stream-video" autoplay playsinline></video>
+        <button id="btn-share" class="btn-primary" style="display: none;">Share Screen & Audio</button>
+      </div>
+      <div class="side-panel">
+        <div class="participants-container glass-panel">
+          <h3>Participants (<span id="participant-count">0</span>)</h3>
+          <ul id="participant-list"></ul>
+        </div>
+        <div class="chat-container glass-panel">
+          <h3>Live Chat</h3>
+          <div id="chat-messages" class="messages"></div>
+          <div class="chat-input-area">
+            <button id="btn-emoji" class="btn-secondary">😊</button>
+            <div id="emoji-picker" class="hidden">
+              <span>👍</span><span>❤️</span><span>🔥</span><span>😂</span><span>🎉</span><span>🎶</span>
+            </div>
+            <input type="text" id="chat-input" class="glass-input" placeholder="Type a message...">
+            <button id="btn-send" class="btn-primary">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="approval-modal" class="hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
