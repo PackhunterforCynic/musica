@@ -255,7 +255,7 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
 
   const startAudioOnlyShare = async (includeSystemAudio = false, includeMic = true) => {
     const socket = socketRef.current;
-    if (!socket || !useIsHost.getState?.() && useRoomStore.getState().localParticipant?.role !== 'host') return;
+    if (!socket || useRoomStore.getState().localParticipant?.role !== 'host') return;
 
     try {
       useRoomStore.getState().setScreenShareState('Preparing');

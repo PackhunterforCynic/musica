@@ -18,6 +18,7 @@ import { notificationService } from '../../services/NotificationService';
 
 interface ControlDockProps {
   onStartShare: (includeSystemAudio?: boolean) => void;
+  onStartAudioOnly?: () => void;
   onStopShare: () => void;
   onToggleRaiseHand: (currentlyRaised: boolean) => void;
   onToggleLock: (currentlyLocked: boolean) => void;
@@ -28,6 +29,7 @@ interface ControlDockProps {
 
 export const ControlDock: React.FC<ControlDockProps> = ({
   onStartShare,
+  onStartAudioOnly,
   onStopShare,
   onToggleRaiseHand,
   onToggleLock,
@@ -83,28 +85,37 @@ export const ControlDock: React.FC<ControlDockProps> = ({
 
       {/* Center Dock: Core Media Controls & Reactions */}
       <div className="flex items-center justify-center space-x-2 sm:space-x-4">
-        {/* HOST: Share Screen Control */}
+        {/* HOST: Share Media Controls */}
         {isHost ? (
-          <button
-            onClick={isSharing ? onStopShare : () => onStartShare(true)}
-            className={`px-6 py-3 rounded-2xl font-black text-sm flex items-center space-x-2 shadow-xl transition-all transform hover:scale-105 ${
-              isSharing
-                ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-500/30'
-                : 'glow-btn text-white'
-            }`}
-          >
-            {isSharing ? (
-              <>
-                <MonitorOff className="w-5 h-5 animate-pulse" />
-                <span>Stop Sharing</span>
-              </>
-            ) : (
-              <>
-                <Monitor className="w-5 h-5" />
-                <span>Share Screen & Audio</span>
-              </>
-            )}
-          </button>
+          isSharing ? (
+            <button
+              onClick={onStopShare}
+              className="px-6 py-3 rounded-2xl font-black text-sm flex items-center space-x-2 bg-rose-600 hover:bg-rose-500 text-white shadow-xl shadow-rose-500/30 transition-all transform hover:scale-105"
+            >
+              <MonitorOff className="w-5 h-5 animate-pulse" />
+              <span>Stop Broadcast</span>
+            </button>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => onStartShare(true)}
+                className="px-5 py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center space-x-2 glow-btn text-white transition-all transform hover:scale-105 shadow-lg shadow-purple-500/20"
+              >
+                <Monitor className="w-4 h-4 text-purple-200" />
+                <span>Share Screen</span>
+              </button>
+              {onStartAudioOnly && (
+                <button
+                  onClick={onStartAudioOnly}
+                  className="px-4 py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center space-x-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition-all transform hover:scale-105 shadow-lg shadow-emerald-500/20"
+                  title="Broadcast Microphone & Audio Only (No Video)"
+                >
+                  <Mic className="w-4 h-4 text-emerald-200 animate-pulse" />
+                  <span>Audio Only Mode</span>
+                </button>
+              )}
+            </div>
+          )
         ) : (
           /* AUDIENCE: Raise Hand Toggle */
           <button
