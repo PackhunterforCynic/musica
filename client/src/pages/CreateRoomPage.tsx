@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Radio, Lock, Users, Sparkles, ArrowLeft, Loader2 } from 'lucide-react';
 import { storageService } from '../services/StorageService';
 import { notificationService } from '../services/NotificationService';
+import { API_BASE_URL } from '../config/api';
 
 interface CreateRoomPageProps {
   onBack: () => void;
@@ -29,7 +30,7 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
 
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/rooms', {
+      const res = await fetch(`${API_BASE_URL}/rooms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

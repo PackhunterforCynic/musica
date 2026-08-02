@@ -13,8 +13,7 @@ import { peerManager } from './PeerManager';
 import { mediaManager } from './MediaManager';
 import { connectionManager } from './ConnectionManager';
 import { notificationService } from '../services/NotificationService';
-
-const SERVER_URL = 'http://localhost:3001';
+import { SERVER_URL } from '../config/api';
 
 export function useWebRTCStudio(roomId?: string, userName?: string, password?: string) {
   const socketRef = useRef<Socket | null>(null);

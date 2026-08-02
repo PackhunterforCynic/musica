@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Radio, Headphones, Monitor, Users, Shield, Sparkles, ArrowRight, Activity, Clock } from 'lucide-react';
 import { getBrowserCompatibility } from '../utils/browserCompat';
 import { notificationService } from '../services/NotificationService';
+import { API_BASE_URL } from '../config/api';
 
 interface LandingPageProps {
   onNavigate: (view: 'create' | 'join') => void;
@@ -22,7 +23,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
     }
 
     // Fetch platform metrics from backend
-    fetch('http://localhost:3001/api/stats')
+    fetch(`${API_BASE_URL}/stats`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.stats) {

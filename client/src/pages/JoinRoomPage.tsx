@@ -3,6 +3,7 @@ import { Headphones, Lock, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import { formatRoomIdInput, validateRoomId } from '../utils/formatters';
 import { storageService } from '../services/StorageService';
 import { notificationService } from '../services/NotificationService';
+import { API_BASE_URL } from '../config/api';
 
 interface JoinRoomPageProps {
   onBack: () => void;
@@ -35,7 +36,7 @@ export const JoinRoomPage: React.FC<JoinRoomPageProps> = ({ onBack, onRoomJoined
 
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/rooms/join', {
+      const res = await fetch(`${API_BASE_URL}/rooms/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
