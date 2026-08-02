@@ -253,6 +253,34 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     }
   };
 
+  const startAudioOnlyShare = async (includeSystemAudio = false, includeMic = true) => {
+    const socket = socketRef.current;
+    if (!socket || !useIsHost.getState?.() && useRoomStore.getState().localParticipant?.role !== 'host') return;
+
+    try {
+      useRoomStore.getState().setScreenShareState('Preparing');
+      socket.emit(SOCKET_EVENTS.SCREEN_SHARE_STATE_CHANGE, { state: 'Preparing' });
+
+      const stream = await mediaManager.startAudioOnlyShare({ includeSystemAudio, includeMic });
+      useRoomStore.getState().setLocalShareStream(stream);
+      useRoomStore.getState().setScreenShareState('Sharing');
+      socket.emit(SOCKET_EVENTS.SCREEN_SHARE_STATE_CHANGE, { state: 'Sharing' });
+
+      peerManager.setLocalMediaStream(stream);
+      const roster = useRoomStore.getState().participants;
+      roster.forEach((p) => {
+        if (p.id !== socket.id && p.role === 'audience') {
+          peerManager.connectToAudienceMember(p.id);
+        }
+      });
+    } catch (err: any) {
+      console.error('[Studio] Start audio only share error:', err);
+      useRoomStore.getState().setScreenShareState('Idle');
+      socket.emit(SOCKET_EVENTS.SCREEN_SHARE_STATE_CHANGE, { state: 'Idle' });
+      notificationService.showToast(err.message || 'Failed to start audio broadcast', 'error', 'Media Error');
+    }
+  };
+
   const sendChatMessage = (text: string) => {
     if (socketRef.current && text.trim()) {
       socketRef.current.emit(SOCKET_EVENTS.CHAT_SEND, { text });
@@ -325,6 +353,7 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
   return {
     startScreenShare,
     stopScreenShare,
+    startAudioOnlyShare,
     sendChatMessage,
     sendReaction,
     toggleRaiseHand,
@@ -337,3 +366,4 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     denyUser,
   };
 }
+

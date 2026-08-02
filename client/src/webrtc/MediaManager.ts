@@ -72,6 +72,65 @@ export class MediaManager {
   }
 
   /**
+   * Captures high-fidelity Audio-Only stream (Microphone and/or system audio) without transmitting video frames.
+   */
+  public async startAudioOnlyShare(opts: { includeSystemAudio?: boolean; includeMic?: boolean } = { includeMic: true }): Promise<MediaStream> {
+    this.stopStream();
+
+    try {
+      const audioTracks: MediaStreamTrack[] = [];
+
+      // 1. Capture microphone audio with studio quality filtering
+      if (opts.includeMic || !opts.includeSystemAudio) {
+        try {
+          this.micStream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+          });
+          if (this.micStream.getAudioTracks().length > 0) {
+            audioTracks.push(this.micStream.getAudioTracks()[0]);
+          }
+        } catch (micErr: any) {
+          console.warn('[MediaManager] Microphone access denied for audio-only stream:', micErr);
+        }
+      }
+
+      // 2. Optionally capture system tab sound (e.g., streaming music/spotify tab without sending video)
+      if (opts.includeSystemAudio) {
+        try {
+          const displayStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true, // browser requires video flag to prompt for system audio
+            audio: true,
+          });
+          // Immediately discard and terminate video tracks to save 95%+ bandwidth!
+          displayStream.getVideoTracks().forEach((t) => t.stop());
+          if (displayStream.getAudioTracks().length > 0) {
+            audioTracks.push(displayStream.getAudioTracks()[0]);
+          }
+        } catch (sysErr) {
+          console.warn('[MediaManager] System audio capture skipped or canceled:', sysErr);
+        }
+      }
+
+      if (audioTracks.length === 0) {
+        throw new Error('No audio sources were authorized or detected.');
+      }
+
+      this.currentStream = new MediaStream();
+      if (audioTracks.length > 1) {
+        const mixedAudioTrack = this.mixAudioTracks(audioTracks);
+        this.currentStream.addTrack(mixedAudioTrack);
+      } else {
+        this.currentStream.addTrack(audioTracks[0]);
+      }
+
+      return this.currentStream;
+    } catch (error: any) {
+      console.error('[MediaManager] Error starting audio-only broadcast:', error);
+      throw new MediaError(error.message || 'Could not start audio stream.', error);
+    }
+  }
+
+  /**
    * Mixes multiple audio tracks (system sound + microphone) into a single master output MediaStreamTrack.
    */
   private mixAudioTracks(tracks: MediaStreamTrack[]): MediaStreamTrack {

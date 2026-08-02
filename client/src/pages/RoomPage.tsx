@@ -82,6 +82,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
       {/* 3. Bottom Control Dock */}
       <ControlDock
         onStartShare={(includeSystemAudio) => studio.startScreenShare(includeSystemAudio, false)}
+        onStartAudioOnly={() => studio.startAudioOnlyShare(false, true)}
         onStopShare={() => studio.stopScreenShare()}
         onToggleRaiseHand={(raised) => studio.toggleRaiseHand(raised)}
         onToggleLock={(locked) => studio.toggleRoomLock(locked)}
