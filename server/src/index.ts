@@ -1,6 +1,8 @@
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
 import { Server } from 'socket.io';
 import { appConfig } from './config/app';
 import { socketConfig } from './config/socket';
@@ -31,7 +33,21 @@ async function bootstrap(): Promise<void> {
   // API router mount
   app.use('/api', roomRouter);
 
-  // 3. Setup Socket.IO Signaling server
+  // 3. Serve Frontend Client (Unified Full-Stack App Mode)
+  const clientDistPath = path.resolve(__dirname, '../../client/dist');
+  if (fs.existsSync(clientDistPath)) {
+    app.use(express.static(clientDistPath));
+    app.get('*', (req, res) => {
+      if (!req.path.startsWith('/api') && !req.path.startsWith('/socket.io')) {
+        res.sendFile(path.join(clientDistPath, 'index.html'));
+      }
+    });
+    console.log('[Server] Serving unified full-stack React frontend from client/dist');
+  } else {
+    console.log('[Server] Running in standalone API/Signaling mode (client/dist not found)');
+  }
+
+  // 4. Setup Socket.IO Signaling server
   const io = new Server(server, {
     ...socketConfig,
     cors: {
