@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  musica-studio:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: musica-platform
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - CLIENT_URL=http://localhost:5173
+      - NODE_ENV=production
+    volumes:
+      # Persist Zero-DB JSON storage directory outside the container
+      - musica_json_data:/app/server/data
+
+volumes:
+  musica_json_data:
+    driver: local

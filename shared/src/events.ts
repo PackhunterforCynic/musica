@@ -1,0 +1,47 @@
+export const SOCKET_EVENTS = {
+  // Client to Server
+  JOIN_ROOM: 'join-room',
+  LEAVE_ROOM: 'leave-room',
+  CHAT_SEND: 'chat-send',
+  REACTION_SEND: 'reaction-send',
+  RAISE_HAND: 'raise-hand',
+  LOWER_HAND: 'lower-hand',
+  LOCK_ROOM: 'lock-room',
+  UNLOCK_ROOM: 'unlock-room',
+  KICK_USER: 'kick-user',
+  BAN_USER: 'ban-user',
+  MUTE_USER: 'mute-user',
+  END_ROOM: 'end-room',
+  SCREEN_SHARE_STATE_CHANGE: 'screen-share-state-change',
+  PRESENCE_UPDATE: 'presence-update',
+  ADMIT_USER: 'admit-user',
+  DENY_USER: 'deny-user',
+  
+  // WebRTC Signaling
+  WEBRTC_OFFER: 'webrtc-offer',
+  WEBRTC_ANSWER: 'webrtc-answer',
+  WEBRTC_ICE_CANDIDATE: 'webrtc-ice-candidate',
+  REQUEST_MEDIA_STREAM: 'request-media-stream',
+
+  // Server to Client
+  ROOM_JOINED_SUCCESS: 'room-joined-success',
+  PARTICIPANT_JOINED: 'participant-joined',
+  PARTICIPANT_LEFT: 'participant-left',
+  PARTICIPANT_UPDATED: 'participant-updated',
+  CHAT_RECEIVE: 'chat-receive',
+  REACTION_RECEIVE: 'reaction-receive',
+  HAND_STATE_CHANGED: 'hand-state-changed',
+  ROOM_LOCK_CHANGED: 'room-lock-changed',
+  USER_KICKED: 'user-kicked',
+  USER_BANNED: 'user-banned',
+  ROOM_ENDED_BY_HOST: 'room-ended-by-host',
+  SCREEN_SHARE_STATE_UPDATED: 'screen-share-state-updated',
+  HOST_DISCONNECTED_RECOVERY: 'host-disconnected-recovery',
+  HOST_RECOVERED_SUCCESS: 'host-recovered-success',
+  JOIN_REQUEST_SUBMITTED: 'join-request-submitted',
+  JOIN_REQUEST_RECEIVED: 'join-request-received',
+  JOIN_REQUEST_DENIED: 'join-request-denied',
+  ERROR_NOTIFICATION: 'error-notification',
+} as const;
+
+export type SocketEventName = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS];

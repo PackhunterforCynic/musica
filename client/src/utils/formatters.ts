@@ -1,0 +1,41 @@
+/**
+ * Formats a raw string into the required Room ID pattern XXXX-XXXX (e.g. ABX9-72KD)
+ */
+export function formatRoomIdInput(input: string): string {
+  const alphanumeric = input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8);
+  if (alphanumeric.length <= 4) {
+    return alphanumeric;
+  }
+  return `${alphanumeric.slice(0, 4)}-${alphanumeric.slice(4, 8)}`;
+}
+
+export function validateRoomId(id: string): boolean {
+  return /^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(id);
+}
+
+/**
+ * Formats elapsed seconds into mm:ss or hh:mm:ss for studio clock display
+ */
+export function formatDuration(seconds: number): string {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  if (hrs > 0) {
+    return `${hrs}:${pad(mins)}:${pad(secs)}`;
+  }
+  return `${pad(mins)}:${pad(secs)}`;
+}
+
+/**
+ * Formats ISO timestamp to short human time (e.g. "2:15 PM") for Chat
+ */
+export function formatChatTime(isoString: string): string {
+  try {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    return '';
+  }
+}

@@ -1,0 +1,24 @@
+# Dependency directories
+node_modules/
+npm-debug.log*
+
+# Build & compilation outputs
+dist/
+build/
+*.tsbuildinfo
+.vite/
+
+# Zero-DB Local JSON runtime persistent files
+server/data/*.json
+!server/data/.gitkeep
+
+# Environment variables
+.env
+.env.local
+
+# IDEs & System logs
+.vscode/
+.idea/
+*.log
+.DS_Store
+powershell.cmd
