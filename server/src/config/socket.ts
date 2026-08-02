@@ -1,8 +1,8 @@
-import { appConfig } from './app';
+import { appConfig, allowedOrigins } from './app';
 
 export const socketConfig = {
   cors: {
-    origin: appConfig.clientUrl,
+    origin: allowedOrigins as any,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -11,3 +11,4 @@ export const socketConfig = {
   connectTimeout: 45000,
   maxHttpBufferSize: 1e6, // 1 MB buffer for real-time messages
 };
+

@@ -11,3 +11,13 @@ export const appConfig = {
   serverName: 'Musica Signaling & API Server',
   version: '1.0.0',
 };
+
+export const allowedOrigins: (string | RegExp)[] = [
+  appConfig.clientUrl,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:4173',
+  'https://musica-apvs.vercel.app',
+  /\.vercel\.app$/, // Allow all Vercel preview and production domain variations
+];
+

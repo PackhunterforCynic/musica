@@ -4,7 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { Server } from 'socket.io';
-import { appConfig } from './config/app';
+import { appConfig, allowedOrigins } from './config/app';
 import { socketConfig } from './config/socket';
 import { roomRouter } from './routes/roomRoutes';
 import { storageService } from './services/StorageService';
@@ -20,7 +20,7 @@ async function bootstrap(): Promise<void> {
   const server = http.createServer(app);
 
   app.use(cors({
-    origin: [appConfig.clientUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: allowedOrigins as any,
     credentials: true,
   }));
   app.use(express.json());
