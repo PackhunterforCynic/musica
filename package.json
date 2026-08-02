@@ -1,0 +1,17 @@
+{
+  "name": "musica-platform",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Musica Social Audio & Screen Sharing Platform (Zero-DB Architecture)",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "build": "npm --prefix shared run build && npm --prefix client run build",
+    "build:all": "npm --prefix shared run build && npm --prefix server run build && npm --prefix client run build",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev"
+  }
+}
