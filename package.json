@@ -12,7 +12,7 @@
     "dev": "concurrently -n SERVER,CLIENT -c blue,magenta \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
     "start": "npm --prefix server run start",
     "serve": "npm run build:all && npm start",
-    "build": "npm --prefix shared run build && npm --prefix client run build",
+    "build": "npm --prefix shared run build && npm --prefix server run build && npm --prefix client run build",
     "build:all": "npm --prefix shared run build && npm --prefix client run build && npm --prefix server run build",
     "preview": "npm --prefix client run preview",
     "dev:server": "npm --prefix server run dev",
