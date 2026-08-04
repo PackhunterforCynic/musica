@@ -38,10 +38,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputMessage.trim()) {
-      onSendMessage(inputMessage);
+      onSendMessage?.(inputMessage);
       setInputMessage('');
     }
   };
+
 
   return (
     <div className="w-80 sm:w-96 h-[calc(100vh-8.5rem)] glass-panel border-l border-slate-800/80 flex flex-col shrink-0 overflow-hidden z-20">
@@ -160,7 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
                       {isHost && !isYou && p.role !== 'host' && (
                         <div className="opacity-0 group-hover:opacity-100 flex items-center space-x-1 transition-opacity">
                           <button
-                            onClick={() => onKickUser(p.id)}
+                            onClick={() => onKickUser?.(p.id)}
                             className="p-1 rounded bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white transition-colors text-[11px] font-bold px-2"
                             title="Kick user from studio"
                           >
@@ -168,6 +169,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
                           </button>
                         </div>
                       )}
+
                     </div>
                   </div>
                 );
