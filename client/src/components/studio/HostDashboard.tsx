@@ -45,6 +45,10 @@ interface HostDashboardProps {
     leaveRoom: () => void;
     admitUser: (socketId: string) => void;
     denyUser: (socketId: string) => void;
+    sendChatMessage?: (text: string) => void;
+    sendReaction?: (emoji: string) => void;
+    kickUser?: (socketId: string) => void;
+    banUser?: (socketId: string) => void;
   };
   onLeave: () => void;
 }
@@ -67,7 +71,8 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const isSharing = screenShareState === 'Sharing' || screenShareState === 'Preparing';
-  const isAudioOnly = localShareStream && localShareStream.getVideoTracks().length === 0 && localShareStream.getAudioTracks().length > 0;
+  const isAudioOnly = Boolean(localShareStream && localShareStream.getVideoTracks().length === 0 && localShareStream.getAudioTracks().length > 0);
+
 
   // Update telemetry automatically based on active streaming state
   useEffect(() => {
@@ -617,8 +622,12 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
                   </div>
                 ) : (
                   <Sidebar
-                    activeTab={activeTab === 'chat' ? 'chat' : 'participants'}
-                    onTabChange={(t) => setActiveTab(t === 'chat' ? 'chat' : 'participants')}
+                    onSendMessage={(text) => studio.sendChatMessage?.(text)}
+                    onSendReaction={(emoji) => studio.sendReaction?.(emoji)}
+                    onKickUser={(socketId) => studio.kickUser?.(socketId)}
+                    onBanUser={(socketId) => studio.banUser?.(socketId)}
+                    onAdmitUser={(socketId) => studio.admitUser?.(socketId)}
+                    onDenyUser={(socketId) => studio.denyUser?.(socketId)}
                   />
                 )}
               </div>

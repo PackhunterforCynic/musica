@@ -26,6 +26,7 @@ interface AudienceInterfaceProps {
     toggleRaiseHand: (currentlyRaised: boolean) => void;
     sendReaction: (emoji: string) => void;
     leaveRoom: () => void;
+    sendChatMessage?: (text: string) => void;
   };
   onLeave: () => void;
 }
@@ -52,7 +53,8 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
 
   const host = participants.find((p) => p.role === 'host') || { name: 'Host' };
-  const isAudioOnly = remoteMediaStream && remoteMediaStream.getVideoTracks().length === 0 && remoteMediaStream.getAudioTracks().length > 0;
+  const isAudioOnly = Boolean(remoteMediaStream && remoteMediaStream.getVideoTracks().length === 0 && remoteMediaStream.getAudioTracks().length > 0);
+
   const isReceiving = !!remoteMediaStream;
   const handRaised = localParticipant?.handRaised || false;
 
@@ -372,7 +374,10 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
             </div>
 
             <div className="flex-1 min-h-0 flex flex-col">
-              <Sidebar activeTab={activeTab} onTabChange={(t) => setActiveTab(t)} />
+              <Sidebar
+                onSendMessage={(text) => studio.sendChatMessage?.(text)}
+                onSendReaction={(emoji) => studio.sendReaction(emoji)}
+              />
             </div>
           </aside>
         )}

@@ -4,13 +4,14 @@ import { formatChatTime } from '../../utils/formatters';
 import { Users, MessageSquare, Hand, Mic, MicOff, UserX, Shield, Send, Sparkles } from 'lucide-react';
 
 interface SidebarProps {
-  onSendMessage: (text: string) => void;
-  onSendReaction: (emoji: string) => void;
-  onKickUser: (socketId: string) => void;
-  onBanUser: (socketId: string) => void;
+  onSendMessage?: (text: string) => void;
+  onSendReaction?: (emoji: string) => void;
+  onKickUser?: (socketId: string) => void;
+  onBanUser?: (socketId: string) => void;
   onAdmitUser?: (socketId: string) => void;
   onDenyUser?: (socketId: string) => void;
 }
+
 
 export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction, onKickUser, onBanUser, onAdmitUser, onDenyUser }) => {
   const activeTab = useRoomStore((s) => s.activeSidebarTab);
