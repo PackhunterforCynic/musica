@@ -14,6 +14,14 @@ import {
 
 export type SidebarTab = 'participants' | 'chat';
 
+export interface StreamTelemetry {
+  fps: number;
+  bitrateMbps: string;
+  resolution: string;
+  latencyMs: number;
+  cpuUsage: number;
+}
+
 export interface RoomState {
   room: Room | null;
   localParticipant: Participant | null;
@@ -31,8 +39,10 @@ export interface RoomState {
   isWaitingForHost: boolean;
   waitingRoomInfo: { roomName?: string; hostName?: string } | null;
   pendingJoinRequests: JoinRequest[];
+  streamTelemetry: StreamTelemetry;
 
   // Actions
+  setStreamTelemetry: (updates: Partial<StreamTelemetry>) => void;
   setWaitingForHost: (isWaiting: boolean, info?: { roomName?: string; hostName?: string } | null) => void;
   addPendingJoinRequest: (request: JoinRequest) => void;
   removePendingJoinRequest: (socketId: string) => void;
@@ -72,6 +82,16 @@ export const useRoomStore = create<RoomState>((set) => ({
   isWaitingForHost: false,
   waitingRoomInfo: null,
   pendingJoinRequests: [],
+  streamTelemetry: {
+    fps: 30,
+    bitrateMbps: '2.4',
+    resolution: '1920 x 1080',
+    latencyMs: 28,
+    cpuUsage: 23,
+  },
+
+  setStreamTelemetry: (updates) =>
+    set((state) => ({ streamTelemetry: { ...state.streamTelemetry, ...updates } })),
 
   setWaitingForHost: (isWaitingForHost, waitingRoomInfo = null) => set({ isWaitingForHost, waitingRoomInfo }),
 
@@ -181,6 +201,13 @@ export const useRoomStore = create<RoomState>((set) => ({
       isWaitingForHost: false,
       waitingRoomInfo: null,
       pendingJoinRequests: [],
+      streamTelemetry: {
+        fps: 30,
+        bitrateMbps: '2.4',
+        resolution: '1920 x 1080',
+        latencyMs: 28,
+        cpuUsage: 23,
+      },
     }),
 }));
 
