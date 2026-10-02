@@ -59,31 +59,32 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-10 relative">
-      <div className="absolute top-1/3 -left-20 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/3 -left-20 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
+      <div className="absolute bottom-1/3 -right-20 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
 
-      <div className="max-w-md w-full glass-panel rounded-3xl p-8 shadow-2xl border border-slate-700/80 z-10 relative">
+      <div className="max-w-md w-full glass-panel rounded-[2rem] p-8 sm:p-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-slate-700/50 z-10 relative">
         <button
           onClick={onBack}
-          className="inline-flex items-center space-x-1.5 text-xs text-slate-400 hover:text-white mb-6 font-semibold transition-colors"
+          className="inline-flex items-center space-x-2 text-xs text-slate-400 hover:text-white mb-8 font-bold transition-colors group"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span>Back to Home</span>
         </button>
 
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-inner">
-            <Radio className="w-6 h-6 animate-pulse" />
+        <div className="flex items-center space-x-4 mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600/20 to-indigo-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)]">
+            <Radio className="w-7 h-7 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-white tracking-tight">Create Room</h2>
-            <p className="text-xs text-slate-400">Launch a real-time studio broadcast session</p>
+            <h2 className="text-3xl font-black text-white tracking-tight">Create Room</h2>
+            <p className="text-sm text-slate-400 mt-1 font-medium">Launch a live studio session</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-              Your Display Name *
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">
+              Your Display Name <span className="text-purple-400">*</span>
             </label>
             <input
               type="text"
@@ -91,13 +92,13 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
               placeholder="e.g. Robinson"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700/80 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-              Room Name *
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">
+              Room Name <span className="text-purple-400">*</span>
             </label>
             <input
               type="text"
@@ -106,14 +107,14 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
               placeholder="e.g. Design Review & Listening Session"
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700/80 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center space-x-1">
-                <Lock className="w-3 h-3 text-slate-400" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center space-x-1">
+                <Lock className="w-3.5 h-3.5 text-slate-500" />
                 <span>Password (Optional)</span>
               </label>
               <input
@@ -121,19 +122,19 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
                 placeholder="Leave blank if open"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700/80 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center space-x-1">
-                <Users className="w-3 h-3 text-slate-400" />
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center space-x-1">
+                <Users className="w-3.5 h-3.5 text-slate-500" />
                 <span>Max Participants</span>
               </label>
               <select
                 value={maxParticipants}
                 onChange={(e) => setMaxParticipants(Number(e.target.value))}
-                className="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-purple-500 transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner appearance-none cursor-pointer"
               >
                 <option value={5}>5 (Intimate Group)</option>
                 <option value={15}>15 (Standard Team)</option>
