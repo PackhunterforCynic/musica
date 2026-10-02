@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "serverVersion": "1.0.0",
+    "defaultMaxRoomSize": 50,
+    "maxAllowableRoomSize": 200,
+    "hostRecoveryGracePeriodSeconds": 60,
+    "cleanupIntervalSeconds": 60
+  }
+}
