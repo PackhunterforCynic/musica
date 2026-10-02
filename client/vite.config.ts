@@ -8,8 +8,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@musica/shared': path.resolve(__dirname, '../shared/src/index.ts'),
-      '@': path.resolve(__dirname, './src'),
+      '@musica/shared': path.resolve(import.meta.dirname, '../shared/src/index.ts'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
 })

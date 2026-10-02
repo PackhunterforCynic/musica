@@ -1,17 +1,13 @@
 {
   "version": 2,
   "framework": "vite",
-  "installCommand": "rm -f package-lock.json && rm -rf node_modules client/node_modules && npm install --include=optional",
+  "installCommand": "rm -f package-lock.json && rm -rf node_modules client/node_modules && npm install --include=optional && npm --prefix shared run build",
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/socket.io/(.*)",
-      "destination": "/api/socket.js"
+      "destination": "/api"
     },
     {
       "source": "/(.*)",
@@ -19,4 +15,3 @@
     }
   ]
 }
-

@@ -1,0 +1,70 @@
+[
+    {
+        "id": "evt_6a73ec2ee138c9.53336208",
+        "timestamp": 1785981998,
+        "type": "ROOM_CREATED",
+        "payload": {
+            "host_name": "robin",
+            "room_name": "Live Production Showcase"
+        }
+    },
+    {
+        "id": "evt_6a73ec36e10f35.20871408",
+        "timestamp": 1785982006,
+        "type": "STREAM_STARTED",
+        "payload": {
+            "audio_only": false,
+            "sender_id": "usr_6a73ec2ee001b"
+        }
+    },
+    {
+        "id": "evt_6a73ec588d8486.13411600",
+        "timestamp": 1785982040,
+        "type": "PARTICIPANT_JOINED",
+        "payload": {
+            "participant": {
+                "id": "usr_6a73ec588cfbd",
+                "name": "me",
+                "role": "audience",
+                "hand_raised": false,
+                "has_mic": false,
+                "joined_at": 1785982040
+            }
+        }
+    },
+    {
+        "id": "evt_6a73ec6cc322c9.62496083",
+        "timestamp": 1785982060,
+        "type": "CHAT_MESSAGE",
+        "payload": {
+            "sender_name": "me",
+            "message": "hi",
+            "timestamp": 1785982060.794,
+            "sender_id": "usr_6a73ec588cfbd"
+        }
+    },
+    {
+        "id": "evt_6a73ec7669bed6.13496031",
+        "timestamp": 1785982070,
+        "type": "PARTICIPANT_LEFT",
+        "payload": {
+            "user_id": "usr_6a73ec588cfbd"
+        }
+    },
+    {
+        "id": "evt_6a73ec766bbf44.62175924",
+        "timestamp": 1785982070,
+        "type": "LEAVE_ROOM",
+        "payload": {
+            "sender_id": "usr_6a73ec588cfbd"
+        }
+    },
+    {
+        "id": "evt_6a73ec7eb82a86.13361332",
+        "timestamp": 1785982078,
+        "type": "ROOM_ENDED",
+        "payload": {
+            "reason": "Host terminated broadcast studio session."
+        }
+    }
+]
