@@ -145,7 +145,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start relative bg-[#050511] overflow-y-auto w-full">
+    <div className="h-screen flex flex-col items-center justify-start relative bg-[#050511] overflow-hidden w-full">
       
       {/* Top Header */}
       <header className="w-full px-4 py-4 flex items-center justify-between shrink-0 z-20">
@@ -184,13 +184,13 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
       <div className="flex-1 flex flex-col relative z-10 px-4 pb-24 min-h-0 w-full max-w-5xl mx-auto">
         
         {/* Stream Viewing Deck */}
-        <div className="flex-1 w-full bg-[#101423] rounded-3xl border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl mt-2 mb-4">
+        <div className="flex-1 w-full bg-[#101423] rounded-3xl border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl mt-2 mb-4 min-h-[200px]">
           
           {isYoutubeMode ? (
-            <div className="w-full h-full relative">
+            <div className="w-full h-full relative min-h-[250px]">
               <iframe
                 src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`}
-                className="w-full h-full absolute inset-0 rounded-3xl"
+                className="absolute inset-0 w-full h-full rounded-3xl border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
@@ -321,87 +321,87 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
             </div>
           )}
         </div>
+      </div>
 
-        {/* Floating Bottom Navigation Bar */}
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-[#1a1f35]/90 backdrop-blur-xl border border-slate-700/50 rounded-full px-6 py-3 flex items-center justify-between shadow-2xl z-50">
-          
-          <button 
-            onClick={() => {
-              setMicEnabled(!micEnabled);
-              notificationService.showToast(`Microphone ${!micEnabled ? 'enabled' : 'disabled'}`);
-            }}
-            className={`flex flex-col items-center justify-center transition-colors ${!micEnabled ? 'text-rose-400' : 'text-slate-400 hover:text-indigo-400'}`}
-          >
-            {micEnabled ? <Mic className="w-6 h-6 mb-1" /> : <MicOff className="w-6 h-6 mb-1" />}
-            <span className="text-[10px] font-medium">Mic</span>
-          </button>
+      {/* Floating Bottom Navigation Bar */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-[#1a1f35]/90 backdrop-blur-xl border border-slate-700/50 rounded-full px-6 py-3 flex items-center justify-between shadow-2xl z-50">
+        
+        <button 
+          onClick={() => {
+            setMicEnabled(!micEnabled);
+            notificationService.showToast(`Microphone ${!micEnabled ? 'enabled' : 'disabled'}`);
+          }}
+          className={`flex flex-col items-center justify-center transition-colors ${!micEnabled ? 'text-rose-400' : 'text-slate-400 hover:text-indigo-400'}`}
+        >
+          {micEnabled ? <Mic className="w-6 h-6 mb-1" /> : <MicOff className="w-6 h-6 mb-1" />}
+          <span className="text-[10px] font-medium">Mic</span>
+        </button>
 
-          <button 
-            onClick={() => {
-              if (isSharing && !isAudioOnly) {
-                studio.stopScreenShare();
-              } else {
-                handleShareScreen();
-              }
-            }}
-            disabled={isMobile}
-            className={`flex flex-col items-center justify-center transition-colors ${isSharing && !isAudioOnly ? 'text-emerald-400' : 'text-slate-400 hover:text-indigo-400'} disabled:opacity-30 ${isMobile ? 'hidden' : ''}`}
-          >
-            <Monitor className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-medium">Desktop</span>
-          </button>
+        <button 
+          onClick={() => {
+            if (isSharing && !isAudioOnly) {
+              studio.stopScreenShare();
+            } else {
+              handleShareScreen();
+            }
+          }}
+          disabled={isMobile}
+          className={`flex flex-col items-center justify-center transition-colors ${isSharing && !isAudioOnly ? 'text-emerald-400' : 'text-slate-400 hover:text-indigo-400'} disabled:opacity-30 ${isMobile ? 'hidden' : ''}`}
+        >
+          <Monitor className="w-6 h-6 mb-1" />
+          <span className="text-[10px] font-medium">Desktop</span>
+        </button>
 
-          <button 
-            onClick={() => {
-              if (isSharing && isAudioOnly) {
-                studio.stopScreenShare(); // stopScreenShare actually calls MediaManager.stopStream() which works for audio too
-              } else {
-                studio.startAudioOnlyShare?.(systemAudioEnabled, micEnabled);
-              }
-            }}
-            className={`flex flex-col items-center justify-center transition-colors ${isSharing && isAudioOnly ? 'text-emerald-400' : 'text-slate-400 hover:text-indigo-400'}`}
-          >
-            <RadioIcon className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-medium">Audio</span>
-          </button>
+        <button 
+          onClick={() => {
+            if (isSharing && isAudioOnly) {
+              studio.stopScreenShare();
+            } else {
+              studio.startAudioOnlyShare?.(systemAudioEnabled, micEnabled);
+            }
+          }}
+          className={`flex flex-col items-center justify-center transition-colors ${isSharing && isAudioOnly ? 'text-emerald-400' : 'text-slate-400 hover:text-indigo-400'}`}
+        >
+          <RadioIcon className="w-6 h-6 mb-1" />
+          <span className="text-[10px] font-medium">Audio</span>
+        </button>
 
-          <button 
-            onClick={() => setActiveTab(activeTab === 'chat' ? 'dashboard' : 'chat')}
-            className={`flex flex-col items-center justify-center transition-colors relative ${activeTab === 'chat' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-400'}`}
-          >
-            <MessageSquare className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-medium">Chat</span>
-            {unreadChatCount > 0 && activeTab !== 'chat' && (
-              <span className="absolute top-0 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-[#1a1f35]"></span>
-            )}
-          </button>
+        <button 
+          onClick={() => setActiveTab(activeTab === 'chat' ? 'dashboard' : 'chat')}
+          className={`flex flex-col items-center justify-center transition-colors relative ${activeTab === 'chat' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-400'}`}
+        >
+          <MessageSquare className="w-6 h-6 mb-1" />
+          <span className="text-[10px] font-medium">Chat</span>
+          {unreadChatCount > 0 && activeTab !== 'chat' && (
+            <span className="absolute top-0 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-[#1a1f35]"></span>
+          )}
+        </button>
 
-          <button 
-            onClick={() => setActiveTab(activeTab === 'participants' ? 'dashboard' : 'participants')}
-            className={`flex flex-col items-center justify-center transition-colors ${activeTab === 'participants' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-400'}`}
-          >
-            <Users className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-medium">People</span>
-            {pendingJoinRequests.length > 0 && (
-              <span className="absolute top-0 right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border border-[#1a1f35]"></span>
-            )}
-          </button>
+        <button 
+          onClick={() => setActiveTab(activeTab === 'participants' ? 'dashboard' : 'participants')}
+          className={`flex flex-col items-center justify-center transition-colors ${activeTab === 'participants' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-400'}`}
+        >
+          <Users className="w-6 h-6 mb-1" />
+          <span className="text-[10px] font-medium">People</span>
+          {pendingJoinRequests.length > 0 && (
+            <span className="absolute top-0 right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border border-[#1a1f35]"></span>
+          )}
+        </button>
 
-          <button 
-            onClick={() => {
-              if (window.confirm('End broadcast studio session for all audience members?')) {
-                studio.endRoomBroadcast();
-                onLeave();
-              }
-            }}
-            className="flex flex-col items-center justify-center text-rose-500 hover:text-rose-400 transition-colors"
-          >
-            <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center mb-0.5">
-              <LogOut className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-medium">End</span>
-          </button>
-        </div>
+        <button 
+          onClick={() => {
+            if (window.confirm('End broadcast studio session for all audience members?')) {
+              studio.endRoomBroadcast();
+              onLeave();
+            }
+          }}
+          className="flex flex-col items-center justify-center text-rose-500 hover:text-rose-400 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center mb-0.5">
+            <LogOut className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] font-medium">End</span>
+        </button>
       </div>
 
       {/* Side Panel Overlay (Mobile Sidebar) */}
