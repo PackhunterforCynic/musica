@@ -17,6 +17,7 @@ interface RoomPageProps {
 export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, onLeave }) => {
   const studio = useWebRTCStudio(roomId, userName, password);
   const isHost = useIsHost();
+  const room = useRoomStore((s) => s.room);
   const isWaitingForHost = useRoomStore((s) => s.isWaitingForHost);
   const waitingRoomInfo = useRoomStore((s) => s.waitingRoomInfo);
 
@@ -25,6 +26,17 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
       <div className="h-screen w-screen bg-[#050511] flex flex-col items-center justify-center text-center p-6 space-y-4">
         <Loader2 className="w-10 h-10 text-indigo-400 animate-spin" />
         <p className="text-sm font-semibold text-slate-300">Connecting to Musica Studio...</p>
+      </div>
+    );
+  }
+
+  // Show loading spinner while waiting for server to confirm room join
+  if (!room && !isWaitingForHost) {
+    return (
+      <div className="h-screen w-screen bg-[#050511] flex flex-col items-center justify-center text-center p-6 space-y-4">
+        <Loader2 className="w-10 h-10 text-indigo-400 animate-spin" />
+        <p className="text-sm font-semibold text-slate-300">Joining room {roomId}...</p>
+        <p className="text-xs text-slate-500">Establishing connection</p>
       </div>
     );
   }
