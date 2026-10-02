@@ -178,13 +178,26 @@ export class SocketService {
         id: `${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         roomId,
         senderId: socket.id,
-        senderName: userName || 'User',
+        senderName: userName || 'Anonymous',
         emoji: payload.emoji,
         timestamp: new Date().toISOString(),
       };
 
       this.io?.to(roomId).emit(SOCKET_EVENTS.REACTION_RECEIVE, { reaction });
       await loggerService.logEvent('REACTION', { roomId, userId: socket.id, userName, details: { emoji: payload.emoji } });
+    });
+
+    // YOUTUBE SHARE
+    socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_START, async (payload: { videoId: string }) => {
+      const { roomId, role } = socket.data as SocketData;
+      if (!roomId || role !== 'host' || !payload.videoId) return;
+      this.io?.to(roomId).emit(SOCKET_EVENTS.YOUTUBE_SHARE_STARTED, { videoId: payload.videoId });
+    });
+
+    socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_STOP, async () => {
+      const { roomId, role } = socket.data as SocketData;
+      if (!roomId || role !== 'host') return;
+      this.io?.to(roomId).emit(SOCKET_EVENTS.YOUTUBE_SHARE_STOPPED, {});
     });
 
     // RAISE / LOWER HAND

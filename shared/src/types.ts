@@ -41,6 +41,7 @@ export interface Room {
   createdAt: string;
   status: 'active' | 'recovering' | 'ended';
   screenShareState: ScreenShareState;
+  roomType?: 'studio' | 'couple';
   participants: Participant[];
 }
 

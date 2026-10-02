@@ -10,6 +10,7 @@ export interface ShareStreamOptions {
 export class MediaManager {
   private currentStream: MediaStream | null = null;
   private micStream: MediaStream | null = null;
+  private displayStream: MediaStream | null = null;
   private audioContext: AudioContext | null = null;
 
   /**
@@ -20,7 +21,7 @@ export class MediaManager {
 
     try {
       // 1. Capture screen display with optional system audio
-      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+      this.displayStream = await navigator.mediaDevices.getDisplayMedia({
         video: {
           frameRate: { max: 30 },
           width: { max: 1920 },
@@ -34,13 +35,13 @@ export class MediaManager {
           : false,
       });
 
-      this.currentStream = new MediaStream(displayStream.getVideoTracks());
+      this.currentStream = new MediaStream(this.displayStream.getVideoTracks());
 
       // 2. Combine Audio tracks if mic or system audio is requested
       const audioTracks: MediaStreamTrack[] = [];
 
-      if (displayStream.getAudioTracks().length > 0) {
-        audioTracks.push(displayStream.getAudioTracks()[0]);
+      if (this.displayStream.getAudioTracks().length > 0) {
+        audioTracks.push(this.displayStream.getAudioTracks()[0]);
       }
 
       if (opts.includeMic) {
@@ -97,14 +98,14 @@ export class MediaManager {
       // 2. Optionally capture system tab sound (e.g., streaming music/spotify tab without sending video)
       if (opts.includeSystemAudio) {
         try {
-          const displayStream = await navigator.mediaDevices.getDisplayMedia({
+          this.displayStream = await navigator.mediaDevices.getDisplayMedia({
             video: true, // browser requires video flag to prompt for system audio
             audio: true,
           });
-          // Immediately discard and terminate video tracks to save 95%+ bandwidth!
-          displayStream.getVideoTracks().forEach((t) => t.stop());
-          if (displayStream.getAudioTracks().length > 0) {
-            audioTracks.push(displayStream.getAudioTracks()[0]);
+          // Note: DO NOT stop the video tracks here. Stopping the video track of a getDisplayMedia stream 
+          // abruptly kills the entire capture session in browsers like Chrome, cutting off system audio.
+          if (this.displayStream.getAudioTracks().length > 0) {
+            audioTracks.push(this.displayStream.getAudioTracks()[0]);
           }
         } catch (sysErr) {
           console.warn('[MediaManager] System audio capture skipped or canceled:', sysErr);
@@ -171,6 +172,10 @@ export class MediaManager {
     if (this.micStream) {
       this.micStream.getTracks().forEach((track) => track.stop());
       this.micStream = null;
+    }
+    if (this.displayStream) {
+      this.displayStream.getTracks().forEach((track) => track.stop());
+      this.displayStream = null;
     }
     if (this.audioContext && this.audioContext.state !== 'closed') {
       this.audioContext.close().catch(() => {});

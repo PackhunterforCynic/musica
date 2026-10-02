@@ -36,6 +36,7 @@ export interface RoomState {
   unreadChatCount: number;
   remoteMediaStream: MediaStream | null;
   localShareStream: MediaStream | null;
+  youtubeVideoId: string | null;
   isWaitingForHost: boolean;
   waitingRoomInfo: { roomName?: string; hostName?: string } | null;
   pendingJoinRequests: JoinRequest[];
@@ -62,6 +63,7 @@ export interface RoomState {
   clearUnreadCount: () => void;
   setRemoteMediaStream: (stream: MediaStream | null) => void;
   setLocalShareStream: (stream: MediaStream | null) => void;
+  setYoutubeVideoId: (id: string | null) => void;
   resetRoomState: () => void;
 }
 
@@ -79,6 +81,7 @@ export const useRoomStore = create<RoomState>((set) => ({
   unreadChatCount: 0,
   remoteMediaStream: null,
   localShareStream: null,
+  youtubeVideoId: null,
   isWaitingForHost: false,
   waitingRoomInfo: null,
   pendingJoinRequests: [],
@@ -182,6 +185,8 @@ export const useRoomStore = create<RoomState>((set) => ({
   setRemoteMediaStream: (remoteMediaStream) => set({ remoteMediaStream }),
 
   setLocalShareStream: (localShareStream) => set({ localShareStream }),
+  
+  setYoutubeVideoId: (youtubeVideoId) => set({ youtubeVideoId }),
 
   resetRoomState: () =>
     set({
@@ -198,6 +203,7 @@ export const useRoomStore = create<RoomState>((set) => ({
       unreadChatCount: 0,
       remoteMediaStream: null,
       localShareStream: null,
+      youtubeVideoId: null,
       isWaitingForHost: false,
       waitingRoomInfo: null,
       pendingJoinRequests: [],

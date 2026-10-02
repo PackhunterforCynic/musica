@@ -177,59 +177,91 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
             </div>
           </div>
         ) : (
-          /* CHAT TAB */
-          <div className="space-y-3 flex flex-col justify-end min-h-full">
-            {chatMessages.length === 0 ? (
-              <div className="text-center py-10 text-slate-500 text-xs font-medium">
-                No chat messages yet. Be the first to say hello!
+          /* YOUTUBE STYLE LIVE CHAT TAB */
+          <div className="flex flex-col min-h-full bg-slate-950/80">
+            {/* Optional Header / Filter pill - styling like YT */}
+            <div className="px-4 py-2 border-b border-slate-800/60 sticky top-0 bg-slate-950/90 z-10 flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-slate-300 text-xs font-medium cursor-pointer">
+                <span>Live Chat</span>
+                <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current" preserveAspectRatio="xMidYMid meet"><g><path d="M12 16.5l-6-6h12l-6 6z"></path></g></svg>
               </div>
-            ) : (
-              chatMessages.map((msg) => {
-                const isMine = msg.senderId === localParticipant?.id;
-                return (
-                  <div key={msg.id} className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                    <div className="flex items-center space-x-2 mb-1 px-1">
-                      <span className={`text-xs font-extrabold ${msg.senderRole === 'host' ? 'text-purple-400' : 'text-slate-300'}`}>
-                        {msg.senderName}
-                      </span>
-                      <span className="text-[10px] font-mono text-slate-500">{formatChatTime(msg.timestamp)}</span>
+              <button className="p-1 hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><g><path d="M12 16.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zM10.5 12c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5-1.5.67-1.5 1.5zm0-6c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5-1.5.67-1.5 1.5z"></path></g></svg>
+              </button>
+            </div>
+
+            <div className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
+              {chatMessages.length === 0 ? (
+                <div className="text-center py-10 text-slate-500 text-xs font-medium">
+                  Welcome to Live Chat! Remember to guard your privacy and abide by our Community Guidelines.
+                </div>
+              ) : (
+                chatMessages.map((msg) => {
+                  const isHostMessage = msg.senderRole === 'host';
+                  return (
+                    <div key={msg.id} className="flex items-start px-2 py-1.5 hover:bg-slate-800/40 rounded transition-colors group text-[13px] leading-relaxed">
+                      {/* Avatar */}
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-slate-700 to-slate-600 flex items-center justify-center font-bold text-[10px] text-white shrink-0 mt-0.5 mr-3">
+                        {msg.senderName?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      
+                      {/* Message Content */}
+                      <div className="flex-1 min-w-0 break-words">
+                        <span className="inline-flex items-center space-x-1 mr-2 align-middle">
+                          <span className={`font-medium ${isHostMessage ? 'text-amber-400' : 'text-slate-400'}`}>
+                            {msg.senderName}
+                          </span>
+                          {isHostMessage && (
+                            <div className="w-3.5 h-3.5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center" title="Host">
+                              <Shield className="w-2.5 h-2.5" />
+                            </div>
+                          )}
+                        </span>
+                        <span className="text-white align-middle">{msg.text}</span>
+                      </div>
+
+                      {/* Options (visible on hover) */}
+                      <div className="opacity-0 group-hover:opacity-100 px-1 shrink-0 cursor-pointer text-slate-500 hover:text-white transition-opacity">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><g><path d="M12 16.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zM10.5 12c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5-1.5.67-1.5 1.5zm0-6c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5-1.5.67-1.5 1.5z"></path></g></svg>
+                      </div>
                     </div>
-                    <div
-                      className={`px-3.5 py-2.5 rounded-2xl text-sm font-medium leading-relaxed max-w-[85%] break-words shadow-md ${
-                        isMine
-                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-none'
-                          : 'bg-slate-800 text-slate-200 rounded-bl-none border border-slate-700/70'
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-            <div ref={messagesEndRef} />
+                  );
+                })
+              )}
+              <div ref={messagesEndRef} />
+            </div>
           </div>
         )}
       </div>
 
-      {/* Bottom Chat Input Deck */}
+      {/* Bottom Chat Input Deck (YT Style) */}
       {activeTab === 'chat' && (
-        <form onSubmit={handleSend} className="p-3 border-t border-slate-800/80 bg-slate-900/80 shrink-0">
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              placeholder="Send a message..."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-purple-500 transition-all"
-            />
-            <button
-              type="submit"
-              disabled={!inputMessage.trim()}
-              className="p-2.5 rounded-xl glow-btn disabled:opacity-40 disabled:pointer-events-none transition-all shadow-md"
-            >
-              <Send className="w-4 h-4" />
-            </button>
+        <form onSubmit={handleSend} className="p-3 border-t border-slate-800/80 bg-slate-950 shrink-0">
+          <div className="flex items-start space-x-3">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-[10px] text-white shrink-0 mt-1">
+              {localParticipant?.name?.charAt(0).toUpperCase() || 'Y'}
+            </div>
+            <div className="flex-1">
+              <div className="text-[11px] text-slate-400 font-medium mb-1">
+                {localParticipant?.name || 'You'}
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Chat..."
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  className="w-full bg-transparent border-b border-slate-700 text-white text-[13px] py-1 placeholder-slate-600 focus:outline-none focus:border-slate-300 transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={!inputMessage.trim()}
+                  className="absolute right-0 bottom-1 p-1 text-slate-400 hover:text-white disabled:opacity-0 transition-all"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </form>
       )}

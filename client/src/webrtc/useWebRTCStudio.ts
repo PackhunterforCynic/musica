@@ -136,6 +136,15 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       }
     });
 
+    socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_STARTED, (data: { videoId: string }) => {
+      useRoomStore.getState().setYoutubeVideoId(data.videoId);
+      notificationService.showToast('📺 Host started a YouTube Watch Party!', 'success');
+    });
+
+    socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_STOPPED, () => {
+      useRoomStore.getState().setYoutubeVideoId(null);
+    });
+
     // WebRTC Signaling Replay via PeerManager
     socket.on(SOCKET_EVENTS.WEBRTC_OFFER, (payload: { senderSocketId: string; sdp: any }) => {
       peerManager.handleOffer(payload.senderSocketId, payload.sdp);
@@ -350,6 +359,20 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     }
   };
 
+  const startYoutubeShare = (videoId: string) => {
+    if (socketRef.current && videoId) {
+      socketRef.current.emit(SOCKET_EVENTS.YOUTUBE_SHARE_START, { videoId });
+      useRoomStore.getState().setYoutubeVideoId(videoId);
+    }
+  };
+
+  const stopYoutubeShare = () => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.YOUTUBE_SHARE_STOP, {});
+      useRoomStore.getState().setYoutubeVideoId(null);
+    }
+  };
+
   return {
     startScreenShare,
     stopScreenShare,
@@ -364,6 +387,8 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     leaveRoom,
     admitUser,
     denyUser,
+    startYoutubeShare,
+    stopYoutubeShare,
   };
 }
 

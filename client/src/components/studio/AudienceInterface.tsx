@@ -19,6 +19,8 @@ import {
   ChevronRight,
   Shield,
   Music,
+  Headphones,
+  RefreshCw,
 } from 'lucide-react';
 
 interface AudienceInterfaceProps {
@@ -41,6 +43,7 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
   const screenShareState = useRoomStore((s) => s.screenShareState);
   const connectionQuality = useRoomStore((s) => s.connectionQuality);
   const unreadChatCount = useRoomStore((s) => s.unreadChatCount);
+  const youtubeVideoId = useRoomStore((s) => s.youtubeVideoId);
 
   const [volume, setVolume] = useState<number>(0.9);
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -123,227 +126,187 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100 antialiased overflow-x-hidden select-none">
       {/* 1. AUDIENCE TOP HEADER BAR */}
-      <header className="h-auto min-h-[4rem] py-3 px-4 md:px-6 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex flex-wrap items-center justify-between shrink-0 z-20 shadow-xl gap-3">
-        <div className="flex flex-wrap items-center gap-3 md:gap-6">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-xl bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 shadow">
-              <RadioIcon className="w-4 h-4 animate-pulse" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Room ID:</span>
-              <span className="sm:ml-2 font-mono text-sm font-black text-white">{room?.roomId || 'ACTIVE'}</span>
-            </div>
-          </div>
-
-          <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-bold text-slate-200">
-            <Shield className="w-3.5 h-3.5 text-purple-400" />
-            <span>Host: <strong className="text-white">{host.name}</strong></span>
-          </div>
-
-          {screenShareState === 'Sharing' && (
-            <span className="px-2.5 py-1 rounded-lg bg-rose-600/90 text-white font-black text-[10px] uppercase tracking-widest flex items-center space-x-1.5 shadow-md animate-pulse">
-              <span>● LIVE</span>
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center space-x-3 md:space-x-4">
-          <div className="flex items-center space-x-1.5 px-3 py-1 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-extrabold text-slate-300">
-            <Users className="w-4 h-4 text-purple-400" />
-            <span>{participants.length}</span>
-          </div>
-
-          <div className="flex items-center space-x-1.5 px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs font-extrabold text-emerald-300">
-            <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">{connectionQuality === 'Good' ? '📶 Good' : connectionQuality}</span>
-          </div>
-
-          <button
-            onClick={() => setShowSidebar(!showSidebar)}
-            className={`p-2 rounded-xl border transition-all relative ${
-              showSidebar
-                ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-500/20'
-                : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:text-white'
-            }`}
-            title="Toggle Chat & Roster"
-          >
-            <MessageSquare className="w-4 h-4" />
-            {unreadChatCount > 0 && !showSidebar && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 animate-pulse border-2 border-slate-900"></span>
-            )}
+      <header className="px-4 py-4 flex items-center justify-between shrink-0 z-20">
+        <div className="flex items-center space-x-3">
+          <button onClick={() => { studio.leaveRoom(); onLeave(); }} className="text-slate-300 p-1">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
           </button>
+          <div>
+            <h2 className="text-base font-bold text-white leading-tight">{room?.roomName || 'Design Review'}</h2>
+            <div className="flex items-center space-x-2 text-xs font-medium text-slate-400">
+              <span>{room?.roomId || 'ABX9-72KD'}</span>
+            </div>
+            <div className="text-xs text-slate-500 mt-0.5">00:12:34</div>
+          </div>
         </div>
+
+        {screenShareState === 'Sharing' && (
+          <div className="px-2 py-1 rounded bg-rose-600/90 text-white font-bold text-[10px] uppercase tracking-wider flex items-center space-x-1 shadow-md">
+            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+            <span>LIVE</span>
+          </div>
+        )}
       </header>
 
       {/* 2. MAIN CONSUMER WORKSPACE */}
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0 relative bg-slate-950">
+      <div className="flex-1 flex flex-col relative z-10 px-4 pb-24 min-h-0 bg-[#050511]">
+        
         {/* Stream Viewing Deck */}
-        <div className="flex-1 flex flex-col p-3 sm:p-6 min-w-0 space-y-4 overflow-y-auto">
-          {/* Main Video & Audio Stage */}
-          <div
-            ref={playerContainerRef}
-            className="flex-1 min-h-[250px] md:min-h-[380px] max-h-[calc(100vh-14rem)] bg-slate-900/90 rounded-3xl border border-slate-800 flex flex-col relative overflow-hidden shadow-2xl group justify-between p-2 sm:p-4"
-          >
-            {/* Stage Media Display */}
-            <div className="flex-1 w-full h-full flex items-center justify-center min-h-0 relative rounded-2xl overflow-hidden bg-slate-950">
-              {isReceiving ? (
-                isAudioOnly ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 space-y-6 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border border-emerald-500/20">
-                    <div className="w-24 h-24 rounded-3xl bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shadow-2xl">
-                      <Music className="w-12 h-12 animate-bounce" />
-                    </div>
-                    <div>
-                      <span className="text-[11px] font-black uppercase tracking-widest text-emerald-400 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-                        Radio Audio Mode Active
-                      </span>
-                      <h3 className="text-2xl font-black text-white mt-3">High-Fidelity Audio Broadcast</h3>
-                      <p className="text-xs text-slate-400 mt-1">Listening to live studio feed from {host.name}</p>
-                    </div>
-                    {/* Visualizer Equalizer Waves */}
-                    <div className="flex items-center justify-center space-x-2 h-12 px-6 py-2 rounded-xl bg-slate-950 border border-slate-800">
-                      <span className="w-1.5 bg-emerald-400 rounded-full h-4 animate-pulse"></span>
-                      <span className="w-1.5 bg-teal-400 rounded-full h-8 animate-pulse" style={{ animationDelay: '100ms' }}></span>
-                      <span className="w-1.5 bg-green-400 rounded-full h-10 animate-pulse" style={{ animationDelay: '250ms' }}></span>
-                      <span className="w-1.5 bg-emerald-300 rounded-full h-6 animate-pulse" style={{ animationDelay: '150ms' }}></span>
-                      <span className="w-1.5 bg-teal-300 rounded-full h-9 animate-pulse" style={{ animationDelay: '300ms' }}></span>
-                      <span className="w-1.5 bg-green-500 rounded-full h-5 animate-pulse" style={{ animationDelay: '200ms' }}></span>
-                    </div>
-                  </div>
-                ) : (
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    className="w-full h-full object-contain"
-                  />
-                )
-              ) : (
-                <div className="text-center p-8 space-y-4 max-w-md">
-                  <div className="w-16 h-16 rounded-2xl bg-purple-600/20 border border-purple-500/30 mx-auto flex items-center justify-center text-purple-400">
-                    <Tv className="w-8 h-8 animate-pulse" />
-                  </div>
-                  <h3 className="text-xl font-extrabold text-white">Waiting for Host Stream...</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    You are connected to the live studio room. The broadcast stream will automatically appear here as soon as {host.name} initiates sharing.
-                  </p>
-                </div>
-              )}
+        <div className="flex-1 w-full bg-[#101423] rounded-3xl border border-slate-800/80 flex items-center justify-center relative overflow-hidden shadow-2xl mt-2 mb-4">
+          {youtubeVideoId ? (
+            <div className="w-full h-full relative">
+              <iframe
+                src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`}
+                className="w-full h-full absolute inset-0 rounded-3xl pointer-events-auto"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
             </div>
-
-            {/* AUDIENCE VIEWER CONTROL BAR (From Mockup) */}
-            <div className="h-16 bg-slate-950/90 backdrop-blur-md rounded-2xl border border-slate-800/90 px-6 mt-3 flex items-center justify-between shrink-0 shadow-xl">
-              {/* Left Volume Controls */}
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={toggleMute}
-                  className="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-colors"
-                  title="Toggle Audio Mute"
-                >
-                  {isMuted || volume === 0 ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5 text-purple-400" />}
-                </button>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={isMuted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  className="w-28 sm:w-36 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                  title="Audio Playback Volume"
-                />
-              </div>
-
-              {/* Center Viewer Actions (Mute, Fullscreen, PiP) */}
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={toggleMute}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 border transition-all ${
-                    isMuted
-                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800 hover:text-white'
-                  }`}
-                >
-                  <span>{isMuted ? 'Unmute' : 'Mute'}</span>
-                </button>
-
-                <button
-                  onClick={toggleFullScreen}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold border border-slate-800 flex items-center space-x-2 transition-all"
-                >
-                  {isFullScreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                  <span>Fullscreen</span>
-                </button>
-
-                <button
-                  onClick={togglePiP}
-                  disabled={!isReceiving || isAudioOnly}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold border border-slate-800 flex items-center space-x-2 transition-all disabled:opacity-40 disabled:pointer-events-none"
-                  title="Picture-in-Picture Pop-out Window"
-                >
-                  <Tv className="w-4 h-4 text-indigo-400" />
-                  <span>PiP</span>
-                </button>
-              </div>
-
-              {/* Right Interactive Controls */}
-              <div className="flex items-center space-x-3">
-                {/* Raise Hand Button */}
-                <button
-                  onClick={() => studio.toggleRaiseHand(handRaised)}
-                  className={`px-4 py-2 rounded-xl text-xs font-extrabold flex items-center space-x-2 transition-all transform hover:scale-105 shadow-md ${
-                    handRaised
-                      ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/30 animate-bounce'
-                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
-                  }`}
-                  title="Raise Hand to speak or alert host"
-                >
-                  <Hand className="w-4 h-4" />
-                  <span className="hidden md:inline">{handRaised ? 'Lower Hand' : 'Raise Hand'}</span>
-                </button>
-
-                {/* Emoji Reaction Selector */}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowReactions(!showReactions)}
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all"
-                    title="Send Quick Emoji Reaction"
-                  >
-                    <Smile className="w-4 h-4 text-amber-400" />
-                  </button>
-
-                  {showReactions && (
-                    <div className="absolute bottom-12 right-0 bg-slate-900 border border-slate-700 p-2 rounded-2xl shadow-2xl flex space-x-1 z-30 animate-in">
-                      {REACTION_EMOJIS.map((emoji) => (
-                        <button
-                          key={emoji}
-                          onClick={() => {
-                            studio.sendReaction(emoji);
-                            setShowReactions(false);
-                          }}
-                          className="p-2 hover:bg-slate-800 rounded-xl text-lg transition-transform hover:scale-125"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+          ) : isReceiving ? (
+            isAudioOnly ? (
+              <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 space-y-6">
+                <video ref={videoRef} autoPlay playsInline className="hidden" />
+                <div className="w-24 h-24 rounded-full bg-indigo-500/10 border border-indigo-400/20 flex items-center justify-center text-indigo-400 shadow-xl">
+                  <Music className="w-10 h-10 animate-bounce" />
                 </div>
-
-                {/* Leave Room Button */}
-                <button
-                  onClick={() => {
-                    studio.leaveRoom();
-                    onLeave();
-                  }}
-                  className="px-4 py-2 rounded-xl bg-rose-600/90 hover:bg-rose-500 text-white font-black text-xs uppercase tracking-wider flex items-center space-x-1.5 shadow-lg shadow-rose-600/30 transition-transform hover:scale-105"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Leave</span>
-                </button>
+                <div>
+                  <h3 className="text-xl font-bold text-white mt-3">Audio Broadcast</h3>
+                  <p className="text-sm text-slate-400 mt-1">Listening to {host.name}</p>
+                </div>
               </div>
+            ) : (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full h-full object-contain"
+              />
+            )
+          ) : (
+            <div className="text-center p-8 space-y-4 max-w-sm">
+              <div className="w-16 h-16 rounded-2xl bg-[#1a1f35] border border-slate-700/80 mx-auto flex items-center justify-center text-indigo-400">
+                <Tv className="w-8 h-8 opacity-50" />
+              </div>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Waiting for host stream...
+              </p>
             </div>
+          )}
+        </div>
+
+        {/* Video Controls (under video) */}
+        <div className="flex items-center justify-between px-2 mb-2">
+          <div className="flex items-center space-x-3">
+            <button onClick={toggleMute} className="text-slate-400">
+              {isMuted || volume === 0 ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5" />}
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={isMuted ? 0 : volume}
+              onChange={handleVolumeChange}
+              className="w-24 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            />
+          </div>
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => {
+                // To force a refresh of the video stream, we just briefly clear and reset the srcObject
+                if (videoRef.current && remoteMediaStream) {
+                  videoRef.current.srcObject = null;
+                  setTimeout(() => {
+                    if (videoRef.current) {
+                      videoRef.current.srcObject = remoteMediaStream;
+                      videoRef.current.play().catch(()=>{});
+                    }
+                  }, 100);
+                  notificationService.showToast('Stream refreshed', 'success');
+                }
+              }} 
+              className="text-slate-400 hover:text-indigo-400 transition-colors"
+              title="Refresh Stream Sync"
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
+            <button onClick={toggleFullScreen} className="text-slate-400 hover:text-indigo-400 transition-colors">
+              {isFullScreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Floating Bottom Navigation Bar */}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-[#1a1f35]/90 backdrop-blur-xl border border-slate-700/50 rounded-full px-6 py-3 flex items-center justify-between shadow-2xl z-50">
+          
+          <button 
+            className="flex flex-col items-center justify-center text-slate-400 hover:text-indigo-400 transition-colors"
+          >
+            <Headphones className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-medium">Audio</span>
+          </button>
+
+          <button 
+            onClick={() => { setShowSidebar(true); setActiveTab('chat'); }}
+            className="flex flex-col items-center justify-center text-slate-400 hover:text-indigo-400 transition-colors relative"
+          >
+            <MessageSquare className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-medium">Chat</span>
+            {unreadChatCount > 0 && (
+              <span className="absolute top-0 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-[#1a1f35]"></span>
+            )}
+          </button>
+
+          <div className="relative">
+            <button 
+              onClick={() => setShowReactions(!showReactions)}
+              className="flex flex-col items-center justify-center text-slate-400 hover:text-indigo-400 transition-colors"
+            >
+              <Smile className="w-6 h-6 mb-1 text-amber-400" />
+              <span className="text-[10px] font-medium">React</span>
+            </button>
+            {showReactions && (
+              <div className="absolute bottom-16 -left-16 bg-[#1a1f35] border border-slate-700 p-2 rounded-2xl shadow-2xl flex space-x-1 z-50 animate-in">
+                {REACTION_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => {
+                      studio.sendReaction(emoji);
+                      setShowReactions(false);
+                    }}
+                    className="p-2 hover:bg-slate-800 rounded-xl text-lg transition-transform hover:scale-125"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button 
+            onClick={() => studio.toggleRaiseHand(handRaised)}
+            className={`flex flex-col items-center justify-center transition-colors ${handRaised ? 'text-amber-400' : 'text-slate-400 hover:text-indigo-400'}`}
+          >
+            <Hand className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-medium">Raise</span>
+          </button>
+
+          <button 
+            onClick={() => {
+              studio.leaveRoom();
+              onLeave();
+            }}
+            className="flex flex-col items-center justify-center text-rose-500 hover:text-rose-400 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center mb-0.5">
+              <LogOut className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-medium">Leave</span>
+          </button>
+        </div>
+      </div>
 
         {/* 3. RIGHT AUDIENCE SIDEBAR (CHAT & PARTICIPANTS FROM MOCKUP) */}
         {showSidebar && (
@@ -381,7 +344,6 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
             </div>
           </aside>
         )}
-      </div>
     </div>
   );
 };

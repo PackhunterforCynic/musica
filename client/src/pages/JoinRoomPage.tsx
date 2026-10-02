@@ -65,92 +65,107 @@ export const JoinRoomPage: React.FC<JoinRoomPageProps> = ({ onBack, onRoomJoined
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-10 relative">
-      <div className="absolute top-1/2 -right-20 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
-      <div className="absolute top-1/4 -left-20 w-[300px] h-[300px] bg-purple-600/15 rounded-full blur-[100px] pointer-events-none mix-blend-screen"></div>
-
-      <div className="max-w-md w-full glass-panel rounded-[2rem] p-8 sm:p-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-slate-700/50 z-10 relative">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center space-x-2 text-xs text-slate-400 hover:text-white mb-8 font-bold transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Home</span>
-        </button>
-
-        <div className="flex items-center space-x-4 mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-[inset_0_0_20px_rgba(99,102,241,0.1)]">
-            <Headphones className="w-7 h-7 animate-pulse" />
-          </div>
-          <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Join Room</h2>
-            <p className="text-sm text-slate-400 mt-1 font-medium">Tune into a live broadcast</p>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-start relative bg-[#050511] overflow-y-auto">
+      <div className="w-full max-w-md px-6 py-6 pb-32">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-8 relative">
+          <button onClick={onBack} className="p-2 -ml-2 text-slate-300">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <h2 className="text-lg font-bold text-white absolute left-1/2 -translate-x-1/2">Join Room</h2>
+          <div className="w-10"></div> {/* Placeholder for balance */}
+        </header>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Room ID */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">
-              Room ID <span className="text-indigo-400">*</span> (Format: XXXX-XXXX)
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="ABX9-72KD"
-              value={roomId}
-              onChange={handleRoomIdChange}
-              className="w-full px-5 py-4 text-center tracking-widest font-mono text-xl font-black rounded-xl bg-slate-900/60 border border-slate-700/60 text-indigo-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all uppercase shadow-inner"
-            />
+            <label className="block text-sm text-slate-300">Room ID</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="3" y1="9" x2="21" y2="9"></line>
+                  <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+              </div>
+              <input
+                type="text"
+                required
+                placeholder="ABX9-72KD"
+                value={roomId}
+                onChange={handleRoomIdChange}
+                className="w-full pl-12 pr-4 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors uppercase tracking-widest font-mono"
+              />
+            </div>
           </div>
 
+          {/* Display Name */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">
-              Your Name <span className="text-indigo-400">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Alex"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
-            />
+            <label className="block text-sm text-slate-300">Your Display Name</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                required
+                placeholder="Taylor"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
           </div>
 
-          {requiresPassword && (
-            <div className="animate-in fade-in slide-in-from-top-2 duration-200 space-y-2">
-              <label className="block text-xs font-bold uppercase tracking-widest text-amber-400 flex items-center space-x-1.5">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Room Password Required <span className="text-amber-300">*</span></span>
-              </label>
+          {/* Password */}
+          <div className="space-y-2">
+            <label className="block text-sm text-slate-300">Password (if required)</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Lock className="w-5 h-5 text-slate-500" />
+              </div>
               <input
                 type="password"
                 required={requiresPassword}
-                placeholder="Enter host password"
+                placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-amber-500/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all shadow-[inset_0_0_15px_rgba(245,158,11,0.1)]"
+                className="w-full pl-12 pr-12 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
               />
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+                <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
             </div>
-          )}
-
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-4 rounded-xl glow-btn font-bold text-lg flex items-center justify-center space-x-2 shadow-xl disabled:opacity-50 disabled:pointer-events-none transition-all"
-            >
-              {isLoading ? (
-                <Loader2 className="w-6 h-6 animate-spin" />
-              ) : (
-                <>
-                  <Sparkles className="w-6 h-6" />
-                  <span>Join Broadcast Studio</span>
-                </>
-              )}
-            </button>
           </div>
+
         </form>
+
+        {/* Info Box */}
+        <div className="mt-20 p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 flex items-start space-x-3">
+          <div className="w-5 h-5 mt-0.5 rounded-full border border-indigo-400 flex items-center justify-center text-indigo-400 text-xs shrink-0 font-bold">i</div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Ask the host for the Room ID and password (if required).
+          </p>
+        </div>
+
+        {/* Fixed Bottom Button */}
+        <div className="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-[#050511] via-[#050511] to-transparent z-20">
+          <button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="w-full max-w-md mx-auto py-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold text-white flex items-center justify-center space-x-2 shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>Join Room</span>}
+          </button>
+        </div>
+
       </div>
     </div>
   );

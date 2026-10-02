@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, Lock, Users, Sparkles, ArrowLeft, Loader2 } from 'lucide-react';
+import { Radio, Lock, Users, Sparkles, ArrowLeft, Loader2, Monitor } from 'lucide-react';
 import { storageService } from '../services/StorageService';
 import { notificationService } from '../services/NotificationService';
 import { API_BASE_URL } from '../config/api';
@@ -15,6 +15,7 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
   const [roomName, setRoomName] = useState('Audio & Screen Showcase');
   const [password, setPassword] = useState('');
   const [maxParticipants, setMaxParticipants] = useState(50);
+  const [roomType, setRoomType] = useState<'studio' | 'couple'>('studio');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,6 +39,7 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
           roomName: roomName.trim(),
           password: password.trim() || undefined,
           maxParticipants: Number(maxParticipants),
+          roomType,
         }),
       });
 
@@ -58,109 +60,178 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCr
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-10 relative">
-      <div className="absolute top-1/3 -left-20 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
-      <div className="absolute bottom-1/3 -right-20 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
-
-      <div className="max-w-md w-full glass-panel rounded-[2rem] p-8 sm:p-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-slate-700/50 z-10 relative">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center space-x-2 text-xs text-slate-400 hover:text-white mb-8 font-bold transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Home</span>
-        </button>
-
-        <div className="flex items-center space-x-4 mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600/20 to-indigo-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)]">
-            <Radio className="w-7 h-7 animate-pulse" />
-          </div>
-          <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Create Room</h2>
-            <p className="text-sm text-slate-400 mt-1 font-medium">Launch a live studio session</p>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-start relative bg-[#050511] overflow-y-auto">
+      <div className="w-full max-w-md px-6 py-6 pb-32">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-8 relative">
+          <button onClick={onBack} className="p-2 -ml-2 text-slate-300">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <h2 className="text-lg font-bold text-white absolute left-1/2 -translate-x-1/2">Create Room</h2>
+          <div className="w-10"></div> {/* Placeholder for balance */}
+        </header>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Display Name */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">
-              Your Display Name <span className="text-purple-400">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Robinson"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">
-              Room Name <span className="text-purple-400">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              maxLength={64}
-              placeholder="e.g. Design Review & Listening Session"
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center space-x-1">
-                <Lock className="w-3.5 h-3.5 text-slate-500" />
-                <span>Password (Optional)</span>
-              </label>
+            <label className="block text-sm text-slate-300">Your Display Name</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
               <input
-                type="password"
-                placeholder="Leave blank if open"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner"
+                type="text"
+                required
+                placeholder="Alex Johnson"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center space-x-1">
-                <Users className="w-3.5 h-3.5 text-slate-500" />
-                <span>Max Participants</span>
-              </label>
+          {/* Room Name */}
+          <div className="space-y-2">
+            <label className="block text-sm text-slate-300">Room Name</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Users className="w-5 h-5 text-slate-500" />
+              </div>
+              <input
+                type="text"
+                required
+                placeholder="Design Review"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div className="space-y-2">
+            <label className="block text-sm text-slate-300">Password (Optional)</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Lock className="w-5 h-5 text-slate-500" />
+              </div>
+              <input
+                type="password"
+                placeholder="Set a password (optional)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-12 pr-12 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+                <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Room Type */}
+          <div className="space-y-2">
+            <label className="block text-sm text-slate-300">Room Type</label>
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={() => setRoomType('studio')}
+                className={`flex-1 p-3 rounded-xl border ${roomType === 'studio' ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800 bg-[#101423]'} transition-all`}
+              >
+                <Monitor className={`w-6 h-6 mx-auto mb-2 ${roomType === 'studio' ? 'text-indigo-400' : 'text-slate-500'}`} />
+                <div className={`text-sm font-bold ${roomType === 'studio' ? 'text-white' : 'text-slate-400'}`}>Studio</div>
+                <div className="text-[10px] text-slate-500 mt-1">1 Host to Many</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRoomType('couple')}
+                className={`flex-1 p-3 rounded-xl border ${roomType === 'couple' ? 'border-pink-500 bg-pink-500/10' : 'border-slate-800 bg-[#101423]'} transition-all`}
+              >
+                <Users className={`w-6 h-6 mx-auto mb-2 ${roomType === 'couple' ? 'text-pink-400' : 'text-slate-500'}`} />
+                <div className={`text-sm font-bold ${roomType === 'couple' ? 'text-white' : 'text-slate-400'}`}>Couple</div>
+                <div className="text-[10px] text-slate-500 mt-1">1-on-1 Video Chat</div>
+              </button>
+            </div>
+          </div>
+
+          {/* Max Participants */}
+          <div className="space-y-2">
+            <label className="block text-sm text-slate-300">Max Participants</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Users className="w-5 h-5 text-slate-500" />
+              </div>
               <select
                 value={maxParticipants}
                 onChange={(e) => setMaxParticipants(Number(e.target.value))}
-                className="w-full px-5 py-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all shadow-inner appearance-none cursor-pointer"
+                className="w-full pl-12 pr-12 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white appearance-none focus:outline-none focus:border-indigo-500 transition-colors"
               >
-                <option value={5}>5 (Intimate Group)</option>
-                <option value={15}>15 (Standard Team)</option>
-                <option value={50}>50 (Full Class / Showcase)</option>
-                <option value={100}>100 (Max Capacity)</option>
+                <option value={5}>5</option>
+                <option value={15}>15</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
               </select>
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
           </div>
 
-          <div className="pt-3">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3.5 rounded-xl glow-btn font-bold text-base flex items-center justify-center space-x-2 shadow-xl disabled:opacity-50 disabled:pointer-events-none transition-all"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  <span>Launch Broadcast Studio</span>
-                </>
-              )}
-            </button>
+          {/* Room Settings */}
+          <div className="space-y-2 pt-2">
+            <label className="block text-sm text-slate-300">Room Settings</label>
+            <div className="bg-[#101423] border border-slate-800 rounded-xl p-2">
+              <div className="flex items-center justify-between p-3 border-b border-slate-800">
+                <div className="flex items-center space-x-3">
+                  <Monitor className="w-5 h-5 text-slate-400" />
+                  <span className="text-white text-sm">Allow Webcam</span>
+                </div>
+                <div className="w-12 h-6 bg-indigo-500 rounded-full relative cursor-pointer">
+                  <div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3 border-b border-slate-800">
+                <div className="flex items-center space-x-3">
+                  <Monitor className="w-5 h-5 text-slate-400" />
+                  <span className="text-white text-sm">Allow System Audio</span>
+                </div>
+                <div className="w-12 h-6 bg-indigo-500 rounded-full relative cursor-pointer">
+                  <div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3">
+                <div className="flex items-center space-x-3">
+                  <Radio className="w-5 h-5 text-slate-400" />
+                  <span className="text-white text-sm">Start Muted</span>
+                </div>
+                <div className="w-12 h-6 bg-slate-700 rounded-full relative cursor-pointer">
+                  <div className="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5 shadow-sm"></div>
+                </div>
+              </div>
+            </div>
           </div>
+
         </form>
+
+        {/* Fixed Bottom Button */}
+        <div className="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-[#050511] via-[#050511] to-transparent z-20">
+          <button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="w-full max-w-md mx-auto py-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold text-white flex items-center justify-center space-x-2 shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>Create Room</span>}
+          </button>
+        </div>
+
       </div>
     </div>
   );

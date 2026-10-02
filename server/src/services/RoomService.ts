@@ -20,6 +20,7 @@ export class RoomService {
     roomName: string;
     password?: string;
     maxParticipants?: number;
+    roomType?: 'studio' | 'couple';
   }): Promise<{ roomId: string; room: Room }> {
     if (!params.hostName || params.hostName.trim().length === 0) {
       throw new ValidationError('Host display name is required.');
@@ -47,6 +48,7 @@ export class RoomService {
       createdAt: new Date().toISOString(),
       status: 'active',
       screenShareState: 'Idle',
+      roomType: params.roomType || 'studio',
       participants: [],
     };
 
