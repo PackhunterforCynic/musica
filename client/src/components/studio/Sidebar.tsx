@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
 
 
   return (
-    <div className="w-80 sm:w-96 h-[calc(100vh-8.5rem)] glass-panel border-l border-slate-800/80 flex flex-col shrink-0 overflow-hidden z-20">
+    <div className="w-full lg:w-96 h-[400px] lg:h-[calc(100vh-8.5rem)] glass-panel border-t lg:border-t-0 lg:border-l border-slate-800/80 flex flex-col shrink-0 overflow-hidden z-20">
       {/* Tab Selector */}
       <div className="flex border-b border-slate-800/80 bg-slate-900/60 p-1.5 gap-1 shrink-0">
         <button

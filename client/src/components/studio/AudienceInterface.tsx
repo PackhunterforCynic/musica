@@ -176,13 +176,13 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
       </header>
 
       {/* 2. MAIN CONSUMER WORKSPACE */}
-      <div className="flex-1 flex min-h-0 relative bg-slate-950">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 relative bg-slate-950">
         {/* Stream Viewing Deck */}
-        <div className="flex-1 flex flex-col p-6 min-w-0 space-y-4 overflow-y-auto">
+        <div className="flex-1 flex flex-col p-3 sm:p-6 min-w-0 space-y-4 overflow-y-auto">
           {/* Main Video & Audio Stage */}
           <div
             ref={playerContainerRef}
-            className="flex-1 min-h-[380px] max-h-[calc(100vh-14rem)] bg-slate-900/90 rounded-3xl border border-slate-800 flex flex-col relative overflow-hidden shadow-2xl group justify-between p-4"
+            className="flex-1 min-h-[250px] md:min-h-[380px] max-h-[calc(100vh-14rem)] bg-slate-900/90 rounded-3xl border border-slate-800 flex flex-col relative overflow-hidden shadow-2xl group justify-between p-2 sm:p-4"
           >
             {/* Stage Media Display */}
             <div className="flex-1 w-full h-full flex items-center justify-center min-h-0 relative rounded-2xl overflow-hidden bg-slate-950">

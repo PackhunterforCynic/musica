@@ -129,9 +129,9 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex font-sans text-slate-100 antialiased overflow-hidden select-none">
+    <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row font-sans text-slate-100 antialiased overflow-hidden select-none">
       {/* 1. HOST NAVIGATION SIDEBAR */}
-      <aside className="w-64 bg-slate-900/90 border-r border-slate-800 flex flex-col shrink-0 z-20 shadow-2xl">
+      <aside className="w-full md:w-64 bg-slate-900/90 border-r border-slate-800 flex flex-col shrink-0 z-20 shadow-2xl">
         {/* Brand Header */}
         <div className="h-20 px-6 flex items-center space-x-3 border-b border-slate-800/80">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30 text-white">
@@ -148,10 +148,10 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
         </div>
 
         {/* Navigation Deck */}
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav className="flex md:flex-col md:flex-1 px-4 py-4 md:py-6 space-x-2 md:space-x-0 md:space-y-2 overflow-x-auto md:overflow-y-auto shrink-0 border-b md:border-b-0 border-slate-800">
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
+            className={`whitespace-nowrap shrink-0 md:w-full flex items-center justify-center md:justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
               activeTab === 'dashboard'
                 ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -165,7 +165,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
 
           <button
             onClick={() => setActiveTab('participants')}
-            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
+            className={`whitespace-nowrap shrink-0 md:w-full flex items-center justify-center md:justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
               activeTab === 'participants'
                 ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -175,14 +175,14 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
               <Users className="w-5 h-5" />
               <span>Participants</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-300 font-black border border-purple-500/30">
+            <span className="ml-2 md:ml-0 px-2.5 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-300 font-black border border-purple-500/30">
               {participants.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab('chat')}
-            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
+            className={`whitespace-nowrap shrink-0 md:w-full flex items-center justify-center md:justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
               activeTab === 'chat'
                 ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -193,7 +193,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
               <span>Chat</span>
             </div>
             {unreadChatCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-500 text-white font-black animate-pulse">
+              <span className="ml-2 md:ml-0 px-2 py-0.5 rounded-full text-[10px] bg-rose-500 text-white font-black animate-pulse">
                 {unreadChatCount}
               </span>
             )}
@@ -201,7 +201,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
 
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
+            className={`whitespace-nowrap shrink-0 md:w-full flex items-center justify-center md:justify-between px-4 py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
               activeTab === 'analytics'
                 ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -211,7 +211,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
               <BarChart3 className="w-5 h-5" />
               <span>Analytics</span>
             </div>
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span className="ml-2 md:ml-0 w-2 h-2 rounded-full bg-emerald-400"></span>
           </button>
         </nav>
 
@@ -248,10 +248,10 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
       {/* 2. MAIN HOST PRESENTATION WORKSPACE */}
       <main className="flex-1 flex flex-col min-w-0 bg-slate-950 relative overflow-hidden">
         {/* Top Studio Bar */}
-        <header className="h-20 px-8 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex items-center justify-between shrink-0 z-10">
-          <div className="flex items-center space-x-6">
+        <header className="h-auto min-h-[5rem] py-4 px-4 md:px-8 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between shrink-0 z-10 gap-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-4 md:space-x-6">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Room ID:</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:inline">Room ID:</span>
               <button
                 onClick={handleCopyId}
                 className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 font-mono text-base font-extrabold text-white flex items-center space-x-2 transition-all shadow-md group"
@@ -262,10 +262,10 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
               </button>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 overflow-x-auto pb-2 md:pb-0">
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center space-x-2 transition-all shadow"
+                className="shrink-0 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center space-x-2 transition-all shadow"
               >
                 <Copy className="w-3.5 h-3.5 text-purple-400" />
                 <span>Copy Link</span>
@@ -273,7 +273,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
 
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center space-x-2 transition-all shadow"
+                className="shrink-0 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center space-x-2 transition-all shadow"
               >
                 <Share2 className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Invite</span>
@@ -282,14 +282,14 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
 
             <button
               onClick={() => studio.toggleRoomLock(room?.locked || false)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center space-x-2 transition-all shadow ${
+              className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold border flex items-center space-x-2 transition-all shadow ${
                 room?.locked
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
                   : 'bg-purple-500/20 text-purple-300 border-purple-500/40 hover:bg-purple-500/30'
               }`}
             >
               {room?.locked ? <Lock className="w-3.5 h-3.5 text-amber-400" /> : <Unlock className="w-3.5 h-3.5 text-purple-400" />}
-              <span>{room?.locked ? 'Locked Room' : 'Lock Room'}</span>
+              <span>{room?.locked ? 'Locked' : 'Lock'}</span>
             </button>
           </div>
 
