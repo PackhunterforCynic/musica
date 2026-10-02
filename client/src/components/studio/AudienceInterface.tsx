@@ -136,7 +136,7 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
           <div>
             <h2 className="text-base font-bold text-white leading-tight">{room?.roomName || 'Design Review'}</h2>
             <div className="flex items-center space-x-2 text-xs font-medium text-slate-400">
-              <span>{room?.roomId || 'ABX9-72KD'}</span>
+              <span>{room?.roomId || 'ABX9'}</span>
             </div>
             <div className="text-xs text-slate-500 mt-0.5">00:12:34</div>
           </div>

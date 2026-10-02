@@ -66,20 +66,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
         {/* Action Buttons */}
         <div className="mt-8 space-y-4">
-          <button
-            onClick={() => onNavigate('create')}
-            className="w-full py-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold text-white flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/20"
-          >
-            <span className="text-xl leading-none font-light">+</span>
-            <span>Create Room</span>
-          </button>
+          <div className="flex space-x-3 w-full">
+            <button
+              onClick={() => onNavigate('create')}
+              className="flex-1 py-4 rounded-3xl bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold text-white flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/20"
+            >
+              <Monitor className="w-4 h-4" />
+              <span>Studio</span>
+            </button>
+
+            <button
+              onClick={() => onNavigate('create-couple')}
+              className="flex-1 py-4 rounded-3xl bg-gradient-to-r from-pink-500 to-rose-500 font-semibold text-white flex items-center justify-center space-x-2 shadow-lg shadow-pink-500/20"
+            >
+              <Users className="w-4 h-4" />
+              <span>Couple</span>
+            </button>
+          </div>
 
           <button
             onClick={() => onNavigate('join')}
-            className="w-full py-4 rounded-full bg-[#101423] border border-slate-700/80 text-white font-semibold flex items-center justify-center space-x-2"
+            className="w-full py-4 rounded-3xl bg-[#101423] border border-slate-700/80 text-white font-semibold flex items-center justify-center space-x-2"
           >
             <ArrowRight className="w-4 h-4 text-slate-400" />
-            <span>Join Room</span>
+            <span>Join a Room</span>
           </button>
         </div>
 

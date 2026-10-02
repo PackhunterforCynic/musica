@@ -1,16 +1,12 @@
 /**
- * Formats a raw string into the required Room ID pattern XXXX-XXXX (e.g. ABX9-72KD)
+ * Formats a raw string into the required Room ID pattern XXXX (e.g. ABX9)
  */
 export function formatRoomIdInput(input: string): string {
-  const alphanumeric = input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8);
-  if (alphanumeric.length <= 4) {
-    return alphanumeric;
-  }
-  return `${alphanumeric.slice(0, 4)}-${alphanumeric.slice(4, 8)}`;
+  return input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4);
 }
 
 export function validateRoomId(id: string): boolean {
-  return /^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(id);
+  return /^[A-Z0-9]{4}$/.test(id);
 }
 
 /**

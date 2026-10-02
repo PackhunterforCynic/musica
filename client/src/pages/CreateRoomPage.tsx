@@ -7,15 +7,16 @@ import { API_BASE_URL } from '../config/api';
 interface CreateRoomPageProps {
   onBack: () => void;
   onRoomCreated: (roomId: string, hostName: string, password?: string) => void;
+  initialRoomType?: 'studio' | 'couple';
 }
 
-export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCreated }) => {
+export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({ onBack, onRoomCreated, initialRoomType }) => {
   const prefs = storageService.getPreferences();
   const [displayName, setDisplayName] = useState(prefs.displayName || '');
-  const [roomName, setRoomName] = useState('Audio & Screen Showcase');
+  const [roomName, setRoomName] = useState(initialRoomType === 'couple' ? 'Private Couple Chat' : 'Audio & Screen Showcase');
   const [password, setPassword] = useState('');
-  const [maxParticipants, setMaxParticipants] = useState(50);
-  const [roomType, setRoomType] = useState<'studio' | 'couple'>('studio');
+  const [maxParticipants, setMaxParticipants] = useState(initialRoomType === 'couple' ? 2 : 50);
+  const [roomType, setRoomType] = useState<'studio' | 'couple'>(initialRoomType || 'studio');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

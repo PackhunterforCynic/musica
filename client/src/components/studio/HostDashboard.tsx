@@ -158,7 +158,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
           <div>
             <h2 className="text-base font-bold text-white leading-tight">{room?.roomName || 'Design Review'}</h2>
             <div className="flex items-center space-x-2 text-xs font-medium text-slate-400">
-              <span>{room?.roomId || 'ABX9-72KD'}</span>
+              <span>{room?.roomId || 'ABX9'}</span>
             </div>
             <div className="text-xs text-slate-500 mt-0.5">00:12:34</div>
           </div>
@@ -344,11 +344,25 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
                 handleShareScreen();
               }
             }}
-            disabled={isMobile && !isSharing}
-            className={`flex flex-col items-center justify-center transition-colors ${isSharing && !isAudioOnly ? 'text-emerald-400' : 'text-slate-400 hover:text-indigo-400'} disabled:opacity-30`}
+            disabled={isMobile}
+            className={`flex flex-col items-center justify-center transition-colors ${isSharing && !isAudioOnly ? 'text-emerald-400' : 'text-slate-400 hover:text-indigo-400'} disabled:opacity-30 ${isMobile ? 'hidden' : ''}`}
           >
             <Monitor className="w-6 h-6 mb-1" />
             <span className="text-[10px] font-medium">Desktop</span>
+          </button>
+
+          <button 
+            onClick={() => {
+              if (isSharing && isAudioOnly) {
+                studio.stopScreenShare(); // stopScreenShare actually calls MediaManager.stopStream() which works for audio too
+              } else {
+                studio.startAudioOnlyShare?.(systemAudioEnabled, micEnabled);
+              }
+            }}
+            className={`flex flex-col items-center justify-center transition-colors ${isSharing && isAudioOnly ? 'text-emerald-400' : 'text-slate-400 hover:text-indigo-400'}`}
+          >
+            <RadioIcon className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-medium">Audio</span>
           </button>
 
           <button 

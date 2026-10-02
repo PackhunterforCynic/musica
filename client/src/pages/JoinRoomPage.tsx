@@ -26,7 +26,7 @@ export const JoinRoomPage: React.FC<JoinRoomPageProps> = ({ onBack, onRoomJoined
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateRoomId(roomId)) {
-      notificationService.showToast('Please enter a valid Room ID (XXXX-XXXX).', 'error', 'Invalid Format');
+      notificationService.showToast('Please enter a valid 4-character Room ID (e.g. ABX9).', 'error', 'Invalid Format');
       return;
     }
     if (!displayName.trim()) {
@@ -93,7 +93,7 @@ export const JoinRoomPage: React.FC<JoinRoomPageProps> = ({ onBack, onRoomJoined
               <input
                 type="text"
                 required
-                placeholder="ABX9-72KD"
+                placeholder="ABX9"
                 value={roomId}
                 onChange={handleRoomIdChange}
                 className="w-full pl-12 pr-4 py-4 rounded-xl bg-[#101423] border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors uppercase tracking-widest font-mono"

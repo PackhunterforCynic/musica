@@ -7,7 +7,7 @@ import { CreateRoomPage } from './pages/CreateRoomPage';
 import { JoinRoomPage } from './pages/JoinRoomPage';
 import { RoomPage } from './pages/RoomPage';
 
-type ViewMode = 'landing' | 'create' | 'join' | 'studio';
+type ViewMode = 'landing' | 'create' | 'create-couple' | 'join' | 'studio';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('landing');
@@ -44,8 +44,9 @@ export default function App() {
 
       <main className="flex-1 flex flex-col">
         {currentView === 'landing' && <LandingPage onNavigate={(view) => setCurrentView(view as ViewMode)} />}
-        {currentView === 'create' && (
+        {(currentView === 'create' || currentView === 'create-couple') && (
           <CreateRoomPage
+            initialRoomType={currentView === 'create-couple' ? 'couple' : 'studio'}
             onBack={() => setCurrentView('landing')}
             onRoomCreated={handleRoomCreatedOrJoined}
           />
