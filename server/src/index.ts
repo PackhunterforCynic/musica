@@ -51,7 +51,7 @@ async function bootstrap(): Promise<void> {
   const io = new Server(server, {
     ...socketConfig,
     cors: {
-      origin: [appConfig.clientUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: allowedOrigins as any,
       methods: ['GET', 'POST'],
       credentials: true,
     }
