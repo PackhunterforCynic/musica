@@ -6,7 +6,7 @@ dotenv.config();
 export const appConfig = {
   port: parseInt(process.env.PORT || '3001', 10),
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
-  dataDirectory: process.env.DATA_DIR ? process.env.DATA_DIR : (process.env.VERCEL ? '/tmp/musica-data' : path.resolve(__dirname, '../../data')),
+  dataDirectory: process.env.VERCEL ? '/tmp/musica-data' : path.resolve(__dirname, '../../data'),
   logLevel: process.env.LOG_LEVEL || 'info',
   serverName: 'Musica Signaling & API Server',
   version: '1.0.0',
