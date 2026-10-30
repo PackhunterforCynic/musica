@@ -23,7 +23,6 @@ import {
   LayoutDashboard,
   Radio as RadioIcon,
   Activity,
-  ShieldAlert,
   Check,
   UserCheck,
   UserX,
@@ -231,67 +230,64 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
               </div>
             )
           ) : (
-            <div className="text-center p-8 space-y-4 max-w-sm">
-              <div className="w-16 h-16 rounded-2xl bg-[#1a1f35] border border-slate-700/80 mx-auto flex items-center justify-center text-indigo-400 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-                <Monitor className="w-8 h-8 opacity-80" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Studio Standby</h3>
-              <p className="text-sm text-slate-400 leading-relaxed pb-4">
-                You are live! Select your broadcast mode below to begin transmitting to your audience.
-              </p>
-
-              {isMobile && (
-                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl mb-4 text-left">
-                  <div className="flex items-center space-x-2 text-amber-400 mb-1">
-                    <ShieldAlert className="w-4 h-4" />
-                    <span className="text-xs font-bold">Mobile Device Detected</span>
+            <div className="text-center p-6 space-y-4 max-w-sm w-full">
+              {/* Desktop: full standby with all broadcast options */}
+              {!isMobile && (
+                <>
+                  <div className="w-16 h-16 rounded-2xl bg-[#1a1f35] border border-slate-700/80 mx-auto flex items-center justify-center text-indigo-400 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+                    <Monitor className="w-8 h-8 opacity-80" />
                   </div>
-                  <p className="text-[10px] text-amber-300/80">Screen sharing is blocked by mobile browsers. Please use "Audio Only" to broadcast.</p>
-                </div>
+                  <h3 className="text-xl font-bold text-white">Studio Standby</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed pb-4">
+                    You are live! Select your broadcast mode below to begin transmitting to your audience.
+                  </p>
+                  <div className="flex flex-row space-x-3 w-full max-w-xs mx-auto">
+                    <button
+                      onClick={handleShareScreen}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center space-x-2 transition-all"
+                    >
+                      <Monitor className="w-4 h-4" />
+                      <span>Screen</span>
+                    </button>
+                    <button
+                      onClick={() => studio.startAudioOnlyShare?.(systemAudioEnabled, micEnabled)}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-sm text-white bg-slate-800 border border-slate-700 hover:bg-slate-700 flex items-center justify-center space-x-2 transition-all"
+                    >
+                      <Mic className="w-4 h-4 text-emerald-400" />
+                      <span>Audio</span>
+                    </button>
+                  </div>
+                </>
               )}
-              
-              <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 w-full max-w-xs mx-auto">
-                {!isMobile && (
-                  <button
-                    onClick={handleShareScreen}
-                    className="flex-1 py-3 px-4 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
-                    disabled={isMobile}
-                  >
-                    <Monitor className="w-4 h-4" />
-                    <span>Screen</span>
-                  </button>
-                )}
-                <button
-                  onClick={() => studio.startAudioOnlyShare?.(systemAudioEnabled, micEnabled)}
-                  className="flex-1 py-3 px-4 rounded-xl font-bold text-sm text-white bg-slate-800 border border-slate-700 hover:bg-slate-700 flex items-center justify-center space-x-2 transition-all"
-                >
-                  <Mic className="w-4 h-4 text-emerald-400" />
-                  <span>Audio</span>
-                </button>
-              </div>
 
-              <div className="w-full max-w-xs mx-auto mt-4 space-y-2">
+              {/* Mobile: only YouTube heading */}
+              {isMobile && (
+                <>
+                  <div className="w-14 h-14 rounded-2xl bg-red-600/10 border border-red-500/20 mx-auto flex items-center justify-center text-red-400">
+                    <Tv className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">Watch Together</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Paste a YouTube link or search to start watching with your audience.
+                  </p>
+                </>
+              )}
+
+              {/* YouTube input — always visible */}
+              <div className="w-full max-w-xs mx-auto mt-2 space-y-2">
                 <div className="flex flex-col space-y-2">
                   <input 
                     type="text" 
-                    placeholder="Search YouTube..." 
+                    placeholder="Paste YouTube URL or search..." 
                     value={ytInputUrl}
                     onChange={(e) => setYtInputUrl(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        // For MVP: Search creates a pseudo-playlist using an embed hack (loads a search/playlist).
-                        // Note: YouTube iframe doesn't support raw search natively without API keys,
-                        // so we can fallback to searching by redirecting or extracting first result if we had an API.
-                        // Here, we'll try to parse a video ID if pasted, otherwise notify to paste a URL.
                         const match = ytInputUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^"&?\/\s]{11})/);
                         if (match && match[1]) {
                           studio.startYoutubeShare?.(match[1]);
                           setYtInputUrl('');
-                        } else {
-                          // In a full implementation, we'd call YouTube Data API here to search `ytInputUrl` 
-                          // and present a list of videos to click. For now, since the user chose custom search,
-                          // we'd render a dropdown of results. Since we don't have an API key, we'll use a hack to 
-                          // open a popup for them to search and find the ID.
+                        } else if (ytInputUrl.trim()) {
                           window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(ytInputUrl)}`, '_blank');
                           notificationService.showToast('Select a video from the new tab and paste the URL here.', 'info', 'Search Opened', 6000);
                         }
