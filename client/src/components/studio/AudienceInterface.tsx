@@ -154,12 +154,12 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
       <div className="flex-1 flex flex-col relative z-10 px-4 pb-24 min-h-0 bg-[#050511]">
         
         {/* Stream Viewing Deck */}
-        <div className="flex-1 w-full bg-[#101423] rounded-3xl border border-slate-800/80 flex items-center justify-center relative overflow-hidden shadow-2xl mt-2 mb-4">
+        <div className="flex-1 w-full bg-[#101423] rounded-3xl border border-slate-800/80 flex items-center justify-center relative overflow-hidden shadow-2xl mt-2 mb-4 min-h-[200px]">
           {youtubeVideoId ? (
-            <div className="w-full h-full relative">
+            <div className="w-full h-full relative min-h-[250px]">
               <iframe
                 src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`}
-                className="w-full h-full absolute inset-0 rounded-3xl pointer-events-auto"
+                className="w-full h-full absolute inset-0 rounded-3xl pointer-events-auto border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
