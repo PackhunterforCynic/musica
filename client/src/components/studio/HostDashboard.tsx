@@ -53,6 +53,11 @@ interface HostDashboardProps {
     startYoutubeShare?: (videoId: string) => void;
     stopYoutubeShare?: () => void;
     syncYoutubeState?: (videoId: string, currentTime: number, isPlaying: boolean) => void;
+    addToQueue?: (track: any) => void;
+    voteQueueItem?: (itemId: string) => void;
+    removeFromQueue?: (itemId: string) => void;
+    skipQueueTrack?: () => void;
+    reorderQueue?: (itemIds: string[]) => void;
   };
   onLeave: () => void;
 }
@@ -463,6 +468,10 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
                   onBanUser={(socketId) => studio.banUser?.(socketId)}
                   onAdmitUser={(socketId) => studio.admitUser?.(socketId)}
                   onDenyUser={(socketId) => studio.denyUser?.(socketId)}
+                  onAddToQueue={(track) => studio.addToQueue?.(track)}
+                  onVoteQueue={(itemId) => studio.voteQueueItem?.(itemId)}
+                  onRemoveQueue={(itemId) => studio.removeFromQueue?.(itemId)}
+                  onSkipQueue={() => studio.skipQueueTrack?.()}
                 />
               )}
             </div>

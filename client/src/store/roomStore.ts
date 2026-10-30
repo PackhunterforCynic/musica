@@ -10,9 +10,11 @@ import {
   UserRole,
   UserPermissions,
   getDefaultPermissions,
+  QueueItem,
+  Track,
 } from '@musica/shared';
 
-export type SidebarTab = 'participants' | 'chat';
+export type SidebarTab = 'participants' | 'chat' | 'queue';
 
 export interface StreamTelemetry {
   fps: number;
@@ -40,6 +42,8 @@ export interface RoomState {
   youtubeCurrentTime: number;
   youtubeIsPlaying: boolean;
   youtubeUpdatedAt: number;
+  queue: QueueItem[];
+  currentTrack: QueueItem | null;
   isWaitingForHost: boolean;
   waitingRoomInfo: { roomName?: string; hostName?: string } | null;
   pendingJoinRequests: JoinRequest[];
@@ -68,6 +72,8 @@ export interface RoomState {
   setLocalShareStream: (stream: MediaStream | null) => void;
   setYoutubeVideoId: (id: string | null) => void;
   setYoutubeSync: (sync: { videoId?: string | null; currentTime?: number; isPlaying?: boolean; updatedAt?: number }) => void;
+  setQueue: (queue: QueueItem[]) => void;
+  setCurrentTrack: (track: QueueItem | null) => void;
   resetRoomState: () => void;
 }
 
@@ -89,6 +95,8 @@ export const useRoomStore = create<RoomState>((set) => ({
   youtubeCurrentTime: 0,
   youtubeIsPlaying: false,
   youtubeUpdatedAt: 0,
+  queue: [],
+  currentTrack: null,
   isWaitingForHost: false,
   waitingRoomInfo: null,
   pendingJoinRequests: [],
@@ -212,6 +220,9 @@ export const useRoomStore = create<RoomState>((set) => ({
       youtubeIsPlaying: sync.isPlaying !== undefined ? sync.isPlaying : state.youtubeIsPlaying,
       youtubeUpdatedAt: sync.updatedAt !== undefined ? sync.updatedAt : Date.now(),
     })),
+
+  setQueue: (queue) => set({ queue }),
+  setCurrentTrack: (currentTrack) => set({ currentTrack }),
 
   resetRoomState: () =>
     set({

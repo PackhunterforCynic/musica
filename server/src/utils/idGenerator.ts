@@ -1,15 +1,26 @@
+import crypto from 'crypto';
 import { RoomsFileSchema } from '@musica/shared';
 import { storageService } from '../services/StorageService';
 
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluded confusing characters I, O, 0, 1
 
+/**
+ * Generates a cryptographically secure random string using CSPRNG.
+ */
 function generateRandomString(length: number): string {
   let result = '';
   for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * CHARS.length);
+    const randomIndex = crypto.randomInt(0, CHARS.length);
     result += CHARS[randomIndex];
   }
   return result;
+}
+
+/**
+ * Generates a cryptographically secure random host authentication token (hex).
+ */
+export function generateHostAuthToken(): string {
+  return crypto.randomBytes(24).toString('hex');
 }
 
 /**

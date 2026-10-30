@@ -12,12 +12,22 @@ export const roomRouter = Router();
  */
 roomRouter.post('/rooms', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { hostName, roomName, password, maxParticipants, roomType } = req.body;
-    const result = await roomService.createRoom({ hostName, roomName, password, maxParticipants, roomType });
+    const { hostName, roomName, password, maxParticipants, roomType, category, visibility, description } = req.body;
+    const result = await roomService.createRoom({
+      hostName,
+      roomName,
+      password,
+      maxParticipants,
+      roomType,
+      category,
+      visibility,
+      description,
+    });
     res.status(201).json({
       success: true,
       roomId: result.roomId,
       room: result.room,
+      hostAuthToken: result.hostAuthToken,
     });
   } catch (err: any) {
     const status = err instanceof AppError ? err.statusCode : 500;

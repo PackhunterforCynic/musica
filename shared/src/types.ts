@@ -4,7 +4,35 @@ export type ScreenShareState = 'Idle' | 'Preparing' | 'Sharing' | 'Paused' | 'St
 
 export type ConnectionQuality = 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'Disconnected';
 
-export type UserRole = 'host' | 'audience';
+export type UserRole =
+  | 'owner'
+  | 'host'
+  | 'co-host'
+  | 'moderator'
+  | 'dj'
+  | 'speaker'
+  | 'participant'
+  | 'audience';
+
+export type RoomType =
+  | 'studio'
+  | 'couple'
+  | 'listen'
+  | 'watch'
+  | 'radio'
+  | 'hangout'
+  | 'event';
+
+export type RoomCategory =
+  | 'music'
+  | 'gaming'
+  | 'education'
+  | 'chill'
+  | 'podcast'
+  | 'entertainment'
+  | 'general';
+
+export type RoomVisibility = 'public' | 'private' | 'unlisted';
 
 export interface UserPermissions {
   canKick: boolean;
@@ -16,6 +44,11 @@ export interface UserPermissions {
   canChat: boolean;
   canRaiseHand: boolean;
   canReact: boolean;
+  canAddQueue: boolean;
+  canSkipQueue: boolean;
+  canManageDJ: boolean;
+  canBroadcastAudio: boolean;
+  canBroadcastVideo: boolean;
 }
 
 export interface Participant {
@@ -30,6 +63,60 @@ export interface Participant {
   joinedAt: string;
 }
 
+export interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  durationSeconds: number;
+  thumbnailUrl?: string;
+  provider: 'youtube' | 'spotify' | 'custom';
+  externalUrl?: string;
+  streamId?: string; // YouTube video ID or stream key
+}
+
+export interface QueueItem {
+  id: string;
+  roomId: string;
+  track: Track;
+  addedBy: {
+    id: string;
+    name: string;
+  };
+  addedAt: string;
+  votes: number;
+  voterIds: string[];
+  status: 'queued' | 'playing' | 'played' | 'skipped';
+}
+
+export interface DJSession {
+  activeDjId: string | null;
+  activeDjName: string | null;
+  queue: QueueItem[];
+  history: QueueItem[];
+  currentTrack: QueueItem | null;
+  allowAudienceRequests: boolean;
+}
+
+export interface PlaybackState {
+  sessionId: string;
+  videoId: string | null;
+  currentTime: number;
+  isPlaying: boolean;
+  playbackRate: number;
+  sequenceNumber: number;
+  serverTimestamp: number;
+  updatedBy: string;
+}
+
+export interface RoomSettings {
+  allowChat: boolean;
+  allowReactions: boolean;
+  allowHandRaise: boolean;
+  requireApprovalToJoin: boolean;
+  coHostsCanAdmit: boolean;
+  maxQueuePerUser?: number;
+}
+
 export interface YouTubeSyncPayload {
   videoId: string;
   currentTime: number;
@@ -40,19 +127,28 @@ export interface YouTubeSyncPayload {
 export interface Room {
   roomId: string;
   roomName: string;
+  description?: string;
+  coverImageUrl?: string;
+  category?: RoomCategory;
+  visibility?: RoomVisibility;
   hostName: string;
   hostId?: string; // Current or most recent host socket ID
-  password?: string; // Optional plaintext for MVP
+  hostAuthToken?: string; // Secure token for host reconnection authentication
+  password?: string; // Legacy plaintext password (for backward compatibility)
+  passwordHash?: string; // Secure salted Argon2/bcrypt hash
   locked: boolean;
   maxParticipants: number;
   createdAt: string;
   status: 'active' | 'recovering' | 'ended';
   screenShareState: ScreenShareState;
-  roomType?: 'studio' | 'couple';
+  roomType?: RoomType;
+  settings?: RoomSettings;
   youtubeVideoId?: string | null;
   youtubeCurrentTime?: number;
   youtubeIsPlaying?: boolean;
   youtubeUpdatedAt?: number;
+  djSession?: DJSession;
+  playbackState?: PlaybackState;
   participants: Participant[];
 }
 

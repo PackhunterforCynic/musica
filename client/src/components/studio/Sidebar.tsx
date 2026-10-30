@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRoomStore, useIsHost, SidebarTab } from '../../store/roomStore';
 import { formatChatTime } from '../../utils/formatters';
-import { Users, MessageSquare, Hand, Mic, MicOff, UserX, Shield, Send, Sparkles } from 'lucide-react';
+import { Users, MessageSquare, Hand, Mic, MicOff, UserX, Shield, Send, Sparkles, ListMusic } from 'lucide-react';
+import { CollaborativeQueue } from './CollaborativeQueue';
+import { Track } from '@musica/shared';
 
 interface SidebarProps {
   onSendMessage?: (text: string) => void;
@@ -10,15 +12,31 @@ interface SidebarProps {
   onBanUser?: (socketId: string) => void;
   onAdmitUser?: (socketId: string) => void;
   onDenyUser?: (socketId: string) => void;
+  onAddToQueue?: (track: Track) => void;
+  onVoteQueue?: (itemId: string) => void;
+  onRemoveQueue?: (itemId: string) => void;
+  onSkipQueue?: () => void;
 }
 
 
-export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction, onKickUser, onBanUser, onAdmitUser, onDenyUser }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  onSendMessage,
+  onSendReaction,
+  onKickUser,
+  onBanUser,
+  onAdmitUser,
+  onDenyUser,
+  onAddToQueue,
+  onVoteQueue,
+  onRemoveQueue,
+  onSkipQueue,
+}) => {
   const activeTab = useRoomStore((s) => s.activeSidebarTab);
   const participants = useRoomStore((s) => s.participants);
   const pendingJoinRequests = useRoomStore((s) => s.pendingJoinRequests);
   const chatMessages = useRoomStore((s) => s.chatMessages);
   const unreadCount = useRoomStore((s) => s.unreadChatCount);
+  const queue = useRoomStore((s) => s.queue);
   const localParticipant = useRoomStore((s) => s.localParticipant);
   const isHost = useIsHost();
 
@@ -73,6 +91,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
           {unreadCount > 0 && (
             <span className="w-5 h-5 rounded-full bg-purple-600 text-white font-mono text-[10px] flex items-center justify-center font-bold animate-pulse">
               {unreadCount}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setTab('queue')}
+          className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-2 transition-all relative ${
+            activeTab === 'queue'
+              ? 'bg-slate-800 text-white shadow-md border border-slate-700/60'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <ListMusic className="w-4 h-4" />
+          <span>Queue</span>
+          {queue.length > 0 && (
+            <span className="w-4 h-4 rounded-full bg-indigo-600 text-white font-mono text-[9px] flex items-center justify-center font-bold">
+              {queue.length}
             </span>
           )}
         </button>
@@ -176,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
               })}
             </div>
           </div>
-        ) : (
+        ) : activeTab === 'chat' ? (
           /* YOUTUBE STYLE LIVE CHAT TAB */
           <div className="flex flex-col min-h-full bg-slate-950/80">
             {/* Optional Header / Filter pill - styling like YT */}
@@ -231,6 +266,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSendMessage, onSendReaction,
               <div ref={messagesEndRef} />
             </div>
           </div>
+        ) : (
+          <CollaborativeQueue
+            onAddToQueue={onAddToQueue}
+            onVote={onVoteQueue}
+            onRemove={onRemoveQueue}
+            onSkip={onSkipQueue}
+          />
         )}
       </div>
 

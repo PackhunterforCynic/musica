@@ -19,6 +19,23 @@ export const SOCKET_EVENTS = {
   YOUTUBE_SHARE_START: 'youtube-share-start',
   YOUTUBE_SHARE_STOP: 'youtube-share-stop',
   YOUTUBE_SYNC_STATE: 'youtube-sync-state',
+
+  // Collaborative Music Queue Events
+  QUEUE_ADD: 'queue-add',
+  QUEUE_REMOVE: 'queue-remove',
+  QUEUE_REORDER: 'queue-reorder',
+  QUEUE_VOTE: 'queue-vote',
+  QUEUE_SKIP: 'queue-skip',
+
+  // DJ Management Events
+  DJ_ASSIGN: 'dj-assign',
+  DJ_REVOKE: 'dj-revoke',
+
+  // Authoritative Playback Sync Events
+  PLAYBACK_COMMAND: 'playback-command',
+
+  // SFU Transport Events
+  SFU_TOKEN_REQUEST: 'sfu-token-request',
   
   // WebRTC Signaling
   WEBRTC_OFFER: 'webrtc-offer',
@@ -48,6 +65,21 @@ export const SOCKET_EVENTS = {
   YOUTUBE_SHARE_STARTED: 'youtube-share-started',
   YOUTUBE_SHARE_STOPPED: 'youtube-share-stopped',
   YOUTUBE_SYNC_UPDATED: 'youtube-sync-updated',
+
+  // Collaborative Queue Broadcasts
+  QUEUE_UPDATED: 'queue-updated',
+  QUEUE_TRACK_STARTED: 'queue-track-started',
+
+  // DJ Broadcasts
+  DJ_STATUS_UPDATED: 'dj-status-updated',
+
+  // Authoritative Playback Broadcasts
+  PLAYBACK_STATE_BROADCAST: 'playback-state-broadcast',
+
+  // SFU Broadcasts
+  SFU_TOKEN_RESPONSE: 'sfu-token-response',
+  SFU_TRACK_PUBLISHED: 'sfu-track-published',
+  SFU_TRACK_UNPUBLISHED: 'sfu-track-unpublished',
 } as const;
 
 export type SocketEventName = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS];

@@ -51,7 +51,7 @@ async function runTests() {
   console.log('   Created Room Response:', JSON.stringify(createRes.body, null, 2));
 
   const roomId = createRes.body.roomId;
-  if (!roomId || !/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(roomId)) {
+  if (!roomId || !/^[A-Z0-9]{4}$/.test(roomId)) {
     throw new Error(`Invalid or missing Room ID! Got: ${roomId}`);
   }
 

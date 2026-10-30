@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "tsx src/tests/verify_2_0.ts"
   },
   "dependencies": {
     "@musica/shared": "file:../shared",

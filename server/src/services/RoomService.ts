@@ -11,7 +11,8 @@ import {
 import { storageService } from './StorageService';
 import { loggerService } from './LoggerService';
 import { statisticsService } from './StatisticsService';
-import { generateUniqueRoomId, isValidRoomIdFormat } from '../utils/idGenerator';
+import { generateUniqueRoomId, isValidRoomIdFormat, generateHostAuthToken } from '../utils/idGenerator';
+import { hashPassword, verifyPassword } from '../utils/security';
 import { limitsConfig } from '../config/limits';
 
 export class RoomService {
@@ -20,8 +21,11 @@ export class RoomService {
     roomName: string;
     password?: string;
     maxParticipants?: number;
-    roomType?: 'studio' | 'couple';
-  }): Promise<{ roomId: string; room: Room }> {
+    roomType?: Room['roomType'];
+    category?: Room['category'];
+    visibility?: Room['visibility'];
+    description?: string;
+  }): Promise<{ roomId: string; room: Room; hostAuthToken: string }> {
     if (!params.hostName || params.hostName.trim().length === 0) {
       throw new ValidationError('Host display name is required.');
     }
@@ -38,11 +42,20 @@ export class RoomService {
     );
 
     const roomId = await generateUniqueRoomId();
+    const hostAuthToken = generateHostAuthToken();
+    const hasPassword = Boolean(params.password && params.password.trim().length > 0);
+    const passwordHash = hasPassword ? hashPassword(params.password!.trim()) : undefined;
+
     const newRoom: Room = {
       roomId,
       roomName: params.roomName.trim(),
+      description: params.description?.trim(),
+      category: params.category || 'general',
+      visibility: params.visibility || 'public',
       hostName: params.hostName.trim(),
-      password: params.password && params.password.trim().length > 0 ? params.password.trim() : undefined,
+      hostAuthToken,
+      password: hasPassword ? params.password!.trim() : undefined, // Preserved for legacy clients
+      passwordHash,
       locked: false,
       maxParticipants: maxP,
       createdAt: new Date().toISOString(),
@@ -77,14 +90,14 @@ export class RoomService {
     await statisticsService.incrementRoomsCreated();
     await statisticsService.updateActiveRoomsCount(sessions.activeRooms.length);
 
-    // Return without password in public response
-    const { password, ...safeRoom } = newRoom;
-    return { roomId, room: safeRoom as Room };
+    // Return without password in public response, but include hostAuthToken for creator
+    const { password: _p, passwordHash: _ph, ...safeRoom } = newRoom;
+    return { roomId, room: safeRoom as Room, hostAuthToken };
   }
 
   public async getRoom(roomId: string): Promise<{ room: Room; activeParticipantsCount: number; isRecovering: boolean }> {
     if (!isValidRoomIdFormat(roomId)) {
-      throw new ValidationError('Invalid Room ID format. Expected XXXX-XXXX.');
+      throw new ValidationError('Invalid Room ID format. Expected 4-character ID (e.g. ABX9).');
     }
 
     const roomsFile = await storageService.readJson<RoomsFileSchema>('rooms.json');
@@ -100,7 +113,7 @@ export class RoomService {
     const pIds = participantsFile.roomParticipants[roomId] || [];
     const activeParticipantsCount = pIds.length;
 
-    const { password, ...safeRoom } = room;
+    const { password, passwordHash, hostAuthToken, ...safeRoom } = room;
     return {
       room: { ...(safeRoom as Room), status: isRecovering ? 'recovering' : 'active' },
       activeParticipantsCount,
@@ -130,10 +143,11 @@ export class RoomService {
       throw new PermissionError('This room is currently locked by the host.');
     }
 
-    // 3. Check password if required
+    // 3. Cryptographic check of password if required
     const fullRooms = await storageService.readJson<RoomsFileSchema>('rooms.json');
-    const storedPass = fullRooms.rooms[params.roomId]?.password;
-    if (storedPass && storedPass !== params.password) {
+    const storedRoom = fullRooms.rooms[params.roomId];
+    const storedPassHash = storedRoom?.passwordHash || storedRoom?.password;
+    if (storedPassHash && (!params.password || !verifyPassword(params.password.trim(), storedPassHash))) {
       throw new PermissionError('Incorrect room password.');
     }
 

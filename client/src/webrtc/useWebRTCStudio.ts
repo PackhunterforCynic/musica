@@ -7,6 +7,7 @@ import {
   EmojiReaction,
   Participant,
   ConnectionQuality,
+  Track,
 } from '@musica/shared';
 import { useRoomStore } from '../store/roomStore';
 import { peerManager } from './PeerManager';
@@ -48,6 +49,12 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       useRoomStore.getState().setRoomData(data.room, data.localParticipant);
       useRoomStore.getState().setParticipants(data.participants || []);
       useRoomStore.getState().setConnectionQuality('Good');
+      if ((data as any).queue) {
+        useRoomStore.getState().setQueue((data as any).queue);
+      }
+      if ((data as any).currentTrack) {
+        useRoomStore.getState().setCurrentTrack((data as any).currentTrack);
+      }
       if (data.isRecovering) {
         useRoomStore.getState().setHostRecovering(true, 60);
       }
@@ -157,6 +164,21 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
         isPlaying: data.isPlaying,
         updatedAt: data.timestamp || Date.now(),
       });
+    });
+
+    socket.on(SOCKET_EVENTS.QUEUE_UPDATED, (data: { queue: any[]; action?: string; item?: any }) => {
+      useRoomStore.getState().setQueue(data.queue || []);
+      if (data.action === 'added' && data.item) {
+        notificationService.showToast(`🎵 Added to queue: ${data.item.track.title}`, 'info');
+      }
+    });
+
+    socket.on(SOCKET_EVENTS.QUEUE_TRACK_STARTED, (data: { currentTrack: any; queue: any[] }) => {
+      useRoomStore.getState().setCurrentTrack(data.currentTrack);
+      useRoomStore.getState().setQueue(data.queue || []);
+      if (data.currentTrack?.track?.title) {
+        notificationService.showToast(`▶ Now Playing: ${data.currentTrack.track.title}`, 'success');
+      }
     });
 
     // WebRTC Signaling Replay via PeerManager
@@ -394,6 +416,36 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     }
   };
 
+  const addToQueue = (track: Track) => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.QUEUE_ADD, { track });
+    }
+  };
+
+  const voteQueueItem = (itemId: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.QUEUE_VOTE, { itemId });
+    }
+  };
+
+  const removeFromQueue = (itemId: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.QUEUE_REMOVE, { itemId });
+    }
+  };
+
+  const skipQueueTrack = () => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.QUEUE_SKIP, {});
+    }
+  };
+
+  const reorderQueue = (itemIds: string[]) => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.QUEUE_REORDER, { itemIds });
+    }
+  };
+
   return {
     startScreenShare,
     stopScreenShare,
@@ -411,6 +463,11 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     startYoutubeShare,
     stopYoutubeShare,
     syncYoutubeState,
+    addToQueue,
+    voteQueueItem,
+    removeFromQueue,
+    skipQueueTrack,
+    reorderQueue,
   };
 }
 

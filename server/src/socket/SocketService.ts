@@ -12,7 +12,9 @@ import { roomService } from '../services/RoomService';
 import { participantService } from '../services/ParticipantService';
 import { storageService } from '../services/StorageService';
 import { loggerService } from '../services/LoggerService';
+import { queueService } from '../services/QueueService';
 import { limitsConfig } from '../config/limits';
+import { sanitizeText } from '../utils/security';
 
 interface SocketData {
   roomId: string;
@@ -116,8 +118,10 @@ export class SocketService {
 
         socket.join(roomId);
 
-        // Fetch current roster
+        // Fetch current roster, queue and active track
         const roster = await participantService.getParticipantsInRoom(roomId);
+        const currentQueue = await queueService.getQueue(roomId);
+        const currentTrack = await queueService.getCurrentTrack(roomId);
 
         // Notify connecting client of successful join
         socket.emit(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, {
@@ -125,6 +129,8 @@ export class SocketService {
           localParticipant: participant,
           participants: roster,
           isRecovering: !!recoveringInfo && role !== 'host',
+          queue: currentQueue,
+          currentTrack,
         });
 
         // Broadcast new arrival to everyone else in room
@@ -161,7 +167,7 @@ export class SocketService {
         senderId: socket.id,
         senderName: userName || 'Anonymous',
         senderRole: role || 'audience',
-        text: payload.text.trim().slice(0, 500), // Sanitize length
+        text: sanitizeText(payload.text.slice(0, 500)), // XSS Sanitization & length bound
         timestamp: new Date().toISOString(),
       };
 
@@ -245,6 +251,82 @@ export class SocketService {
         currentTime: payload.currentTime,
         isPlaying: payload.isPlaying,
         timestamp: now,
+      });
+    });
+
+    // COLLABORATIVE MUSIC QUEUE
+    socket.on(SOCKET_EVENTS.QUEUE_ADD, async (payload: { track: any }) => {
+      const { roomId, userName } = socket.data as SocketData;
+      if (!roomId || !payload.track?.title) return;
+
+      const result = await queueService.addToQueue(roomId, payload.track, {
+        id: socket.id,
+        name: userName || 'Anonymous',
+      });
+
+      this.io?.to(roomId).emit(SOCKET_EVENTS.QUEUE_UPDATED, {
+        queue: result.queue,
+        action: 'added',
+        item: result.item,
+      });
+    });
+
+    socket.on(SOCKET_EVENTS.QUEUE_VOTE, async (payload: { itemId: string }) => {
+      const { roomId } = socket.data as SocketData;
+      if (!roomId || !payload.itemId) return;
+
+      const result = await queueService.voteTrack(roomId, payload.itemId, socket.id);
+      this.io?.to(roomId).emit(SOCKET_EVENTS.QUEUE_UPDATED, {
+        queue: result.queue,
+        action: 'voted',
+        item: result.updatedItem,
+      });
+    });
+
+    socket.on(SOCKET_EVENTS.QUEUE_REMOVE, async (payload: { itemId: string }) => {
+      const { roomId, role } = socket.data as SocketData;
+      if (!roomId || !payload.itemId) return;
+      if (role !== 'host' && role !== 'moderator' && role !== 'dj') return;
+
+      const result = await queueService.removeFromQueue(roomId, payload.itemId);
+      this.io?.to(roomId).emit(SOCKET_EVENTS.QUEUE_UPDATED, {
+        queue: result.queue,
+        action: 'removed',
+        itemId: payload.itemId,
+      });
+    });
+
+    socket.on(SOCKET_EVENTS.QUEUE_SKIP, async () => {
+      const { roomId, role } = socket.data as SocketData;
+      if (!roomId) return;
+      if (role !== 'host' && role !== 'dj') return;
+
+      const result = await queueService.popNextTrack(roomId);
+      this.io?.to(roomId).emit(SOCKET_EVENTS.QUEUE_TRACK_STARTED, {
+        currentTrack: result.nextTrack,
+        queue: result.queue,
+      });
+
+      // If next track is a YouTube stream, synchronize automatically
+      if (result.nextTrack?.track?.streamId) {
+        this.io?.to(roomId).emit(SOCKET_EVENTS.YOUTUBE_SHARE_STARTED, {
+          videoId: result.nextTrack.track.streamId,
+          currentTime: 0,
+          isPlaying: true,
+          timestamp: Date.now(),
+        });
+      }
+    });
+
+    socket.on(SOCKET_EVENTS.QUEUE_REORDER, async (payload: { itemIds: string[] }) => {
+      const { roomId, role } = socket.data as SocketData;
+      if (!roomId || !Array.isArray(payload.itemIds)) return;
+      if (role !== 'host' && role !== 'dj') return;
+
+      const reordered = await queueService.reorderQueue(roomId, payload.itemIds);
+      this.io?.to(roomId).emit(SOCKET_EVENTS.QUEUE_UPDATED, {
+        queue: reordered,
+        action: 'reordered',
       });
     });
 
@@ -397,12 +479,16 @@ export class SocketService {
         pending.socket.join(roomId);
 
         const roster = await participantService.getParticipantsInRoom(roomId);
+        const currentQueue = await queueService.getQueue(roomId);
+        const currentTrack = await queueService.getCurrentTrack(roomId);
 
         pending.socket.emit(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, {
           room: roomData,
           localParticipant: participant,
           participants: roster,
           isRecovering: false,
+          queue: currentQueue,
+          currentTrack,
         });
 
         pending.socket.to(roomId).emit(SOCKET_EVENTS.PARTICIPANT_JOINED, { participant });

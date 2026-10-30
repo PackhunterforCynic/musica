@@ -30,6 +30,8 @@ interface AudienceInterfaceProps {
     sendReaction: (emoji: string) => void;
     leaveRoom: () => void;
     sendChatMessage?: (text: string) => void;
+    addToQueue?: (track: any) => void;
+    voteQueueItem?: (itemId: string) => void;
   };
   onLeave: () => void;
 }
@@ -337,6 +339,8 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
               <Sidebar
                 onSendMessage={(text) => studio.sendChatMessage?.(text)}
                 onSendReaction={(emoji) => studio.sendReaction(emoji)}
+                onAddToQueue={(track) => studio.addToQueue?.(track)}
+                onVoteQueue={(itemId) => studio.voteQueueItem?.(itemId)}
               />
             </div>
           </aside>
