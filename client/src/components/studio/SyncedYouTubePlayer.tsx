@@ -262,3 +262,4 @@ export const SyncedYouTubePlayer: React.FC<SyncedYouTubePlayerProps> = ({
     </div>
   );
 };
+
