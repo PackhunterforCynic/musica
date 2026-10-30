@@ -43,3 +43,4 @@ export function sanitizeText(input: string): string {
     .replace(/'/g, '&#039;')
     .trim();
 }
+

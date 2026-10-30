@@ -247,3 +247,4 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
     </div>
   );
 };
+

@@ -122,3 +122,4 @@ musica/
 
 ## 6. Audit Conclusion
 Musica possesses a clean, working foundation with working real-time primitives (4-char rooms, YouTube sync, WebRTC audio/screen share, waiting room). The path to Musica 2.0 requires modularizing the backend, introducing an SFU media abstraction, adding collaborative music queueing, establishing user authentication, and preparing scalable database/Redis infrastructure.
+

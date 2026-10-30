@@ -101,3 +101,4 @@ flowchart LR
   - PWA: Web app manifest, service worker for asset caching, install prompt, safe-area CSS.
   - Premium Dark UI: Refined glassmorphism, responsive desktop sidebar, mobile bottom sheet navigation.
   - Testing Suite: Vitest for unit tests, Supertest for REST APIs, Playwright for end-to-end room/playback verification.
+
