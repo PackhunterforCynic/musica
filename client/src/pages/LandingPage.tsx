@@ -5,7 +5,7 @@ import { notificationService } from '../services/NotificationService';
 import { API_BASE_URL } from '../config/api';
 
 interface LandingPageProps {
-  onNavigate: (view: 'create' | 'join') => void;
+  onNavigate: (view: 'create' | 'join' | 'create-couple') => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
