@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRoomStore } from '../../store/roomStore';
 import { notificationService } from '../../services/NotificationService';
 import { Sidebar } from './Sidebar';
+import { SyncedYouTubePlayer } from './SyncedYouTubePlayer';
+import { extractYouTubeVideoId } from '../../utils/youtube';
 import {
   Monitor,
   Volume2,
@@ -50,6 +52,7 @@ interface HostDashboardProps {
     banUser?: (socketId: string) => void;
     startYoutubeShare?: (videoId: string) => void;
     stopYoutubeShare?: () => void;
+    syncYoutubeState?: (videoId: string, currentTime: number, isPlaying: boolean) => void;
   };
   onLeave: () => void;
 }
@@ -185,22 +188,13 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
         {/* Stream Viewing Deck */}
         <div className="flex-1 w-full bg-[#101423] rounded-3xl border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl mt-2 mb-4 min-h-[200px]">
           
-          {isYoutubeMode ? (
-            <div className="w-full h-full relative min-h-[250px]">
-              <iframe
-                src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`}
-                className="absolute inset-0 w-full h-full rounded-3xl border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-              <button
-                onClick={() => studio.stopYoutubeShare?.()}
-                className="absolute top-4 right-4 p-2 bg-red-600/90 hover:bg-red-500 rounded-xl text-white shadow-xl z-30 flex items-center space-x-2 text-xs font-bold transition-all"
-              >
-                <XCircle className="w-4 h-4" />
-                <span>Stop Party</span>
-              </button>
-            </div>
+          {isYoutubeMode && youtubeVideoId ? (
+            <SyncedYouTubePlayer
+              videoId={youtubeVideoId}
+              isHost={true}
+              onSyncState={studio.syncYoutubeState}
+              onStop={() => studio.stopYoutubeShare?.()}
+            />
           ) : isSharing ? (
             isAudioOnly ? (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 space-y-6">
@@ -278,41 +272,70 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
                 <div className="flex flex-col space-y-2">
                   <input 
                     type="text" 
-                    placeholder="Paste YouTube URL or search..." 
+                    placeholder="Paste YouTube link or search..." 
                     value={ytInputUrl}
                     onChange={(e) => setYtInputUrl(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        const match = ytInputUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^"&?\/\s]{11})/);
-                        if (match && match[1]) {
-                          studio.startYoutubeShare?.(match[1]);
+                        const videoId = extractYouTubeVideoId(ytInputUrl);
+                        if (videoId) {
+                          studio.startYoutubeShare?.(videoId);
                           setYtInputUrl('');
                         } else if (ytInputUrl.trim()) {
                           window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(ytInputUrl)}`, '_blank');
-                          notificationService.showToast('Select a video from the new tab and paste the URL here.', 'info', 'Search Opened', 6000);
+                          notificationService.showToast('Select a video from the new tab and paste the link here.', 'info', 'Search Opened', 6000);
                         }
                       }
                     }}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500 transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500 transition-all placeholder:text-slate-500"
                   />
                   <button 
                     onClick={() => {
-                      const match = ytInputUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^"&?\/\s]{11})/);
-                      if (match && match[1]) {
-                        studio.startYoutubeShare?.(match[1]);
+                      const videoId = extractYouTubeVideoId(ytInputUrl);
+                      if (videoId) {
+                        studio.startYoutubeShare?.(videoId);
                         setYtInputUrl('');
                       } else if (ytInputUrl.trim()) {
                          window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(ytInputUrl)}`, '_blank');
-                         notificationService.showToast('Select a video from the new tab and paste the URL here.', 'info', 'Search Opened', 6000);
+                         notificationService.showToast('Select a video from the new tab and paste the link here.', 'info', 'Search Opened', 6000);
+                      } else {
+                        notificationService.showToast('Please enter a YouTube video URL or search phrase.', 'warning');
                       }
                     }}
-                    className="w-full p-3 bg-red-600 hover:bg-red-500 rounded-xl text-white font-bold transition-all flex items-center justify-center space-x-2"
+                    className="w-full p-3 bg-red-600 hover:bg-red-500 rounded-xl text-white font-bold transition-all flex items-center justify-center space-x-2 shadow-lg shadow-red-600/20 active:scale-95"
                   >
                     <Tv className="w-4 h-4" />
                     <span>Watch YouTube</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-500">Paste URL or type to search</p>
+
+                {/* Quick 1-tap picks for instant testing */}
+                <div className="pt-2">
+                  <p className="text-[10px] text-slate-500 mb-1.5 text-center">Or try a quick demo stream:</p>
+                  <div className="flex items-center justify-center space-x-1.5">
+                    <button
+                      type="button"
+                      onClick={() => studio.startYoutubeShare?.('jfKfPfyJRdk')}
+                      className="px-2 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg transition-all border border-slate-700/60"
+                    >
+                      ☕ Lofi Radio
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => studio.startYoutubeShare?.('5qap5aO4i9A')}
+                      className="px-2 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg transition-all border border-slate-700/60"
+                    >
+                      🎵 Synthwave
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => studio.startYoutubeShare?.('DWcJFNfaw9c')}
+                      className="px-2 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg transition-all border border-slate-700/60"
+                    >
+                      🌊 Chill Beats
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

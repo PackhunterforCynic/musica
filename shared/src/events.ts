@@ -18,6 +18,7 @@ export const SOCKET_EVENTS = {
   DENY_USER: 'deny-user',
   YOUTUBE_SHARE_START: 'youtube-share-start',
   YOUTUBE_SHARE_STOP: 'youtube-share-stop',
+  YOUTUBE_SYNC_STATE: 'youtube-sync-state',
   
   // WebRTC Signaling
   WEBRTC_OFFER: 'webrtc-offer',
@@ -46,6 +47,7 @@ export const SOCKET_EVENTS = {
   ERROR_NOTIFICATION: 'error-notification',
   YOUTUBE_SHARE_STARTED: 'youtube-share-started',
   YOUTUBE_SHARE_STOPPED: 'youtube-share-stopped',
+  YOUTUBE_SYNC_UPDATED: 'youtube-sync-updated',
 } as const;
 
 export type SocketEventName = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS];

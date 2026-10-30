@@ -37,6 +37,9 @@ export interface RoomState {
   remoteMediaStream: MediaStream | null;
   localShareStream: MediaStream | null;
   youtubeVideoId: string | null;
+  youtubeCurrentTime: number;
+  youtubeIsPlaying: boolean;
+  youtubeUpdatedAt: number;
   isWaitingForHost: boolean;
   waitingRoomInfo: { roomName?: string; hostName?: string } | null;
   pendingJoinRequests: JoinRequest[];
@@ -64,6 +67,7 @@ export interface RoomState {
   setRemoteMediaStream: (stream: MediaStream | null) => void;
   setLocalShareStream: (stream: MediaStream | null) => void;
   setYoutubeVideoId: (id: string | null) => void;
+  setYoutubeSync: (sync: { videoId?: string | null; currentTime?: number; isPlaying?: boolean; updatedAt?: number }) => void;
   resetRoomState: () => void;
 }
 
@@ -82,6 +86,9 @@ export const useRoomStore = create<RoomState>((set) => ({
   remoteMediaStream: null,
   localShareStream: null,
   youtubeVideoId: null,
+  youtubeCurrentTime: 0,
+  youtubeIsPlaying: false,
+  youtubeUpdatedAt: 0,
   isWaitingForHost: false,
   waitingRoomInfo: null,
   pendingJoinRequests: [],
@@ -115,6 +122,10 @@ export const useRoomStore = create<RoomState>((set) => ({
       room,
       localParticipant: localParticipant !== undefined ? localParticipant : state.localParticipant,
       screenShareState: room ? room.screenShareState : 'Idle',
+      youtubeVideoId: room?.youtubeVideoId !== undefined ? room.youtubeVideoId : state.youtubeVideoId,
+      youtubeCurrentTime: room?.youtubeCurrentTime !== undefined ? room.youtubeCurrentTime : state.youtubeCurrentTime,
+      youtubeIsPlaying: room?.youtubeIsPlaying !== undefined ? room.youtubeIsPlaying : state.youtubeIsPlaying,
+      youtubeUpdatedAt: room?.youtubeUpdatedAt !== undefined ? room.youtubeUpdatedAt : state.youtubeUpdatedAt,
       isWaitingForHost: false,
     })),
 
@@ -186,7 +197,21 @@ export const useRoomStore = create<RoomState>((set) => ({
 
   setLocalShareStream: (localShareStream) => set({ localShareStream }),
   
-  setYoutubeVideoId: (youtubeVideoId) => set({ youtubeVideoId }),
+  setYoutubeVideoId: (youtubeVideoId) =>
+    set({
+      youtubeVideoId,
+      youtubeCurrentTime: 0,
+      youtubeIsPlaying: !!youtubeVideoId,
+      youtubeUpdatedAt: Date.now(),
+    }),
+
+  setYoutubeSync: (sync) =>
+    set((state) => ({
+      youtubeVideoId: sync.videoId !== undefined ? sync.videoId : state.youtubeVideoId,
+      youtubeCurrentTime: sync.currentTime !== undefined ? sync.currentTime : state.youtubeCurrentTime,
+      youtubeIsPlaying: sync.isPlaying !== undefined ? sync.isPlaying : state.youtubeIsPlaying,
+      youtubeUpdatedAt: sync.updatedAt !== undefined ? sync.updatedAt : Date.now(),
+    })),
 
   resetRoomState: () =>
     set({

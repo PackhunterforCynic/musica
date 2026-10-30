@@ -136,13 +136,27 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       }
     });
 
-    socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_STARTED, (data: { videoId: string }) => {
-      useRoomStore.getState().setYoutubeVideoId(data.videoId);
+    socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_STARTED, (data: { videoId: string; currentTime?: number; isPlaying?: boolean; timestamp?: number }) => {
+      useRoomStore.getState().setYoutubeSync({
+        videoId: data.videoId,
+        currentTime: data.currentTime || 0,
+        isPlaying: data.isPlaying !== undefined ? data.isPlaying : true,
+        updatedAt: data.timestamp || Date.now(),
+      });
       notificationService.showToast('📺 Host started a YouTube Watch Party!', 'success');
     });
 
     socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_STOPPED, () => {
       useRoomStore.getState().setYoutubeVideoId(null);
+    });
+
+    socket.on(SOCKET_EVENTS.YOUTUBE_SYNC_UPDATED, (data: { videoId: string; currentTime: number; isPlaying: boolean; timestamp?: number }) => {
+      useRoomStore.getState().setYoutubeSync({
+        videoId: data.videoId,
+        currentTime: data.currentTime,
+        isPlaying: data.isPlaying,
+        updatedAt: data.timestamp || Date.now(),
+      });
     });
 
     // WebRTC Signaling Replay via PeerManager
@@ -373,6 +387,13 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     }
   };
 
+  const syncYoutubeState = (videoId: string, currentTime: number, isPlaying: boolean) => {
+    if (socketRef.current && videoId) {
+      socketRef.current.emit(SOCKET_EVENTS.YOUTUBE_SYNC_STATE, { videoId, currentTime, isPlaying });
+      useRoomStore.getState().setYoutubeSync({ videoId, currentTime, isPlaying, updatedAt: Date.now() });
+    }
+  };
+
   return {
     startScreenShare,
     stopScreenShare,
@@ -389,6 +410,7 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     denyUser,
     startYoutubeShare,
     stopYoutubeShare,
+    syncYoutubeState,
   };
 }
 

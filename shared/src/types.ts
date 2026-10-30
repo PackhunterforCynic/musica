@@ -30,6 +30,13 @@ export interface Participant {
   joinedAt: string;
 }
 
+export interface YouTubeSyncPayload {
+  videoId: string;
+  currentTime: number;
+  isPlaying: boolean;
+  timestamp?: number;
+}
+
 export interface Room {
   roomId: string;
   roomName: string;
@@ -42,6 +49,10 @@ export interface Room {
   status: 'active' | 'recovering' | 'ended';
   screenShareState: ScreenShareState;
   roomType?: 'studio' | 'couple';
+  youtubeVideoId?: string | null;
+  youtubeCurrentTime?: number;
+  youtubeIsPlaying?: boolean;
+  youtubeUpdatedAt?: number;
   participants: Participant[];
 }
 

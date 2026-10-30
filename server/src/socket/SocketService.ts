@@ -57,9 +57,9 @@ export class SocketService {
             await loggerService.logEvent('HOST_RECOVERED', { roomId, userId: socket.id, userName });
           }
         } else {
-          // Normal join: check if this is host (first to join or matches hostName in room creation)
+          // Normal join: check if this is host (matches hostName from room creation)
           const roomDetails = await roomService.getRoom(roomId);
-          if (roomDetails.room.hostName.toLowerCase() === userName.toLowerCase() && (!roomDetails.room.hostId || roomDetails.activeParticipantsCount === 0)) {
+          if (roomDetails.room.hostName.toLowerCase() === userName.toLowerCase()) {
             role = 'host';
           }
         }
@@ -187,17 +187,65 @@ export class SocketService {
       await loggerService.logEvent('REACTION', { roomId, userId: socket.id, userName, details: { emoji: payload.emoji } });
     });
 
-    // YOUTUBE SHARE
+    // YOUTUBE SHARE & SYNCHRONIZATION
     socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_START, async (payload: { videoId: string }) => {
       const { roomId, role } = socket.data as SocketData;
       if (!roomId || role !== 'host' || !payload.videoId) return;
-      this.io?.to(roomId).emit(SOCKET_EVENTS.YOUTUBE_SHARE_STARTED, { videoId: payload.videoId });
+
+      const now = Date.now();
+      await storageService.updateJson<RoomsFileSchema>('rooms.json', (data) => {
+        if (data.rooms[roomId]) {
+          data.rooms[roomId].youtubeVideoId = payload.videoId;
+          data.rooms[roomId].youtubeCurrentTime = 0;
+          data.rooms[roomId].youtubeIsPlaying = true;
+          data.rooms[roomId].youtubeUpdatedAt = now;
+        }
+      });
+
+      this.io?.to(roomId).emit(SOCKET_EVENTS.YOUTUBE_SHARE_STARTED, {
+        videoId: payload.videoId,
+        currentTime: 0,
+        isPlaying: true,
+        timestamp: now,
+      });
     });
 
     socket.on(SOCKET_EVENTS.YOUTUBE_SHARE_STOP, async () => {
       const { roomId, role } = socket.data as SocketData;
       if (!roomId || role !== 'host') return;
+
+      await storageService.updateJson<RoomsFileSchema>('rooms.json', (data) => {
+        if (data.rooms[roomId]) {
+          data.rooms[roomId].youtubeVideoId = null;
+          data.rooms[roomId].youtubeCurrentTime = 0;
+          data.rooms[roomId].youtubeIsPlaying = false;
+          data.rooms[roomId].youtubeUpdatedAt = 0;
+        }
+      });
+
       this.io?.to(roomId).emit(SOCKET_EVENTS.YOUTUBE_SHARE_STOPPED, {});
+    });
+
+    socket.on(SOCKET_EVENTS.YOUTUBE_SYNC_STATE, async (payload: { videoId: string; currentTime: number; isPlaying: boolean }) => {
+      const { roomId, role } = socket.data as SocketData;
+      if (!roomId || role !== 'host' || !payload.videoId) return;
+
+      const now = Date.now();
+      await storageService.updateJson<RoomsFileSchema>('rooms.json', (data) => {
+        if (data.rooms[roomId]) {
+          data.rooms[roomId].youtubeVideoId = payload.videoId;
+          data.rooms[roomId].youtubeCurrentTime = payload.currentTime;
+          data.rooms[roomId].youtubeIsPlaying = payload.isPlaying;
+          data.rooms[roomId].youtubeUpdatedAt = now;
+        }
+      });
+
+      socket.to(roomId).emit(SOCKET_EVENTS.YOUTUBE_SYNC_UPDATED, {
+        videoId: payload.videoId,
+        currentTime: payload.currentTime,
+        isPlaying: payload.isPlaying,
+        timestamp: now,
+      });
     });
 
     // RAISE / LOWER HAND

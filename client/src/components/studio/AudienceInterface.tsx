@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRoomStore } from '../../store/roomStore';
 import { notificationService } from '../../services/NotificationService';
 import { Sidebar } from './Sidebar';
+import { SyncedYouTubePlayer } from './SyncedYouTubePlayer';
 import {
   Volume2,
   VolumeX,
@@ -156,14 +157,10 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
         {/* Stream Viewing Deck */}
         <div className="flex-1 w-full bg-[#101423] rounded-3xl border border-slate-800/80 flex items-center justify-center relative overflow-hidden shadow-2xl mt-2 mb-4 min-h-[200px]">
           {youtubeVideoId ? (
-            <div className="w-full h-full relative min-h-[250px]">
-              <iframe
-                src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`}
-                className="w-full h-full absolute inset-0 rounded-3xl pointer-events-auto border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
+            <SyncedYouTubePlayer
+              videoId={youtubeVideoId}
+              isHost={false}
+            />
           ) : isReceiving ? (
             isAudioOnly ? (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 space-y-6">

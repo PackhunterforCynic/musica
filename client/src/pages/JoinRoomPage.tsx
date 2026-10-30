@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Headphones, Lock, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import { formatRoomIdInput, validateRoomId } from '../utils/formatters';
 import { storageService } from '../services/StorageService';
@@ -11,8 +12,10 @@ interface JoinRoomPageProps {
 }
 
 export const JoinRoomPage: React.FC<JoinRoomPageProps> = ({ onBack, onRoomJoined }) => {
+  const [searchParams] = useSearchParams();
+  const queryRoom = searchParams.get('room');
   const prefs = storageService.getPreferences();
-  const [roomId, setRoomId] = useState(prefs.lastJoinedRoomId || '');
+  const [roomId, setRoomId] = useState(queryRoom ? queryRoom.toUpperCase().slice(0, 4) : prefs.lastJoinedRoomId || '');
   const [displayName, setDisplayName] = useState(prefs.displayName || '');
   const [password, setPassword] = useState('');
   const [requiresPassword, setRequiresPassword] = useState(false);
