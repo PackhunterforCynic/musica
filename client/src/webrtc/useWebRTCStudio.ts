@@ -63,14 +63,16 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       // Connect to LiveKit SFU using the issued JWT token
       if ((data as any).livekit?.token) {
         const lk = (data as any).livekit;
-        const sfuUrl = lk.serverUrl || (import.meta as any).env?.VITE_LIVEKIT_URL || 'ws://127.0.0.1:7880';
+        const sfuUrl = (lk.serverUrl && !lk.serverUrl.includes('127.0.0.1') && !lk.serverUrl.includes('localhost'))
+          ? lk.serverUrl
+          : ((import.meta as any).env?.VITE_LIVEKIT_URL || 'wss://musica-t6p6knyc.livekit.cloud');
         liveKitManager.connect(sfuUrl, lk.token).catch((err) => {
           console.warn('[Studio] LiveKit connection warning:', err);
         });
       }
 
-      // If this user is an audience member joining an active screen share, ask host for stream!
-      if (data.localParticipant.role === 'audience' && data.room.screenShareState === 'Sharing') {
+      // If joining an active broadcast/share, ask host for stream
+      if (data.localParticipant.role !== 'host' && data.room.screenShareState === 'Sharing') {
         socket.emit(SOCKET_EVENTS.REQUEST_MEDIA_STREAM, {});
       }
     });
@@ -214,7 +216,9 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
 
     socket.on(SOCKET_EVENTS.SFU_TOKEN_RESPONSE, (tokenData: any) => {
       if (tokenData?.token) {
-        const sfuUrl = tokenData.serverUrl || (import.meta as any).env?.VITE_LIVEKIT_URL || 'ws://127.0.0.1:7880';
+        const sfuUrl = (tokenData.serverUrl && !tokenData.serverUrl.includes('127.0.0.1') && !tokenData.serverUrl.includes('localhost'))
+          ? tokenData.serverUrl
+          : ((import.meta as any).env?.VITE_LIVEKIT_URL || 'wss://musica-t6p6knyc.livekit.cloud');
         liveKitManager.connect(sfuUrl, tokenData.token).catch((err) => {
           console.warn('[Studio] LiveKit connection on token response warning:', err);
         });
@@ -317,10 +321,10 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
 
       peerManager.setLocalMediaStream(stream);
 
-      // Connect to all current audience members
+      // Connect to all current room participants
       const roster = useRoomStore.getState().participants;
       roster.forEach((p) => {
-        if (p.id !== socket.id && p.role === 'audience') {
+        if (p.id !== socket.id) {
           peerManager.connectToAudienceMember(p.id);
         }
       });
@@ -375,7 +379,7 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       peerManager.setLocalMediaStream(stream);
       const roster = useRoomStore.getState().participants;
       roster.forEach((p) => {
-        if (p.id !== socket.id && p.role === 'audience') {
+        if (p.id !== socket.id) {
           peerManager.connectToAudienceMember(p.id);
         }
       });

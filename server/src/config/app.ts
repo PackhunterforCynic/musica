@@ -11,8 +11,8 @@ export const appConfig = {
   serverName: 'Musica Signaling & API Server',
   version: '2.0.0',
   livekit: {
-    apiUrl: process.env.LIVEKIT_URL || 'ws://127.0.0.1:7880',
-    apiKey: process.env.LIVEKIT_API_KEY || 'devkey',
+    apiUrl: process.env.LIVEKIT_URL || 'wss://musica-t6p6knyc.livekit.cloud',
+    apiKey: process.env.LIVEKIT_API_KEY || 'APIGq3uJ5KYsgaK',
     apiSecret: process.env.LIVEKIT_API_SECRET || 'secret',
   },
   supabase: {

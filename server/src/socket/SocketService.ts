@@ -75,8 +75,8 @@ export class SocketService {
           roomData.roomType === 'couple' ||
           roomData.roomType === 'remote-support';
 
-        // 1:1 and remote support rooms never block peers in the waiting room
-        const requireApproval = roomData.settings?.requireApprovalToJoin ?? (!isPeerToPeerRoom);
+        // Only require waiting room approval if explicitly configured in room settings
+        const requireApproval = roomData.settings?.requireApprovalToJoin === true;
 
         if (role !== 'host' && requireApproval) {
           // AUDIENCE WAITING ROOM APPROVAL

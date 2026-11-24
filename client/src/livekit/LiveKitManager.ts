@@ -138,6 +138,14 @@ export class LiveKitManager {
           useRoomStore.getState().setScreenShareState('Sharing');
           notificationService.showToast(`📺 Receiving screen share from ${participant.name || 'host'}`, 'info');
         }
+
+        // C. REMOTE CAMERA VIDEO
+        if (track.kind === Track.Kind.Video && (track.source === Track.Source.Camera || publication.source === Track.Source.Camera)) {
+          console.log(`[LiveKitManager] Received Camera video track from ${participant.identity}`);
+          const mediaStream = new MediaStream([track.mediaStreamTrack]);
+          useRoomStore.getState().setRemoteCameraStream(participant.identity, mediaStream);
+          useRoomStore.getState().updateParticipant(participant.identity, { hasCamera: true });
+        }
       }
     );
 
@@ -162,6 +170,12 @@ export class LiveKitManager {
           useRoomStore.getState().setRemoteMediaStream(null);
           useRoomStore.getState().setScreenShareState('Idle');
           notificationService.showToast('Host screen share ended.', 'info');
+        }
+
+        // Clear camera video if camera track ended
+        if (track.kind === Track.Kind.Video && (track.source === Track.Source.Camera || publication.source === Track.Source.Camera)) {
+          useRoomStore.getState().setRemoteCameraStream(participant.identity, null);
+          useRoomStore.getState().updateParticipant(participant.identity, { hasCamera: false });
         }
       }
     );

@@ -54,6 +54,7 @@ export interface RoomState {
   isCameraEnabled: boolean;
   isScreenSharing: boolean;
   localCameraStream: MediaStream | null;
+  remoteCameraStreams: Record<string, MediaStream>;
   activeSpeakerIds: string[];
   remoteScreenTrack: any | null;
 
@@ -64,6 +65,7 @@ export interface RoomState {
   setIsMicMuted: (muted: boolean) => void;
   setIsCameraEnabled: (enabled: boolean) => void;
   setLocalCameraStream: (stream: MediaStream | null) => void;
+  setRemoteCameraStream: (participantId: string, stream: MediaStream | null) => void;
   setIsScreenSharing: (sharing: boolean) => void;
   setActiveSpeakerIds: (ids: string[]) => void;
   setRemoteScreenTrack: (track: any | null) => void;
@@ -130,6 +132,7 @@ export const useRoomStore = create<RoomState>((set) => ({
   isCameraEnabled: false,
   isScreenSharing: false,
   localCameraStream: null,
+  remoteCameraStreams: {},
   activeSpeakerIds: [],
   remoteScreenTrack: null,
 
@@ -141,6 +144,13 @@ export const useRoomStore = create<RoomState>((set) => ({
   setIsMicMuted: (isMicMuted) => set({ isMicMuted }),
   setIsCameraEnabled: (isCameraEnabled) => set({ isCameraEnabled }),
   setLocalCameraStream: (localCameraStream) => set({ localCameraStream }),
+  setRemoteCameraStream: (participantId, stream) =>
+    set((state) => ({
+      remoteCameraStreams: {
+        ...state.remoteCameraStreams,
+        [participantId]: stream ? stream : (undefined as any),
+      },
+    })),
   setIsScreenSharing: (isScreenSharing) => set({ isScreenSharing }),
   setActiveSpeakerIds: (activeSpeakerIds) => set({ activeSpeakerIds }),
   setRemoteScreenTrack: (remoteScreenTrack) => set({ remoteScreenTrack }),
