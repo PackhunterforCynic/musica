@@ -39,6 +39,7 @@ export interface Participant {
   id: string; // Socket or LiveKit participant identity
   name: string;
   role: UserRole;
+  avatar?: string;
   presence: PresenceStatus;
   permissions: UserPermissions;
   handRaised: boolean;
