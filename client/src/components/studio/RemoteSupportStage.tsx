@@ -99,7 +99,7 @@ export const RemoteSupportStage: React.FC<RemoteSupportStageProps> = ({
       >
         <div className="flex items-center gap-3">
           <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0" />
-          <div className="text-xs">
+          <div className="text-sm">
             <span className="font-semibold text-amber-300">
               {isScreenSharing ? 'Live Screen Broadcast Active' : 'Remote Guidance Session Ready'}
             </span>
@@ -196,7 +196,7 @@ export const RemoteSupportStage: React.FC<RemoteSupportStageProps> = ({
                   <MousePointer2 className="w-8 h-8" />
                 </div>
                 <div className="text-base font-semibold text-white">Start Screen Sharing to Begin</div>
-                <p className="text-xs text-slate-400">
+                <p className="text-sm text-slate-400">
                   Select the application, tab, or window you would like the technician to assist with.
                 </p>
                 <div className="pt-2">
@@ -247,7 +247,7 @@ export const RemoteSupportStage: React.FC<RemoteSupportStageProps> = ({
             <div className="space-y-2">
               <div className="p-2.5 rounded-xl bg-[#0B1020] border border-white/5 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-semibold text-white">{customerName}</div>
+                  <div className="text-sm font-semibold text-white">{customerName}</div>
                   <div className="text-[10px] text-slate-400">Customer (Host)</div>
                 </div>
                 <Badge variant={isScreenSharing ? 'live' : 'cyan'} size="sm">
@@ -257,7 +257,7 @@ export const RemoteSupportStage: React.FC<RemoteSupportStageProps> = ({
 
               <div className="p-2.5 rounded-xl bg-[#0B1020] border border-white/5 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-semibold text-white">{technicianName || 'Technician'}</div>
+                  <div className="text-sm font-semibold text-white">{technicianName || 'Technician'}</div>
                   <div className="text-[10px] text-slate-400">Support Specialist</div>
                 </div>
                 <Badge variant="brand" size="sm">Assistant</Badge>
@@ -266,7 +266,7 @@ export const RemoteSupportStage: React.FC<RemoteSupportStageProps> = ({
           </div>
 
           <div className="p-3 bg-[#0B1020] rounded-xl border border-white/5 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
               <Headphones className="w-4 h-4 text-violet-400" />
               Voice Channel Active
             </div>

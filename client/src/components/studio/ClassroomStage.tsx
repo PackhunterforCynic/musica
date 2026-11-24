@@ -78,7 +78,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
             <GraduationCap className="w-3.5 h-3.5 mr-1" />
             Live Classroom
           </Badge>
-          <div className="text-xs text-slate-300 font-medium">
+          <div className="text-sm text-slate-300 font-medium">
             Instructor: <span className="text-white font-semibold">{teacherName}</span>
           </div>
         </div>
@@ -122,7 +122,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 aria-controls="panel-screen"
                 tabIndex={activeTab === 'screen' ? 0 : -1}
                 onClick={() => setActiveTab('screen')}
-                className={`text-xs px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`text-sm px-2.5 py-1 rounded font-medium transition-colors ${
                   activeTab === 'screen' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -135,7 +135,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 aria-controls="panel-whiteboard"
                 tabIndex={activeTab === 'whiteboard' ? 0 : -1}
                 onClick={() => setActiveTab('whiteboard')}
-                className={`text-xs px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`text-sm px-2.5 py-1 rounded font-medium transition-colors ${
                   activeTab === 'whiteboard' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -148,7 +148,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 aria-controls="panel-notes"
                 tabIndex={activeTab === 'notes' ? 0 : -1}
                 onClick={() => setActiveTab('notes')}
-                className={`text-xs px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`text-sm px-2.5 py-1 rounded font-medium transition-colors ${
                   activeTab === 'notes' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -175,7 +175,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                     <ScreenShare className="w-10 h-10" />
                   </div>
                   <div className="text-base font-semibold text-white">Teacher Presentation Stage</div>
-                  <p className="text-xs text-slate-400 max-w-sm">
+                  <p className="text-sm text-slate-400 max-w-sm">
                     Instructor slides, shared screens, and live code examples appear in this broadcast view.
                   </p>
                   {isTeacher && onToggleScreenShare && (
@@ -199,7 +199,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 id="panel-whiteboard"
                 role="tabpanel"
                 aria-labelledby="tab-whiteboard"
-                className="w-full h-full border border-dashed border-white/10 rounded-xl flex items-center justify-center text-xs text-slate-400"
+                className="w-full h-full border border-dashed border-white/10 rounded-xl flex items-center justify-center text-sm text-slate-400"
               >
                 Interactive Collaborative Whiteboard Active
               </div>
@@ -210,7 +210,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 id="panel-notes"
                 role="tabpanel"
                 aria-labelledby="tab-notes"
-                className="w-full h-full p-4 overflow-y-auto text-left text-xs text-slate-300 space-y-2 font-mono"
+                className="w-full h-full p-4 overflow-y-auto text-left text-sm text-slate-300 space-y-2 font-mono"
               >
                 <div className="font-bold text-violet-400">Lesson Outline: Real-Time Audio & Video Topologies</div>
                 <p>1. Mesh vs SFU vs MCU architectures</p>
@@ -239,7 +239,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 {studentsWithHandRaised.map((student) => (
                   <div
                     key={student.identity}
-                    className="p-1.5 rounded bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs"
+                    className="p-1.5 rounded bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-sm"
                   >
                     <span className="text-amber-200 truncate">{student.name}</span>
                     {isTeacher && (
@@ -260,7 +260,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
               <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
             </div>
 
-            <div className="text-xs text-white font-medium mb-3">
+            <div className="text-sm text-white font-medium mb-3">
               Does an SFU decode and re-encode every audio stream?
             </div>
 
@@ -274,7 +274,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 }}
                 disabled={hasVoted}
                 aria-pressed={hasVoted}
-                className="w-full p-2 rounded-lg bg-[#0B1020] border border-white/10 hover:border-violet-500/40 text-left text-xs flex items-center justify-between transition-colors disabled:opacity-80"
+                className="w-full p-2 rounded-lg bg-[#0B1020] border border-white/10 hover:border-violet-500/40 text-left text-sm flex items-center justify-between transition-colors disabled:opacity-80"
               >
                 <span>A) Yes, every frame</span>
                 <span className="font-mono text-slate-400 tabular-nums">{pollVotes.A}</span>
@@ -289,7 +289,7 @@ export const ClassroomStage: React.FC<ClassroomStageProps> = ({
                 }}
                 disabled={hasVoted}
                 aria-pressed={hasVoted}
-                className="w-full p-2 rounded-lg bg-[#0B1020] border border-white/10 hover:border-violet-500/40 text-left text-xs flex items-center justify-between transition-colors disabled:opacity-80"
+                className="w-full p-2 rounded-lg bg-[#0B1020] border border-white/10 hover:border-violet-500/40 text-left text-sm flex items-center justify-between transition-colors disabled:opacity-80"
               >
                 <span>B) No, it selectively forwards packets</span>
                 <span className="font-mono text-slate-400 tabular-nums">{pollVotes.B}</span>

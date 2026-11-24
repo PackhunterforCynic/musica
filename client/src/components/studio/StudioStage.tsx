@@ -113,7 +113,7 @@ const RemoteParticipantTile: React.FC<{
 
       {/* Bottom Bar: Name tag, role/crown, mic status & audio meter */}
       <div className="p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10 flex items-center justify-between">
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-sm font-bold text-white shadow-sm">
           {isHostOrOwner && <Crown className="w-3 h-3 text-violet-400 fill-violet-400/20" />}
           {participant.hasMic ? <Mic className="w-3.5 h-3.5 text-emerald-400" /> : <MicOff className="w-3.5 h-3.5 text-rose-400" />}
           <span>{participant.name}</span>
@@ -356,7 +356,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search rooms, people..."
-              className="w-full pl-9 pr-10 py-2 rounded-xl bg-[#13192B] border border-white/6 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-violet-500/50 transition-colors"
+              className="w-full pl-9 pr-10 py-2 rounded-xl bg-[#13192B] border border-white/6 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-violet-500/50 transition-colors"
             />
             <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white/6 px-1.5 py-0.5 rounded border border-white/8">
               ⌘ K
@@ -394,13 +394,13 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             {showNotifications && (
               <div className="absolute right-0 top-12 w-72 rounded-2xl bg-[#13192B] border border-white/10 shadow-2xl p-3 z-50 space-y-2">
                 <div className="flex items-center justify-between pb-2 border-b border-white/6">
-                  <span className="text-xs font-bold text-white">Notifications</span>
+                  <span className="text-sm font-bold text-white">Notifications</span>
                   <span className="text-[10px] text-violet-400 font-semibold cursor-pointer">Live</span>
                 </div>
-                <div className="space-y-1.5 text-xs">
+                <div className="space-y-1.5 text-sm">
                   {pendingJoinRequests.length > 0 ? (
                     pendingJoinRequests.map((req) => (
-                      <div key={req.socketId} className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
+                      <div key={req.socketId} className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm">
                         <p className="font-semibold text-white">{req.name} requested to join</p>
                         <div className="flex space-x-2 mt-1">
                           <button
@@ -419,7 +419,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                       </div>
                     ))
                   ) : (
-                    <div className="p-2 text-center text-xs text-slate-400">
+                    <div className="p-2 text-center text-sm text-slate-400">
                       No pending room notifications.
                     </div>
                   )}
@@ -430,7 +430,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
           <div
             onClick={() => navigate('/dashboard')}
-            className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-xs font-bold text-white ring-2 ring-violet-500/50 cursor-pointer hover:ring-violet-400 transition-all shrink-0"
+            className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-sm font-bold text-white ring-2 ring-violet-500/50 cursor-pointer hover:ring-violet-400 transition-all shrink-0"
           >
             {localName.slice(0, 2).toUpperCase()}
           </div>
@@ -446,7 +446,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
           <div className="p-4 space-y-4">
             <button
               onClick={() => navigate('/dashboard')}
-              className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-violet-600/20 text-violet-300 border border-violet-500/30 transition-all shadow-sm"
+              className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl text-sm font-bold bg-violet-600/20 text-violet-300 border border-violet-500/30 transition-all shadow-sm"
             >
               <Home className="w-4 h-4 text-violet-400" />
               <span>Home</span>
@@ -454,7 +454,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
             <button
               onClick={() => navigate('/create')}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-lg shadow-violet-600/30 hover:opacity-95 transition-all"
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-2xl text-sm font-black bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-lg shadow-violet-600/30 hover:opacity-95 transition-all"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>Create Room</span>
@@ -463,7 +463,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             <nav className="space-y-1 pt-1">
               <button
                 onClick={() => navigate('/create?type=podcast')}
-                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
               >
                 <Headphones className="w-4 h-4 text-slate-400" />
                 <span>Podcast</span>
@@ -471,7 +471,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
               <button
                 onClick={() => navigate('/create?type=classroom')}
-                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
               >
                 <GraduationCap className="w-4 h-4 text-slate-400" />
                 <span>Classroom</span>
@@ -479,7 +479,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
               <button
                 onClick={() => navigate('/create?type=remote-support')}
-                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
               >
                 <Headset className="w-4 h-4 text-slate-400" />
                 <span>Support</span>
@@ -487,7 +487,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
               <button
                 onClick={() => navigate('/dashboard')}
-                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
               >
                 <Briefcase className="w-4 h-4 text-slate-400" />
                 <span>My Rooms</span>
@@ -495,7 +495,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
               <button
                 onClick={() => navigate('/dashboard')}
-                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
               >
                 <Calendar className="w-4 h-4 text-slate-400" />
                 <span>Schedule</span>
@@ -503,7 +503,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
               <button
                 onClick={() => navigate('/dashboard')}
-                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/4 transition-colors"
               >
                 <Settings className="w-4 h-4 text-slate-400" />
                 <span>Settings</span>
@@ -514,16 +514,16 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
           {/* Pro Card & User Footer (Live participant identity) */}
           <div className="p-4 space-y-3">
             <div className="p-4 rounded-2xl bg-gradient-to-br from-violet-950/40 via-[#13192B] to-indigo-950/40 border border-violet-500/20 relative overflow-hidden">
-              <div className="flex items-center space-x-2 text-violet-300 text-xs font-bold mb-1">
+              <div className="flex items-center space-x-2 text-violet-300 text-sm font-bold mb-1">
                 <Sparkles className="w-4 h-4 text-violet-400" />
                 <span>Upgrade to Pro</span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-snug mb-3">
+              <p className="text-sm text-slate-400 leading-snug mb-3">
                 Unlock more features for creators & educators.
               </p>
               <button
                 onClick={() => notificationService.showToast('Musica Pro upgrade options available in Dashboard', 'info')}
-                className="text-xs font-bold text-violet-300 hover:text-white flex items-center space-x-1"
+                className="text-sm font-bold text-violet-300 hover:text-white flex items-center space-x-1"
               >
                 <span>Go Pro</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
@@ -533,13 +533,13 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/4 transition-colors cursor-pointer">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="relative">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
                     {localName.slice(0, 2).toUpperCase()}
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0A0F1D] absolute -bottom-0.5 -right-0.5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-white truncate">{localName}</p>
+                  <p className="text-sm font-bold text-white truncate">{localName}</p>
                   <p className="text-[10px] text-emerald-400 font-medium">● Online</p>
                 </div>
               </div>
@@ -570,13 +570,13 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                     <span>LIVE</span>
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 truncate mt-0.5">
+                <p className="text-sm text-slate-400 truncate mt-0.5">
                   {room?.description || 'Real-time collaborative audio & video session'}
                 </p>
               </div>
 
               {/* Real duration & participant counter */}
-              <div className="hidden sm:flex items-center space-x-3 text-xs text-slate-400 border-l border-white/8 pl-4">
+              <div className="hidden sm:flex items-center space-x-3 text-sm text-slate-400 border-l border-white/8 pl-4">
                 <span className="font-mono text-slate-300">{formatDuration(elapsedSeconds)}</span>
                 <div className="flex items-center space-x-1">
                   <Users className="w-3.5 h-3.5 text-slate-400" />
@@ -589,7 +589,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             <div className="flex items-center space-x-2.5 shrink-0">
               <button
                 onClick={handleCopyShareLink}
-                className="px-3.5 py-2 rounded-xl bg-[#13192B] hover:bg-slate-800 border border-white/8 text-slate-200 text-xs font-semibold flex items-center space-x-1.5 transition-all shadow-sm"
+                className="px-3.5 py-2 rounded-xl bg-[#13192B] hover:bg-slate-800 border border-white/8 text-slate-200 text-sm font-semibold flex items-center space-x-1.5 transition-all shadow-sm"
               >
                 <UserPlus className="w-3.5 h-3.5 text-slate-400" />
                 <span>Invite</span>
@@ -597,7 +597,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
               <button
                 onClick={handleCopyShareLink}
-                className="px-3.5 py-2 rounded-xl bg-[#13192B] hover:bg-slate-800 border border-white/8 text-slate-200 text-xs font-semibold flex items-center space-x-1.5 transition-all shadow-sm"
+                className="px-3.5 py-2 rounded-xl bg-[#13192B] hover:bg-slate-800 border border-white/8 text-slate-200 text-sm font-semibold flex items-center space-x-1.5 transition-all shadow-sm"
               >
                 <Share2 className="w-3.5 h-3.5 text-slate-400" />
                 <span>Share</span>
@@ -608,7 +608,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                   studio.leaveRoom();
                   onLeave();
                 }}
-                className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm shadow-rose-950/20"
+                className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-sm font-bold flex items-center space-x-1.5 transition-all shadow-sm shadow-rose-950/20"
               >
                 <PhoneOff className="w-3.5 h-3.5 text-rose-400" />
                 <span>Leave Room</span>
@@ -654,7 +654,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                       </div>
 
                       <div className="p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10 flex items-center justify-between">
-                        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
+                        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-sm font-bold text-white shadow-sm">
                           {isMicMuted ? <MicOff className="w-3.5 h-3.5 text-rose-400" /> : <Mic className="w-3.5 h-3.5 text-emerald-400" />}
                           <span>You</span>
                           {isHost && <Crown className="w-3 h-3 text-amber-400 ml-1" />}
@@ -683,7 +683,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                         </div>
                         <button
                           onClick={handleCopyShareLink}
-                          className="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center space-x-1 transition-all"
+                          className="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold flex items-center space-x-1 transition-all"
                         >
                           <Copy className="w-3.5 h-3.5" />
                           <span>Copy Link</span>
@@ -697,7 +697,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                     {/* Screen Share Tile (Span 2 Cols if remotes, full width otherwise) */}
                     <div className={`${remoteParticipants.length > 1 ? 'lg:col-span-2' : 'lg:col-span-3'} rounded-3xl bg-[#0D1322] border-2 border-violet-500/40 relative overflow-hidden flex flex-col justify-between group shadow-2xl`}>
                       <div className="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
-                        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-violet-600/60 backdrop-blur-md border border-violet-400/40 text-xs font-bold text-violet-100 shadow-sm">
+                        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-violet-600/60 backdrop-blur-md border border-violet-400/40 text-sm font-bold text-violet-100 shadow-sm">
                           <Monitor className="w-3.5 h-3.5 text-violet-200" />
                           <span>Sharing Screen</span>
                         </div>
@@ -768,7 +768,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                     </div>
 
                     <div className="p-3 flex items-center justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10">
-                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
+                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-sm font-bold text-white shadow-sm">
                         {isMicMuted ? <MicOff className="w-3.5 h-3.5 text-rose-400" /> : <Mic className="w-3.5 h-3.5 text-emerald-400" />}
                         <span>{localName} (You)</span>
                         {isHost && <Crown className="w-3 h-3 text-amber-400 ml-1" />}
@@ -783,18 +783,18 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                     </div>
                     <div className="space-y-1">
                       <h3 className="text-xl font-black text-white tracking-tight">Ready to Collaborate</h3>
-                      <p className="text-xs text-slate-400 max-w-xs">
+                      <p className="text-sm text-slate-400 max-w-xs">
                         You are the first in the room. Share the room code or invite link to start streaming together.
                       </p>
                     </div>
 
                     <div className="p-3 rounded-2xl bg-[#13192B] border border-white/10 flex items-center space-x-3">
-                      <span className="text-xs font-mono font-bold text-violet-300">
+                      <span className="text-sm font-mono font-bold text-violet-300">
                         {room?.roomId || 'ROOM'}
                       </span>
                       <button
                         onClick={handleCopyShareLink}
-                        className="px-3 py-1 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center space-x-1 transition-all"
+                        className="px-3 py-1 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold flex items-center space-x-1 transition-all"
                       >
                         <Copy className="w-3.5 h-3.5" />
                         <span>Copy Invite Link</span>
@@ -832,7 +832,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                       )}
                     </div>
                     <div className="p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10 flex items-center justify-between">
-                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
+                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-sm font-bold text-white shadow-sm">
                         {isMicMuted ? <MicOff className="w-3.5 h-3.5 text-rose-400" /> : <Mic className="w-3.5 h-3.5 text-emerald-400" />}
                         <span>You</span>
                         {isHost && <Crown className="w-3 h-3 text-amber-400 ml-1" />}
@@ -860,7 +860,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             <div className="h-20 rounded-3xl bg-[#0D1322]/95 backdrop-blur-2xl border border-white/10 px-6 flex items-center justify-between gap-4 shadow-2xl shrink-0">
               {/* Left Status: Connected Signal Bars & End-to-End Encrypted */}
               <div className="hidden sm:flex items-center space-x-4 shrink-0">
-                <div className="flex items-center space-x-1.5 text-emerald-400 text-xs font-bold">
+                <div className="flex items-center space-x-1.5 text-emerald-400 text-sm font-bold">
                   <div className="flex items-end space-x-0.5 h-3.5">
                     <span className="w-0.5 h-1.5 bg-emerald-400 rounded-full" />
                     <span className="w-0.5 h-2.5 bg-emerald-400 rounded-full" />
@@ -868,7 +868,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                   </div>
                   <span>Connected</span>
                 </div>
-                <div className="flex items-center space-x-1.5 text-slate-400 text-xs font-medium">
+                <div className="flex items-center space-x-1.5 text-slate-400 text-sm font-medium">
                   <Lock className="w-3.5 h-3.5 text-slate-400" />
                   <span>End-to-End Encrypted</span>
                 </div>
@@ -971,7 +971,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                             toggleRaiseHand();
                             setShowMoreMenu(false);
                           }}
-                          className="w-full px-4 py-2 text-left text-xs text-slate-300 hover:text-white hover:bg-white/6 flex items-center space-x-2"
+                          className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:text-white hover:bg-white/6 flex items-center space-x-2"
                         >
                           <Hand className="w-4 h-4 text-amber-400" />
                           <span>{handRaised ? 'Lower Hand' : 'Raise Hand'}</span>
@@ -982,7 +982,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                           handleCopyShareLink();
                           setShowMoreMenu(false);
                         }}
-                        className="w-full px-4 py-2 text-left text-xs text-slate-300 hover:text-white hover:bg-white/6 flex items-center space-x-2"
+                        className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:text-white hover:bg-white/6 flex items-center space-x-2"
                       >
                         <Share2 className="w-4 h-4 text-slate-400" />
                         <span>Copy Room Link</span>
@@ -992,7 +992,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                           notificationService.showToast('Audio echo cancellation & spatial filters enabled', 'info');
                           setShowMoreMenu(false);
                         }}
-                        className="w-full px-4 py-2 text-left text-xs text-slate-300 hover:text-white hover:bg-white/6 flex items-center space-x-2"
+                        className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:text-white hover:bg-white/6 flex items-center space-x-2"
                       >
                         <Settings className="w-4 h-4 text-slate-400" />
                         <span>Audio Settings</span>
@@ -1099,7 +1099,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                 {chatMessages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2 text-slate-500">
                     <MessageSquare className="w-8 h-8 text-slate-600" />
-                    <p className="text-xs font-semibold text-slate-400">No messages yet</p>
+                    <p className="text-sm font-semibold text-slate-400">No messages yet</p>
                     <p className="text-[11px] leading-relaxed">
                       Start the conversation by sending a greeting or sharing a link with room participants.
                     </p>
@@ -1111,20 +1111,20 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
 
                     return (
                       <div key={msg.id} className="flex items-start space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm font-bold ${
                           isSelf ? 'bg-violet-600 text-white' : 'bg-white/8 text-slate-200'
                         }`}>
                           {msg.senderName.slice(0, 1).toUpperCase()}
                         </div>
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center space-x-2">
-                            <span className="text-xs font-bold text-white">{msg.senderName}</span>
+                            <span className="text-sm font-bold text-white">{msg.senderName}</span>
                             <span className="text-[10px] text-slate-400">
                               {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
 
-                          <div className={`p-3 rounded-2xl text-xs leading-relaxed shadow-sm ${
+                          <div className={`p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
                             isSelf 
                               ? 'bg-gradient-to-r from-violet-600/30 to-indigo-600/30 border border-violet-500/40 text-slate-100' 
                               : 'bg-[#13192B] border border-white/6 text-slate-200'
@@ -1168,7 +1168,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                     placeholder="Type a message..."
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    className="flex-1 bg-transparent px-2 py-2 text-xs text-white placeholder-slate-400 focus:outline-none"
+                    className="flex-1 bg-transparent px-2 py-2 text-sm text-white placeholder-slate-400 focus:outline-none"
                   />
 
                   <button
@@ -1195,12 +1195,12 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                   return (
                     <div key={p.id} className="p-3 rounded-2xl bg-[#13192B] border border-white/6 flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-violet-600/20 text-violet-300 font-bold text-xs flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-violet-600/20 text-violet-300 font-bold text-sm flex items-center justify-center">
                           {p.name.slice(0, 1).toUpperCase()}
                         </div>
                         <div>
                           <div className="flex items-center space-x-1.5">
-                            <span className="text-xs font-bold text-white block">{p.name}</span>
+                            <span className="text-sm font-bold text-white block">{p.name}</span>
                             {isUserHost && <Crown className="w-3 h-3 text-amber-400" />}
                           </div>
                           <span className="text-[10px] text-slate-400 capitalize">{p.role}</span>
@@ -1222,7 +1222,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                   </span>
                   {pendingJoinRequests.map((req) => (
                     <div key={req.socketId} className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between">
-                      <span className="text-xs font-bold text-white">{req.name}</span>
+                      <span className="text-sm font-bold text-white">{req.name}</span>
                       <div className="flex items-center space-x-1.5">
                         <button
                           onClick={() => studio.denyUser?.(req.socketId)}
@@ -1251,7 +1251,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               {sharedFiles.length === 0 ? (
                 <div className="p-6 text-center text-slate-500 space-y-2">
                   <Folder className="w-8 h-8 text-slate-600 mx-auto" />
-                  <p className="text-xs text-slate-400">No files shared yet</p>
+                  <p className="text-sm text-slate-400">No files shared yet</p>
                   <p className="text-[11px]">Upload a document, audio file, or image to share with the room.</p>
                 </div>
               ) : (
@@ -1262,7 +1262,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                         <FileText className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-xs font-bold text-white block truncate max-w-[150px]">{f.name}</span>
+                        <span className="text-sm font-bold text-white block truncate max-w-[150px]">{f.name}</span>
                         <span className="text-[10px] text-slate-400">{f.size} • {f.time}</span>
                       </div>
                     </div>
@@ -1276,7 +1276,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                 ))
               )}
 
-              <label className="w-full py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-slate-400 hover:text-white flex items-center justify-center space-x-1.5 cursor-pointer hover:border-violet-500/50 transition-colors">
+              <label className="w-full py-2.5 rounded-xl border border-dashed border-white/15 text-sm text-slate-400 hover:text-white flex items-center justify-center space-x-1.5 cursor-pointer hover:border-violet-500/50 transition-colors">
                 <Paperclip className="w-3.5 h-3.5" />
                 <span>Share a file</span>
                 <input type="file" onChange={handleFileUpload} className="hidden" />
@@ -1294,7 +1294,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                 value={sharedNotes}
                 onChange={(e) => setSharedNotes(e.target.value)}
                 placeholder="Capture shared room notes, agenda items, and takeaways..."
-                className="flex-1 w-full p-3 rounded-2xl bg-[#13192B] border border-white/6 text-xs text-slate-200 focus:outline-none focus:border-violet-500/50 resize-none font-mono leading-relaxed"
+                className="flex-1 w-full p-3 rounded-2xl bg-[#13192B] border border-white/6 text-sm text-slate-200 focus:outline-none focus:border-violet-500/50 resize-none font-mono leading-relaxed"
               />
               <div className="pt-2 flex justify-between items-center text-[10px] text-slate-400">
                 <span>● Synced with session</span>

@@ -72,7 +72,7 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
       {/* Active Track Banner */}
       <div className="p-3 bg-gradient-to-r from-indigo-950/70 to-purple-950/70 border-b border-indigo-500/20 shrink-0">
         <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center space-x-1.5 text-indigo-400 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center space-x-1.5 text-indigo-400 text-sm font-bold uppercase tracking-wider">
             <Disc3 className="w-4 h-4 animate-spin text-indigo-400" />
             <span>Now Playing</span>
           </div>
@@ -95,11 +95,11 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-white truncate">{currentTrack.track.title}</p>
-              <p className="text-xs text-slate-400 truncate">{currentTrack.track.artist}</p>
+              <p className="text-sm text-slate-400 truncate">{currentTrack.track.artist}</p>
             </div>
           </div>
         ) : (
-          <p className="text-xs text-slate-400 italic">No track playing. Add a song below to start the party!</p>
+          <p className="text-sm text-slate-400 italic">No track playing. Add a song below to start the party!</p>
         )}
       </div>
 
@@ -107,13 +107,13 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
       <div className="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/40 shrink-0">
         <div className="flex items-center space-x-2">
           <ListMusic className="w-4 h-4 text-indigo-400" />
-          <span className="text-xs font-bold text-white uppercase tracking-wider">
+          <span className="text-sm font-bold text-white uppercase tracking-wider">
             Up Next ({queue.length})
           </span>
         </div>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="px-2.5 py-1 bg-indigo-600/80 hover:bg-indigo-500 rounded-lg text-white text-xs font-bold flex items-center space-x-1 transition-all shadow-md"
+          className="px-2.5 py-1 bg-indigo-600/80 hover:bg-indigo-500 rounded-lg text-white text-sm font-bold flex items-center space-x-1 transition-all shadow-md"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add Song</span>
@@ -129,20 +129,20 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
               placeholder="Paste YouTube link or enter song title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500"
               autoFocus
             />
             <div className="flex justify-end space-x-2">
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-3 py-1.5 text-xs text-slate-400 hover:text-white"
+                className="px-3 py-1.5 text-sm text-slate-400 hover:text-white"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white text-xs font-bold"
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white text-sm font-bold"
               >
                 Queue Song
               </button>
@@ -187,7 +187,7 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
         {queue.length === 0 ? (
           <div className="h-40 flex flex-col items-center justify-center text-center p-4 text-slate-500">
             <Radio className="w-8 h-8 mb-2 opacity-50" />
-            <p className="text-xs font-medium">The queue is currently empty.</p>
+            <p className="text-sm font-medium">The queue is currently empty.</p>
             <p className="text-[10px] text-slate-600 mt-0.5">Click "Add Song" to queue up the next vibe.</p>
           </div>
         ) : (
@@ -200,14 +200,14 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
                 className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 flex items-center justify-between transition-all group"
               >
                 <div className="flex items-center space-x-2.5 min-w-0 flex-1">
-                  <span className="text-xs font-mono font-bold text-slate-500 w-4 text-center">
+                  <span className="text-sm font-mono font-bold text-slate-500 w-4 text-center">
                     {index + 1}
                   </span>
                   <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
                     <Music className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold text-white truncate">{item.track.title}</p>
+                    <p className="text-sm font-bold text-white truncate">{item.track.title}</p>
                     <p className="text-[10px] text-slate-400 truncate">
                       {item.track.artist} • <span className="text-slate-500">by {item.addedBy.name}</span>
                     </p>
@@ -218,7 +218,7 @@ export const CollaborativeQueue: React.FC<CollaborativeQueueProps> = ({
                 <div className="flex items-center space-x-1.5 shrink-0 ml-2">
                   <button
                     onClick={() => onVote?.(item.id)}
-                    className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center space-x-1 transition-all ${
+                    className={`px-2 py-1 rounded-lg text-sm font-bold flex items-center space-x-1 transition-all ${
                       hasVoted
                         ? 'bg-indigo-600 text-white'
                         : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'

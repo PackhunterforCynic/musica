@@ -59,7 +59,7 @@ export const PodcastRoomStage: React.FC<PodcastRoomStageProps> = ({
               RECORDING
             </Badge>
           ) : (
-            <span className="text-xs text-slate-400">Standby</span>
+            <span className="text-sm text-slate-400">Standby</span>
           )}
         </div>
 
@@ -85,7 +85,7 @@ export const PodcastRoomStage: React.FC<PodcastRoomStageProps> = ({
       {/* Main Speakers Stage */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">
+          <span className="text-sm font-semibold tracking-wider uppercase text-slate-400">
             Stage Speakers ({speakers.length})
           </span>
         </div>
@@ -130,7 +130,7 @@ export const PodcastRoomStage: React.FC<PodcastRoomStageProps> = ({
       {/* Audience / Listeners Section */}
       <div className="flex-1 min-h-[160px] bg-[#151C2E]/60 border border-white/8 rounded-xl p-4 flex flex-col">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">
+          <span className="text-sm font-semibold tracking-wider uppercase text-slate-400">
             Audience Gallery ({listeners.length})
           </span>
 
@@ -147,7 +147,7 @@ export const PodcastRoomStage: React.FC<PodcastRoomStageProps> = ({
         </div>
 
         {listeners.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-xs text-slate-400">
+          <div className="flex-1 flex items-center justify-center text-sm text-slate-400">
             No audience listeners yet. Share the room link to invite listeners.
           </div>
         ) : (
@@ -157,7 +157,7 @@ export const PodcastRoomStage: React.FC<PodcastRoomStageProps> = ({
                 key={listener.identity}
                 className="p-2 rounded-lg bg-[#0B1020] border border-white/5 flex flex-col items-center text-center"
               >
-                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-semibold text-slate-300 mb-1">
+                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-sm font-semibold text-slate-300 mb-1">
                   {listener.name.slice(0, 2).toUpperCase()}
                 </div>
                 <span className="text-[11px] text-slate-300 truncate w-full">

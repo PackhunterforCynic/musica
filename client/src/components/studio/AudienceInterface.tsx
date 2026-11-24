@@ -142,10 +142,10 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
           </button>
           <div>
             <h2 className="text-base font-bold text-white leading-tight">{room?.roomName || 'Design Review'}</h2>
-            <div className="flex items-center space-x-2 text-xs font-medium text-slate-400">
+            <div className="flex items-center space-x-2 text-sm font-medium text-slate-400">
               <span>{room?.roomId || 'ABX9'}</span>
             </div>
-            <div className="text-xs text-slate-500 mt-0.5">00:12:34</div>
+            <div className="text-sm text-slate-500 mt-0.5">00:12:34</div>
           </div>
         </div>
 
@@ -335,7 +335,7 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
             <div className="flex border-b border-slate-800 p-2 space-x-2 bg-slate-950/40">
               <button
                 onClick={() => setActiveTab('chat')}
-                className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-2 ${
+                className={`flex-1 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-2 ${
                   activeTab === 'chat'
                     ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -346,7 +346,7 @@ export const AudienceInterface: React.FC<AudienceInterfaceProps> = ({ studio, on
               </button>
               <button
                 onClick={() => setActiveTab('participants')}
-                className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-2 ${
+                className={`flex-1 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-2 ${
                   activeTab === 'participants'
                     ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/50'

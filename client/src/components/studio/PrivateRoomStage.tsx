@@ -93,7 +93,7 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
       {/* Waiting Room Admission Banner (Host Only) */}
       {isHost && pendingRequests.length > 0 && (
         <div className="mb-3 p-3 rounded-xl bg-violet-600/20 border border-violet-500/40 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-violet-200">
+          <div className="flex items-center gap-2 text-sm text-violet-200">
             <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
             <span>
               <strong>{pendingRequests[0].name}</strong> is in the lobby waiting to join this private call.
@@ -102,14 +102,14 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onAdmitUser?.(pendingRequests[0].socketId)}
-              className="px-2.5 py-1 rounded bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold flex items-center gap-1 shadow-sm"
+              className="px-2.5 py-1 rounded bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold flex items-center gap-1 shadow-sm"
               aria-label={`Admit ${pendingRequests[0].name}`}
             >
               <Check className="w-3.5 h-3.5" /> Admit
             </button>
             <button
               onClick={() => onDenyUser?.(pendingRequests[0].socketId)}
-              className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1"
+              className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold flex items-center gap-1"
               aria-label={`Deny ${pendingRequests[0].name}`}
             >
               <X className="w-3.5 h-3.5" /> Deny
@@ -128,7 +128,7 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
           <div
             role="status"
             aria-live="polite"
-            className="flex items-center gap-2 text-xs font-mono text-slate-400"
+            className="flex items-center gap-2 text-sm font-mono text-slate-400"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="tabular-nums font-semibold text-white">{formatTimer(callDurationSeconds)}</span>
@@ -169,7 +169,7 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
                   <User className="w-12 h-12 text-violet-400" />
                 </div>
                 <div className="text-base font-semibold text-white">{localParticipantName}</div>
-                <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                <div className="text-sm text-slate-400 mt-1 flex items-center gap-2">
                   <span>{hasLocalAudio ? 'Mic active' : 'Muted'}</span>
                   <span>•</span>
                   <span>{hasLocalVideo ? 'Video active' : 'Camera off'}</span>
@@ -209,7 +209,7 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
                       <User className="w-12 h-12 text-cyan-400" />
                     </div>
                     <div className="text-base font-semibold text-white">{peer.name}</div>
-                    <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                    <div className="text-sm text-slate-400 mt-1 flex items-center gap-2">
                       <span>{peer.hasMic ? 'Mic on' : 'Muted'}</span>
                       <span>•</span>
                       <span>{peer.hasCamera ? 'Video on' : 'Camera off'}</span>
@@ -224,7 +224,7 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
                 <User className="w-8 h-8 opacity-40" />
               </div>
               <div className="text-sm font-semibold text-slate-300">Invite a partner to start</div>
-              <div className="text-xs text-slate-400 mt-1 max-w-xs">
+              <div className="text-sm text-slate-400 mt-1 max-w-xs">
                 Share this room link to begin your private encrypted session.
               </div>
             </div>

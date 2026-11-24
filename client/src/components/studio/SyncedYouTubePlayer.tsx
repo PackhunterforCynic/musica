@@ -181,7 +181,7 @@ export const SyncedYouTubePlayer: React.FC<SyncedYouTubePlayerProps> = ({
         {isHost && onStop && (
           <button
             onClick={onStop}
-            className="absolute top-3 right-3 px-3 py-1.5 bg-red-600/90 hover:bg-red-500 rounded-xl text-white shadow-xl z-20 flex items-center space-x-1.5 text-xs font-bold transition-all backdrop-blur-sm"
+            className="absolute top-3 right-3 px-3 py-1.5 bg-red-600/90 hover:bg-red-500 rounded-xl text-white shadow-xl z-20 flex items-center space-x-1.5 text-sm font-bold transition-all backdrop-blur-sm"
           >
             <XCircle className="w-4 h-4" />
             <span>Stop Party</span>
@@ -221,7 +221,7 @@ export const SyncedYouTubePlayer: React.FC<SyncedYouTubePlayerProps> = ({
 
             <button
               onClick={() => handleSeekRelative(-10)}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all text-xs flex items-center space-x-1"
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all text-sm flex items-center space-x-1"
               title="Seek back 10 seconds"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -230,14 +230,14 @@ export const SyncedYouTubePlayer: React.FC<SyncedYouTubePlayerProps> = ({
 
             <button
               onClick={() => handleSeekRelative(10)}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all text-xs flex items-center space-x-1"
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all text-sm flex items-center space-x-1"
               title="Seek forward 10 seconds"
             >
               <RotateCw className="w-3.5 h-3.5" />
               <span className="text-[10px]">10s</span>
             </button>
 
-            <span className="text-xs text-slate-400 font-mono ml-1">
+            <span className="text-sm text-slate-400 font-mono ml-1">
               {formatDuration(Math.floor(localTime))} {duration > 0 ? `/ ${formatDuration(Math.floor(duration))}` : ''}
             </span>
           </div>

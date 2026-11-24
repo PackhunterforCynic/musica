@@ -167,10 +167,10 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
           </button>
           <div>
             <h2 className="text-base font-bold text-white leading-tight">{room?.roomName || 'Design Review'}</h2>
-            <div className="flex items-center space-x-2 text-xs font-medium text-slate-400">
+            <div className="flex items-center space-x-2 text-sm font-medium text-slate-400">
               <span>{room?.roomId || 'ABX9'}</span>
             </div>
-            <div className="text-xs text-slate-500 mt-0.5">00:12:34</div>
+            <div className="text-sm text-slate-500 mt-0.5">00:12:34</div>
           </div>
         </div>
 
@@ -273,7 +273,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
                     <Tv className="w-7 h-7" />
                   </div>
                   <h3 className="text-lg font-bold text-white">Watch Together</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-sm text-slate-400 leading-relaxed">
                     Paste a YouTube link or search to start watching with your audience.
                   </p>
                 </>
@@ -460,11 +460,11 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
               {activeTab === 'analytics' ? (
                 <div className="p-6 space-y-6 overflow-y-auto">
                   <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
-                    <h4 className="text-xs font-extrabold text-purple-400 uppercase tracking-wider flex items-center space-x-2">
+                    <h4 className="text-sm font-extrabold text-purple-400 uppercase tracking-wider flex items-center space-x-2">
                       <Activity className="w-4 h-4" />
                       <span>Real-Time Stats</span>
                     </h4>
-                    <div className="space-y-3 text-xs font-mono text-slate-300">
+                    <div className="space-y-3 text-sm font-mono text-slate-300">
                       <p>FPS: {telemetry.fps}</p>
                       <p>Bitrate: {telemetry.bitrateMbps} Mbps</p>
                       <p>Latency: {telemetry.latencyMs} ms</p>
