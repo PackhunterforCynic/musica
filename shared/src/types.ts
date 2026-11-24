@@ -246,3 +246,12 @@ export interface LiveKitTokenRequest {
   password?: string;
   role?: UserRole;
 }
+
+export interface UserProfile {
+  id: string;
+  email?: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
+  createdAt: string;
+}

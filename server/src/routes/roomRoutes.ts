@@ -4,6 +4,8 @@ import { statisticsService } from '../services/StatisticsService';
 import { loggerService } from '../services/LoggerService';
 import { liveKitService } from '../services/LiveKitService';
 import { liveKitWebhookService } from '../services/LiveKitWebhookService';
+import { supabaseService } from '../services/SupabaseService';
+import { optionalAuth, requireAuth, AuthenticatedRequest } from '../middleware/authMiddleware';
 import { AppError, UserRole } from '@musica/shared';
 
 export const roomRouter = Router();
@@ -219,6 +221,61 @@ roomRouter.post('/livekit/webhook', async (req: Request, res: Response): Promise
   } catch (err: any) {
     console.warn('[LiveKitWebhook] Webhook processing note:', err.message);
     res.status(200).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * @route GET /api/auth/health
+ * @desc Check Supabase authentication and database connectivity
+ */
+roomRouter.get('/auth/health', async (req: Request, res: Response): Promise<void> => {
+  const health = await supabaseService.healthCheck();
+  res.status(health.ok ? 200 : 503).json(health);
+});
+
+/**
+ * @route GET /api/auth/me
+ * @desc Get current authenticated user profile (or null if guest)
+ */
+roomRouter.get('/auth/me', optionalAuth as any, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(200).json({ success: true, authenticated: false, user: null });
+    return;
+  }
+
+  const profile = await supabaseService.getProfile(req.user.id);
+  res.status(200).json({
+    success: true,
+    authenticated: true,
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      profile: profile || {
+        id: req.user.id,
+        email: req.user.email,
+        username: `user_${req.user.id.slice(0, 6)}`,
+        displayName: req.user.user_metadata?.full_name || 'Musica User',
+      },
+    },
+  });
+});
+
+/**
+ * @route POST /api/auth/profile
+ * @desc Update user profile in Supabase
+ */
+roomRouter.post('/auth/profile', requireAuth as any, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { username, displayName, avatarUrl } = req.body;
+    await supabaseService.upsertProfile({
+      id: req.user!.id,
+      username,
+      displayName,
+      avatarUrl,
+    });
+    res.status(200).json({ success: true, message: 'Profile updated' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'Failed to update profile' });
   }
 });
 

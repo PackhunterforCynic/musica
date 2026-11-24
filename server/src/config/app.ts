@@ -15,6 +15,12 @@ export const appConfig = {
     apiKey: process.env.LIVEKIT_API_KEY || 'devkey',
     apiSecret: process.env.LIVEKIT_API_SECRET || 'secret',
   },
+  supabase: {
+    url: process.env.SUPABASE_URL || 'https://ymzpafxyrmiaizxacmrx.supabase.co',
+    publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || '',
+    secretKey: process.env.SUPABASE_SECRET_KEY || '',
+    jwksUrl: process.env.SUPABASE_JWKS_URL || '',
+  },
 };
 
 export const allowedOrigins: (string | RegExp)[] = [
