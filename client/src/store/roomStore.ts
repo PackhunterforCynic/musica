@@ -198,32 +198,47 @@ export const useRoomStore = create<RoomState>((set) => ({
       screenShareState: updates.screenShareState !== undefined ? updates.screenShareState : state.screenShareState,
     })),
 
-  setParticipants: (participants) => set({ participants }),
+  setParticipants: (participants) =>
+    set((state) => ({
+      participants,
+      // Keep room.participants in sync
+      room: state.room ? { ...state.room, participants } : null,
+    })),
 
   addParticipant: (participant) =>
     set((state) => {
       const exists = state.participants.some((p) => p.id === participant.id);
-      if (exists) {
-        return {
-          participants: state.participants.map((p) => (p.id === participant.id ? participant : p)),
-        };
-      }
-      return { participants: [...state.participants, participant] };
+      const newParticipants = exists
+        ? state.participants.map((p) => (p.id === participant.id ? participant : p))
+        : [...state.participants, participant];
+      return {
+        participants: newParticipants,
+        // Keep room.participants in sync so all stage components see remote peers
+        room: state.room ? { ...state.room, participants: newParticipants } : null,
+      };
     }),
 
   removeParticipant: (socketId) =>
-    set((state) => ({
-      participants: state.participants.filter((p) => p.id !== socketId),
-    })),
+    set((state) => {
+      const newParticipants = state.participants.filter((p) => p.id !== socketId);
+      return {
+        participants: newParticipants,
+        room: state.room ? { ...state.room, participants: newParticipants } : null,
+      };
+    }),
 
   updateParticipant: (socketId, updates) =>
-    set((state) => ({
-      participants: state.participants.map((p) => (p.id === socketId ? { ...p, ...updates } : p)),
-      localParticipant:
-        state.localParticipant && state.localParticipant.id === socketId
-          ? { ...state.localParticipant, ...updates }
-          : state.localParticipant,
-    })),
+    set((state) => {
+      const newParticipants = state.participants.map((p) => (p.id === socketId ? { ...p, ...updates } : p));
+      return {
+        participants: newParticipants,
+        localParticipant:
+          state.localParticipant && state.localParticipant.id === socketId
+            ? { ...state.localParticipant, ...updates }
+            : state.localParticipant,
+        room: state.room ? { ...state.room, participants: newParticipants } : null,
+      };
+    }),
 
   addChatMessage: (message) =>
     set((state) => ({

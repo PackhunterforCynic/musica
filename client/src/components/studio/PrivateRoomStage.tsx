@@ -55,6 +55,10 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
+  const peer = remoteParticipants[0];
+  const hasRemoteVideo = Boolean(remoteStream && remoteStream.getVideoTracks().length > 0);
+  const hasLocalVideoStream = Boolean(localStream && localStream.getVideoTracks().length > 0);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCallDurationSeconds((prev) => prev + 1);
@@ -68,7 +72,7 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
       localVideoRef.current.srcObject = localStream;
       localVideoRef.current.play().catch(() => {});
     }
-  }, [localStream]);
+  }, [localStream, hasLocalVideoStream]);
 
   // Bind remote stream
   useEffect(() => {
@@ -76,17 +80,13 @@ export const PrivateRoomStage: React.FC<PrivateRoomStageProps> = ({
       remoteVideoRef.current.srcObject = remoteStream;
       remoteVideoRef.current.play().catch(() => {});
     }
-  }, [remoteStream]);
+  }, [remoteStream, hasRemoteVideo]);
 
   const formatTimer = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
-  const peer = remoteParticipants[0];
-  const hasRemoteVideo = Boolean(remoteStream && remoteStream.getVideoTracks().length > 0);
-  const hasLocalVideoStream = Boolean(localStream && localStream.getVideoTracks().length > 0);
 
   return (
     <div className="w-full h-full flex flex-col bg-[#0B1020] text-slate-100 p-4 md:p-6 select-none">

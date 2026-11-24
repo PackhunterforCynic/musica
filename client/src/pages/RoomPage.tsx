@@ -32,6 +32,11 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
   const remoteMediaStream = useRoomStore((s) => s.remoteMediaStream);
   const pendingJoinRequests = useRoomStore((s) => s.pendingJoinRequests);
   const activeSpeakerIds = useRoomStore((s) => s.activeSpeakerIds);
+  const localParticipant = useRoomStore((s) => s.localParticipant);
+  const participants = useRoomStore((s) => s.participants);
+  const isCameraEnabled = useRoomStore((s) => s.isCameraEnabled);
+  const localCameraStream = useRoomStore((s) => s.localCameraStream);
+  const remoteCameraStreams = useRoomStore((s) => s.remoteCameraStreams);
 
   // Synchronized Remote Support Annotations
   const [annotations, setAnnotations] = useState<any[]>([]);
@@ -143,8 +148,47 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
 
   const renderRoomExperience = () => {
     switch (room?.roomType) {
+      case 'private': {
+        const localId = localParticipant?.id;
+        const remoteList = participants.filter((p) => (localId ? p.id !== localId : p.name !== userName));
+        const peer = remoteList[0];
+        const peerCameraStream = peer ? remoteCameraStreams[peer.id] : null;
+
+        return (
+          <PrivateRoomStage
+            localParticipantName={userName}
+            isHost={isHost}
+            hasLocalVideo={isCameraEnabled}
+            hasLocalAudio={!isMicMuted}
+            isScreenSharing={isSharing}
+            localStream={localCameraStream || localShareStream}
+            remoteStream={peerCameraStream || remoteMediaStream}
+            pendingRequests={pendingJoinRequests}
+            remoteParticipants={remoteList.map((p) => ({
+              identity: p.id,
+              name: p.name,
+              hasMic: p.hasMic || activeSpeakerIds.includes(p.id) || p.presence === 'Speaking',
+              hasCamera: p.hasCamera || !!remoteCameraStreams[p.id],
+              isSpeaking: activeSpeakerIds.includes(p.id) || p.presence === 'Speaking',
+            }))}
+            onToggleMic={() => studio.toggleMicrophone?.()}
+            onToggleCamera={() => studio.toggleCamera?.()}
+            onToggleScreenShare={() => {
+              if (isSharing) studio.stopScreenShare();
+              else studio.startScreenShare();
+            }}
+            onEndCall={() => {
+              studio.leaveRoom();
+              onLeave();
+            }}
+            onAdmitUser={(sid) => studio.admitUser?.(sid)}
+            onDenyUser={(sid) => studio.denyUser?.(sid)}
+          />
+        );
+      }
+
       case 'classroom': {
-        const isHandRaised = room.participants.find((p) => p.name === userName)?.handRaised || false;
+        const isHandRaised = participants.find((p) => p.name === userName)?.handRaised || false;
         const activePresentationStream = isHost ? localShareStream : remoteMediaStream;
 
         return (
@@ -155,7 +199,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
             isScreenSharing={isSharing}
             presentationStream={activePresentationStream}
             pollVotes={pollVotes}
-            students={room.participants
+            students={participants
               .filter((p) => p.name !== room.hostName)
               .map((p) => ({
                 identity: p.id,
@@ -185,7 +229,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
             sessionCode={roomId}
             isTechnician={!isHost}
             customerName={room.hostName}
-            technicianName={room.participants.find((p) => p.name !== room.hostName)?.name || 'Technician'}
+            technicianName={participants.find((p) => p.name !== room.hostName)?.name || 'Technician'}
             isScreenSharing={isSharing}
             hasLocalAudio={!isMicMuted}
             screenStream={supportScreenStream}
@@ -210,7 +254,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
       case 'couple':
         return <CoupleRoomInterface studio={studio} onLeave={onLeave} />;
 
-      case 'private':
       case 'podcast':
       case 'studio':
       default:

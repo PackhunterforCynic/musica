@@ -149,9 +149,12 @@ export class SocketService {
           console.warn(`[SocketService] LiveKit token generation warning for ${userName}:`, lkErr?.message);
         }
 
+        // Merge live roster into room data so the client's room.participants is always accurate
+        const roomWithParticipants = { ...roomData, participants: roster };
+
         // Notify connecting client of successful join
         socket.emit(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, {
-          room: roomData,
+          room: roomWithParticipants,
           localParticipant: participant,
           participants: roster,
           isRecovering: !!recoveringInfo && role !== 'host',
@@ -602,8 +605,11 @@ export class SocketService {
           console.warn(`[SocketService] LiveKit token generation warning for admitted user ${pending.userName}:`, lkErr?.message);
         }
 
+        // Merge live roster into room data so the client's room.participants is always accurate
+        const roomWithParticipants = { ...roomData, participants: roster };
+
         pending.socket.emit(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, {
-          room: roomData,
+          room: roomWithParticipants,
           localParticipant: participant,
           participants: roster,
           isRecovering: false,

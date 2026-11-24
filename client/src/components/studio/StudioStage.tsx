@@ -298,7 +298,8 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
   const reactionsList = ['❤️', '🔥', '👏', '🥳', '👍', '🎉', '💜'];
 
   const localName = localParticipant?.name || 'You';
-  const remoteParticipants = participants.filter((p) => p.name !== localName);
+  const localId = localParticipant?.id;
+  const remoteParticipants = participants.filter((p) => (localId ? p.id !== localId : p.name !== localName));
 
   return (
     <div className="h-screen w-screen bg-[#080C16] text-slate-100 flex flex-col overflow-hidden font-sans select-none relative">
