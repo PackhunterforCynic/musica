@@ -1,0 +1,102 @@
+export const SOCKET_EVENTS = {
+  // Client to Server
+  JOIN_ROOM: 'join-room',
+  LEAVE_ROOM: 'leave-room',
+  CHAT_SEND: 'chat-send',
+  REACTION_SEND: 'reaction-send',
+  RAISE_HAND: 'raise-hand',
+  LOWER_HAND: 'lower-hand',
+  LOCK_ROOM: 'lock-room',
+  UNLOCK_ROOM: 'unlock-room',
+  KICK_USER: 'kick-user',
+  BAN_USER: 'ban-user',
+  MUTE_USER: 'mute-user',
+  END_ROOM: 'end-room',
+  SCREEN_SHARE_STATE_CHANGE: 'screen-share-state-change',
+  PRESENCE_UPDATE: 'presence-update',
+  ADMIT_USER: 'admit-user',
+  DENY_USER: 'deny-user',
+  YOUTUBE_SHARE_START: 'youtube-share-start',
+  YOUTUBE_SHARE_STOP: 'youtube-share-stop',
+  YOUTUBE_SYNC_STATE: 'youtube-sync-state',
+
+  // Collaborative Music Queue Events
+  QUEUE_ADD: 'queue-add',
+  QUEUE_REMOVE: 'queue-remove',
+  QUEUE_REORDER: 'queue-reorder',
+  QUEUE_VOTE: 'queue-vote',
+  QUEUE_SKIP: 'queue-skip',
+
+  // DJ Management Events
+  DJ_ASSIGN: 'dj-assign',
+  DJ_REVOKE: 'dj-revoke',
+
+  // Host Management Events
+  HOST_TRANSFER: 'host-transfer',
+  HOST_TRANSFERRED: 'host-transferred',
+
+  // Authoritative Playback Sync Events
+  PLAYBACK_COMMAND: 'playback-command',
+
+  // SFU Transport Events
+  SFU_TOKEN_REQUEST: 'sfu-token-request',
+  
+  // WebRTC Signaling
+  WEBRTC_OFFER: 'webrtc-offer',
+  WEBRTC_ANSWER: 'webrtc-answer',
+  WEBRTC_ICE_CANDIDATE: 'webrtc-ice-candidate',
+  REQUEST_MEDIA_STREAM: 'request-media-stream',
+
+  // Server to Client
+  ROOM_JOINED_SUCCESS: 'room-joined-success',
+  PARTICIPANT_JOINED: 'participant-joined',
+  PARTICIPANT_LEFT: 'participant-left',
+  PARTICIPANT_UPDATED: 'participant-updated',
+  CHAT_RECEIVE: 'chat-receive',
+  REACTION_RECEIVE: 'reaction-receive',
+  HAND_STATE_CHANGED: 'hand-state-changed',
+  ROOM_LOCK_CHANGED: 'room-lock-changed',
+  USER_KICKED: 'user-kicked',
+  USER_BANNED: 'user-banned',
+  ROOM_ENDED_BY_HOST: 'room-ended-by-host',
+  SCREEN_SHARE_STATE_UPDATED: 'screen-share-state-updated',
+  HOST_DISCONNECTED_RECOVERY: 'host-disconnected-recovery',
+  HOST_RECOVERED_SUCCESS: 'host-recovered-success',
+  JOIN_REQUEST_SUBMITTED: 'join-request-submitted',
+  JOIN_REQUEST_RECEIVED: 'join-request-received',
+  JOIN_REQUEST_DENIED: 'join-request-denied',
+  ERROR_NOTIFICATION: 'error-notification',
+  YOUTUBE_SHARE_STARTED: 'youtube-share-started',
+  YOUTUBE_SHARE_STOPPED: 'youtube-share-stopped',
+  YOUTUBE_SYNC_UPDATED: 'youtube-sync-updated',
+
+  // Collaborative Queue Broadcasts
+  QUEUE_UPDATED: 'queue-updated',
+  QUEUE_TRACK_STARTED: 'queue-track-started',
+
+  // DJ Broadcasts
+  DJ_STATUS_UPDATED: 'dj-status-updated',
+
+  // Authoritative Playback Broadcasts
+  PLAYBACK_STATE_BROADCAST: 'playback-state-broadcast',
+
+  // SFU Broadcasts
+  SFU_TOKEN_RESPONSE: 'sfu-token-response',
+  SFU_TRACK_PUBLISHED: 'sfu-track-published',
+  SFU_TRACK_UNPUBLISHED: 'sfu-track-unpublished',
+
+  // Remote Support Real-time Annotations
+  SUPPORT_ANNOTATION_CREATE: 'support-annotation-create',
+  SUPPORT_ANNOTATION_BROADCAST: 'support-annotation-broadcast',
+  SUPPORT_ANNOTATIONS_CLEAR: 'support-annotations-clear',
+
+  // Classroom Live Polls
+  CLASSROOM_POLL_VOTE: 'classroom-poll-vote',
+  CLASSROOM_POLL_BROADCAST: 'classroom-poll-broadcast',
+
+  // Podcast Live Controls
+  PODCAST_PROMOTE_SPEAKER: 'podcast-promote-speaker',
+  PODCAST_RECORDING_CHANGE: 'podcast-recording-change',
+} as const;
+
+export type SocketEventName = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS];

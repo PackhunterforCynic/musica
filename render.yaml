@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: musica-backend
+    env: node
+    plan: starter
+    region: oregon
+    buildCommand: npm install && npm --prefix shared run build && npm --prefix server run build
+    startCommand: node server/dist/index.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLIENT_URL
+        sync: false
+      - key: LOG_LEVEL
+        value: info
+      # LiveKit SFU Cloud Credentials
+      - key: LIVEKIT_URL
+        sync: false
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
+        sync: false
+      # Supabase Auth & PostgreSQL Credentials
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_JWKS_URL
+        sync: false
