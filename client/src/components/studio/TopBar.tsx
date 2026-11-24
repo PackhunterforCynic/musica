@@ -8,6 +8,7 @@ export const TopBar: React.FC = () => {
   const room = useRoomStore((s) => s.room);
   const participants = useRoomStore((s) => s.participants);
   const connectionQuality = useRoomStore((s) => s.connectionQuality);
+  const liveKitConnected = useRoomStore((s) => s.liveKitConnected);
   const isHost = useIsHost();
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -89,6 +90,23 @@ export const TopBar: React.FC = () => {
         <div className={`hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full border text-xs font-bold ${qualityColors[connectionQuality]}`}>
           <Wifi className="w-3.5 h-3.5" />
           <span>{connectionQuality}</span>
+        </div>
+
+        {/* LiveKit SFU Status Badge */}
+        <div
+          className={`hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-full border text-xs font-bold ${
+            liveKitConnected
+              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-sm'
+              : 'bg-slate-800/60 border-slate-700/50 text-slate-400'
+          }`}
+          title={liveKitConnected ? 'LiveKit SFU Connected (Low Latency)' : 'LiveKit SFU Ready'}
+        >
+          <span
+            className={`w-2 h-2 rounded-full ${
+              liveKitConnected ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'
+            }`}
+          ></span>
+          <span>{liveKitConnected ? 'LiveKit 2.0 SFU' : 'LiveKit Standby'}</span>
         </div>
       </div>
     </div>

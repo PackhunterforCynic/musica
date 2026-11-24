@@ -9,7 +9,12 @@ export const appConfig = {
   dataDirectory: process.env.VERCEL ? '/tmp/musica-data' : path.resolve(__dirname, '../../data'),
   logLevel: process.env.LOG_LEVEL || 'info',
   serverName: 'Musica Signaling & API Server',
-  version: '1.0.0',
+  version: '2.0.0',
+  livekit: {
+    apiUrl: process.env.LIVEKIT_URL || 'ws://127.0.0.1:7880',
+    apiKey: process.env.LIVEKIT_API_KEY || 'devkey',
+    apiSecret: process.env.LIVEKIT_API_SECRET || 'secret',
+  },
 };
 
 export const allowedOrigins: (string | RegExp)[] = [

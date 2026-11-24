@@ -13,6 +13,7 @@ import { participantService } from '../services/ParticipantService';
 import { storageService } from '../services/StorageService';
 import { loggerService } from '../services/LoggerService';
 import { queueService } from '../services/QueueService';
+import { liveKitService } from '../services/LiveKitService';
 import { limitsConfig } from '../config/limits';
 import { sanitizeText } from '../utils/security';
 
@@ -123,6 +124,19 @@ export class SocketService {
         const currentQueue = await queueService.getQueue(roomId);
         const currentTrack = await queueService.getCurrentTrack(roomId);
 
+        // Generate LiveKit token for SFU media transport
+        let livekitTokenData = undefined;
+        try {
+          livekitTokenData = await liveKitService.generateToken({
+            roomId,
+            participantIdentity: socket.id,
+            participantName: userName,
+            role,
+          });
+        } catch (lkErr: any) {
+          console.warn(`[SocketService] LiveKit token generation warning for ${userName}:`, lkErr?.message);
+        }
+
         // Notify connecting client of successful join
         socket.emit(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, {
           room: roomData,
@@ -131,6 +145,7 @@ export class SocketService {
           isRecovering: !!recoveringInfo && role !== 'host',
           queue: currentQueue,
           currentTrack,
+          livekit: livekitTokenData,
         });
 
         // Broadcast new arrival to everyone else in room
@@ -367,6 +382,61 @@ export class SocketService {
       this.io?.to(roomId).emit(SOCKET_EVENTS.ROOM_LOCK_CHANGED, { locked: false });
     });
 
+    // HOST CONTROLS: HOST TRANSFER
+    socket.on(SOCKET_EVENTS.HOST_TRANSFER, async (payload: { targetSocketId: string }) => {
+      const { roomId, role, userName } = (socket.data as SocketData) || {};
+      if (role !== 'host' || !roomId || !payload.targetSocketId) return;
+
+      const roster = await participantService.getParticipantsInRoom(roomId);
+      const targetUser = roster.find((p) => p.id === payload.targetSocketId);
+      if (!targetUser) return;
+
+      // 1. Demote current host to co-host
+      await participantService.updateRole(socket.id, roomId, 'co-host');
+      (socket.data as SocketData).role = 'co-host';
+
+      // 2. Promote target to host
+      await participantService.updateRole(payload.targetSocketId, roomId, 'host');
+      const targetSocket = this.io?.sockets.sockets.get(payload.targetSocketId);
+      if (targetSocket) {
+        (targetSocket.data as SocketData).role = 'host';
+      }
+
+      // 3. Update room host record in storage
+      await storageService.updateJson<RoomsFileSchema>('rooms.json', (data) => {
+        if (data.rooms[roomId]) {
+          data.rooms[roomId].hostName = targetUser.name;
+          data.rooms[roomId].hostId = targetUser.id;
+        }
+      });
+
+      // 4. Issue updated LiveKit token for new host (roomAdmin: true, full publish grants)
+      try {
+        const newHostToken = await liveKitService.generateToken({
+          roomId,
+          participantIdentity: targetUser.id,
+          participantName: targetUser.name,
+          role: 'host',
+        });
+        targetSocket?.emit(SOCKET_EVENTS.SFU_TOKEN_RESPONSE, newHostToken);
+      } catch (err: any) {
+        console.warn('[SocketService] LiveKit token generation note during host transfer:', err.message);
+      }
+
+      // 5. Broadcast host transfer event to all room members
+      this.io?.to(roomId).emit(SOCKET_EVENTS.HOST_TRANSFERRED, {
+        previousHostName: userName,
+        newHostName: targetUser.name,
+        newHostId: targetUser.id,
+      });
+
+      const updatedTarget = await participantService.updateRole(payload.targetSocketId, roomId, 'host');
+      if (updatedTarget) {
+        this.io?.to(roomId).emit(SOCKET_EVENTS.PARTICIPANT_UPDATED, { participant: updatedTarget });
+      }
+      console.log(`[SocketService] Host transferred in room ${roomId} from ${userName} to ${targetUser.name}`);
+    });
+
     // HOST CONTROLS: KICK & BAN
     socket.on(SOCKET_EVENTS.KICK_USER, async (payload: { targetSocketId: string }) => {
       const { roomId, role } = socket.data as SocketData;
@@ -452,8 +522,26 @@ export class SocketService {
       const { roomId, role } = socket.data as SocketData;
       if (role !== 'host' || !roomId) return;
       await roomService.endRoom(roomId, 'Host terminated broadcast via studio');
+      await liveKitService.deleteRoom(roomId);
       this.io?.to(roomId).emit(SOCKET_EVENTS.ROOM_ENDED_BY_HOST, { reason: 'Broadcast has ended.' });
       this.io?.socketsLeave(roomId);
+    });
+
+    // LIVEKIT SFU TOKEN REFRESH / REQUEST
+    socket.on(SOCKET_EVENTS.SFU_TOKEN_REQUEST, async () => {
+      const { roomId, userName, role } = (socket.data as SocketData) || {};
+      if (!roomId || !userName) return;
+      try {
+        const tokenData = await liveKitService.generateToken({
+          roomId,
+          participantIdentity: socket.id,
+          participantName: userName,
+          role: role || 'audience',
+        });
+        socket.emit(SOCKET_EVENTS.SFU_TOKEN_RESPONSE, tokenData);
+      } catch (err: any) {
+        socket.emit(SOCKET_EVENTS.ERROR_NOTIFICATION, { message: 'Failed to mint LiveKit SFU token' });
+      }
     });
 
     // ADMIT USER (Waiting Room Approval)
@@ -482,6 +570,19 @@ export class SocketService {
         const currentQueue = await queueService.getQueue(roomId);
         const currentTrack = await queueService.getCurrentTrack(roomId);
 
+        // Generate LiveKit token for admitted user
+        let livekitTokenData = undefined;
+        try {
+          livekitTokenData = await liveKitService.generateToken({
+            roomId,
+            participantIdentity: pending.socket.id,
+            participantName: pending.userName,
+            role: 'audience',
+          });
+        } catch (lkErr: any) {
+          console.warn(`[SocketService] LiveKit token generation warning for admitted user ${pending.userName}:`, lkErr?.message);
+        }
+
         pending.socket.emit(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, {
           room: roomData,
           localParticipant: participant,
@@ -489,6 +590,7 @@ export class SocketService {
           isRecovering: false,
           queue: currentQueue,
           currentTrack,
+          livekit: livekitTokenData,
         });
 
         pending.socket.to(roomId).emit(SOCKET_EVENTS.PARTICIPANT_JOINED, { participant });

@@ -107,7 +107,7 @@ export const MediaStage: React.FC = () => {
             <div className="absolute bottom-4 left-4 z-10 px-3 py-1.5 rounded-lg bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-xs text-slate-300 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <Monitor className="w-4 h-4 text-purple-400" />
               <span>{isHost ? 'Broadcasting Local Display Stream' : `Watching ${room?.hostName || 'Host'}'s Screen`}</span>
-              <span className="text-emerald-400 font-bold">● HD P2P</span>
+              <span className="text-emerald-400 font-bold">● HD LiveKit SFU</span>
             </div>
           </div>
         )

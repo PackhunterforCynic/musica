@@ -31,6 +31,10 @@ export const SOCKET_EVENTS = {
   DJ_ASSIGN: 'dj-assign',
   DJ_REVOKE: 'dj-revoke',
 
+  // Host Management Events
+  HOST_TRANSFER: 'host-transfer',
+  HOST_TRANSFERRED: 'host-transferred',
+
   // Authoritative Playback Sync Events
   PLAYBACK_COMMAND: 'playback-command',
 

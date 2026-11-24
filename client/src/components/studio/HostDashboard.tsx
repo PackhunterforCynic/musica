@@ -41,6 +41,7 @@ interface HostDashboardProps {
     startScreenShare: (includeSystemAudio?: boolean, includeMic?: boolean) => void;
     stopScreenShare: () => void;
     startAudioOnlyShare: (includeSystemAudio?: boolean, includeMic?: boolean) => void;
+    toggleMicrophone?: () => Promise<boolean>;
     toggleRoomLock: (currentlyLocked: boolean) => void;
     endRoomBroadcast: () => void;
     leaveRoom: () => void;
@@ -73,6 +74,8 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
   const pendingJoinRequests = useRoomStore((s) => s.pendingJoinRequests);
   const unreadChatCount = useRoomStore((s) => s.unreadChatCount);
   const youtubeVideoId = useRoomStore((s) => s.youtubeVideoId);
+  const liveKitConnected = useRoomStore((s) => s.liveKitConnected);
+  const isMicMuted = useRoomStore((s) => s.isMicMuted);
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'participants' | 'chat' | 'analytics'>('dashboard');
   const [systemAudioEnabled, setSystemAudioEnabled] = useState(true);
@@ -172,6 +175,10 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
         </div>
 
         <div className="flex items-center space-x-3">
+          <div className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center space-x-1.5 border ${liveKitConnected ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40 shadow-sm' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${liveKitConnected ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
+            <span>{liveKitConnected ? 'LiveKit SFU' : 'Standby'}</span>
+          </div>
           {isSharing && (
             <div className="px-2 py-1 rounded bg-rose-600/90 text-white font-bold text-[10px] uppercase tracking-wider flex items-center space-x-1 shadow-md">
               <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
@@ -352,13 +359,17 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({ studio, onLeave })
         
         <button 
           onClick={() => {
-            setMicEnabled(!micEnabled);
-            notificationService.showToast(`Microphone ${!micEnabled ? 'enabled' : 'disabled'}`);
+            if (studio.toggleMicrophone) {
+              studio.toggleMicrophone();
+            } else {
+              setMicEnabled(!micEnabled);
+              notificationService.showToast(`Microphone ${!micEnabled ? 'enabled' : 'disabled'}`);
+            }
           }}
-          className={`flex flex-col items-center justify-center transition-colors ${!micEnabled ? 'text-rose-400' : 'text-slate-400 hover:text-indigo-400'}`}
+          className={`flex flex-col items-center justify-center transition-colors ${!isMicMuted ? 'text-emerald-400 hover:text-emerald-300' : 'text-slate-400 hover:text-indigo-400'}`}
         >
-          {micEnabled ? <Mic className="w-6 h-6 mb-1" /> : <MicOff className="w-6 h-6 mb-1" />}
-          <span className="text-[10px] font-medium">Mic</span>
+          {!isMicMuted ? <Mic className="w-6 h-6 mb-1 animate-pulse" /> : <MicOff className="w-6 h-6 mb-1 text-rose-400" />}
+          <span className="text-[10px] font-medium">{!isMicMuted ? 'Mic Live' : 'Muted'}</span>
         </button>
 
         <button 

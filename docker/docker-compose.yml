@@ -11,8 +11,11 @@ services:
       - "3001:3001"
     environment:
       - PORT=3001
-      - CLIENT_URL=http://localhost:5173
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
       - NODE_ENV=production
+      - LIVEKIT_URL=${LIVEKIT_URL:-wss://musica-t6p6knyc.livekit.cloud}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-APIGq3uJ5KYsgaK}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-FKfX1Ye96yOKWH0LuVVaIK2iz3fyQhoKt7PpJneey5WA}
     volumes:
       # Persist Zero-DB JSON storage directory outside the container
       - musica_json_data:/app/server/data

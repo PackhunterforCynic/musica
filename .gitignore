@@ -14,7 +14,11 @@ server/data/*.json
 
 # Environment variables
 .env
-.env.local
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 
 # IDEs & System logs
 .vscode/

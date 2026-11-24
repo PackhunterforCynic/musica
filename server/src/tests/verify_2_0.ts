@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import { roomRouter } from '../routes/roomRoutes';
 import { roomService } from '../services/RoomService';
 import { queueService } from '../services/QueueService';
+import { liveKitService } from '../services/LiveKitService';
 import { storageService } from '../services/StorageService';
 import { generateUniqueRoomId, isValidRoomIdFormat } from '../utils/idGenerator';
 import { hashPassword, verifyPassword, sanitizeText } from '../utils/security';
@@ -108,8 +109,30 @@ async function runTestSuite() {
   assert(popRes.nextTrack?.track.title === 'Lofi Hip Hop Radio', 'Next track must pop properly');
   console.log('  ✅ Collaborative Queue and voting algorithms verified.');
 
+  // 7. LiveKit SFU Token Generation & Grants
+  console.log('\n[7/7] Testing LiveKit 2.0 SFU Token Generation & Role Grants...');
+  const hostTokenRes = await liveKitService.generateToken({
+    roomId: roomResult.roomId,
+    participantIdentity: 'host-socket-1',
+    participantName: 'TestHost',
+    role: 'host',
+  });
+  assert(hostTokenRes.token && hostTokenRes.token.length > 50, 'Host token must be valid JWT string');
+  assert(hostTokenRes.serverUrl, 'Server URL must be present');
+  assert(hostTokenRes.role === 'host', 'Host role must match');
+
+  const audienceTokenRes = await liveKitService.generateToken({
+    roomId: roomResult.roomId,
+    participantIdentity: 'audience-socket-2',
+    participantName: 'ListenerBob',
+    role: 'audience',
+  });
+  assert(audienceTokenRes.token && audienceTokenRes.token.length > 50, 'Audience token must be valid JWT string');
+  assert(audienceTokenRes.role === 'audience', 'Audience role must match');
+  console.log('  ✅ LiveKit SFU token generation, JWT signing, and grants verified.');
+
   console.log('\n========================================================');
-  console.log('🎉 ALL 6 MUSICA 2.0 INTEGRATION TEST SUITES PASSED! 🎉');
+  console.log('🎉 ALL 7 MUSICA 2.0 INTEGRATION TEST SUITES PASSED! 🎉');
   console.log('========================================================\n');
 }
 

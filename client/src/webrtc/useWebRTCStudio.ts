@@ -10,6 +10,7 @@ import {
   Track,
 } from '@musica/shared';
 import { useRoomStore } from '../store/roomStore';
+import { liveKitManager } from '../livekit/LiveKitManager';
 import { peerManager } from './PeerManager';
 import { mediaManager } from './MediaManager';
 import { connectionManager } from './ConnectionManager';
@@ -57,6 +58,15 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       }
       if (data.isRecovering) {
         useRoomStore.getState().setHostRecovering(true, 60);
+      }
+
+      // Connect to LiveKit SFU using the issued JWT token
+      if ((data as any).livekit?.token) {
+        const lk = (data as any).livekit;
+        const sfuUrl = lk.serverUrl || (import.meta as any).env?.VITE_LIVEKIT_URL || 'ws://127.0.0.1:7880';
+        liveKitManager.connect(sfuUrl, lk.token).catch((err) => {
+          console.warn('[Studio] LiveKit connection warning:', err);
+        });
       }
 
       // If this user is an audience member joining an active screen share, ask host for stream!
@@ -194,6 +204,15 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       peerManager.handleIceCandidate(payload.senderSocketId, payload.candidate);
     });
 
+    socket.on(SOCKET_EVENTS.SFU_TOKEN_RESPONSE, (tokenData: any) => {
+      if (tokenData?.token) {
+        const sfuUrl = tokenData.serverUrl || (import.meta as any).env?.VITE_LIVEKIT_URL || 'ws://127.0.0.1:7880';
+        liveKitManager.connect(sfuUrl, tokenData.token).catch((err) => {
+          console.warn('[Studio] LiveKit connection on token response warning:', err);
+        });
+      }
+    });
+
     socket.on(SOCKET_EVENTS.REQUEST_MEDIA_STREAM, (payload: { requesterSocketId: string }) => {
       const localRole = useRoomStore.getState().localParticipant?.role;
       if (localRole === 'host' && useRoomStore.getState().screenShareState === 'Sharing') {
@@ -212,6 +231,15 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       useRoomStore.getState().setHostRecovering(false);
       notificationService.playSound('join');
       notificationService.showToast('✅ Host reconnected! Broadcast resumed.', 'success', 'Host Reconnected', 3500);
+    });
+
+    socket.on(SOCKET_EVENTS.HOST_TRANSFERRED, (data: { previousHostName: string; newHostName: string; newHostId: string }) => {
+      useRoomStore.getState().updateRoomStatus({ hostName: data.newHostName, hostId: data.newHostId });
+      notificationService.showToast(`👑 ${data.newHostName} is now the host of this room.`, 'info', 'Host Transferred', 4000);
+      if (data.newHostId === socketRef.current?.id) {
+        useRoomStore.getState().setLocalParticipantRole('host');
+        notificationService.playSound('join');
+      }
     });
 
     socket.on(SOCKET_EVENTS.USER_KICKED, (data: { reason: string }) => {
@@ -246,6 +274,7 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       socketRef.current.disconnect();
       socketRef.current = null;
     }
+    liveKitManager.disconnect();
     peerManager.closeAll();
     mediaManager.stopStream();
     useRoomStore.getState().resetRoomState();
@@ -260,6 +289,19 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       useRoomStore.getState().setScreenShareState('Preparing');
       socket.emit(SOCKET_EVENTS.SCREEN_SHARE_STATE_CHANGE, { state: 'Preparing' });
 
+      // Prefer LiveKit SFU screen share if connected
+      if (liveKitManager.isConnected()) {
+        const success = await liveKitManager.startScreenShare(includeSystemAudio);
+        if (success) {
+          socket.emit(SOCKET_EVENTS.SCREEN_SHARE_STATE_CHANGE, { state: 'Sharing' });
+          if (includeMic) {
+            await liveKitManager.setMicrophoneEnabled(true);
+          }
+          return;
+        }
+      }
+
+      // Fallback to peer mesh display capture
       const stream = await mediaManager.startScreenShare({ includeSystemAudio, includeMic });
       useRoomStore.getState().setLocalShareStream(stream);
       useRoomStore.getState().setScreenShareState('Sharing');
@@ -289,6 +331,9 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
 
   const stopScreenShare = () => {
     const socket = socketRef.current;
+    if (liveKitManager.isConnected()) {
+      liveKitManager.stopScreenShare();
+    }
     mediaManager.stopStream();
     peerManager.setLocalMediaStream(null);
     useRoomStore.getState().setLocalShareStream(null);
@@ -305,6 +350,14 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     try {
       useRoomStore.getState().setScreenShareState('Preparing');
       socket.emit(SOCKET_EVENTS.SCREEN_SHARE_STATE_CHANGE, { state: 'Preparing' });
+
+      if (liveKitManager.isConnected()) {
+        const ok = await liveKitManager.startAudioOnlyBroadcast();
+        if (ok) {
+          socket.emit(SOCKET_EVENTS.SCREEN_SHARE_STATE_CHANGE, { state: 'Sharing' });
+          return;
+        }
+      }
 
       const stream = await mediaManager.startAudioOnlyShare({ includeSystemAudio, includeMic });
       useRoomStore.getState().setLocalShareStream(stream);
@@ -365,6 +418,12 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
   const banUser = (targetSocketId: string, reason = 'Banned by host') => {
     if (socketRef.current && targetSocketId) {
       socketRef.current.emit(SOCKET_EVENTS.BAN_USER, { targetSocketId, reason });
+    }
+  };
+
+  const transferHost = (targetSocketId: string) => {
+    if (socketRef.current && targetSocketId) {
+      socketRef.current.emit(SOCKET_EVENTS.HOST_TRANSFER, { targetSocketId });
     }
   };
 
@@ -446,16 +505,29 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     }
   };
 
+  const toggleMicrophone = async () => {
+    return await liveKitManager.toggleMicrophone();
+  };
+
+  const requestSfuToken = () => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.SFU_TOKEN_REQUEST, {});
+    }
+  };
+
   return {
     startScreenShare,
     stopScreenShare,
     startAudioOnlyShare,
+    toggleMicrophone,
+    requestSfuToken,
     sendChatMessage,
     sendReaction,
     toggleRaiseHand,
     toggleRoomLock,
     kickUser,
     banUser,
+    transferHost,
     endRoomBroadcast,
     leaveRoom,
     admitUser,

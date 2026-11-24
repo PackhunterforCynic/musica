@@ -48,9 +48,22 @@ export interface RoomState {
   waitingRoomInfo: { roomName?: string; hostName?: string } | null;
   pendingJoinRequests: JoinRequest[];
   streamTelemetry: StreamTelemetry;
+  liveKitConnected: boolean;
+  liveKitToken: string | null;
+  isMicMuted: boolean;
+  isScreenSharing: boolean;
+  activeSpeakerIds: string[];
+  remoteScreenTrack: any | null;
 
   // Actions
   setStreamTelemetry: (updates: Partial<StreamTelemetry>) => void;
+  setLiveKitConnected: (connected: boolean) => void;
+  setLiveKitToken: (token: string | null) => void;
+  setIsMicMuted: (muted: boolean) => void;
+  setIsScreenSharing: (sharing: boolean) => void;
+  setActiveSpeakerIds: (ids: string[]) => void;
+  setRemoteScreenTrack: (track: any | null) => void;
+  setLocalParticipantRole: (role: UserRole) => void;
   setWaitingForHost: (isWaiting: boolean, info?: { roomName?: string; hostName?: string } | null) => void;
   addPendingJoinRequest: (request: JoinRequest) => void;
   removePendingJoinRequest: (socketId: string) => void;
@@ -107,9 +120,33 @@ export const useRoomStore = create<RoomState>((set) => ({
     latencyMs: 28,
     cpuUsage: 23,
   },
+  liveKitConnected: false,
+  liveKitToken: null,
+  isMicMuted: true,
+  isScreenSharing: false,
+  activeSpeakerIds: [],
+  remoteScreenTrack: null,
 
   setStreamTelemetry: (updates) =>
     set((state) => ({ streamTelemetry: { ...state.streamTelemetry, ...updates } })),
+
+  setLiveKitConnected: (liveKitConnected) => set({ liveKitConnected }),
+  setLiveKitToken: (liveKitToken) => set({ liveKitToken }),
+  setIsMicMuted: (isMicMuted) => set({ isMicMuted }),
+  setIsScreenSharing: (isScreenSharing) => set({ isScreenSharing }),
+  setActiveSpeakerIds: (activeSpeakerIds) => set({ activeSpeakerIds }),
+  setRemoteScreenTrack: (remoteScreenTrack) => set({ remoteScreenTrack }),
+
+  setLocalParticipantRole: (role) =>
+    set((state) => ({
+      localParticipant: state.localParticipant
+        ? {
+            ...state.localParticipant,
+            role,
+            permissions: getDefaultPermissions(role),
+          }
+        : null,
+    })),
 
   setWaitingForHost: (isWaitingForHost, waitingRoomInfo = null) => set({ isWaitingForHost, waitingRoomInfo }),
 
@@ -243,6 +280,12 @@ export const useRoomStore = create<RoomState>((set) => ({
       isWaitingForHost: false,
       waitingRoomInfo: null,
       pendingJoinRequests: [],
+      liveKitConnected: false,
+      liveKitToken: null,
+      isMicMuted: true,
+      isScreenSharing: false,
+      activeSpeakerIds: [],
+      remoteScreenTrack: null,
       streamTelemetry: {
         fps: 30,
         bitrateMbps: '2.4',

@@ -2,7 +2,9 @@ import { Router, Request, Response } from 'express';
 import { roomService } from '../services/RoomService';
 import { statisticsService } from '../services/StatisticsService';
 import { loggerService } from '../services/LoggerService';
-import { AppError } from '@musica/shared';
+import { liveKitService } from '../services/LiveKitService';
+import { liveKitWebhookService } from '../services/LiveKitWebhookService';
+import { AppError, UserRole } from '@musica/shared';
 
 export const roomRouter = Router();
 
@@ -99,11 +101,124 @@ roomRouter.get('/rooms/:roomId', async (req: Request, res: Response): Promise<vo
 roomRouter.delete('/rooms/:roomId', async (req: Request, res: Response): Promise<void> => {
   try {
     const { roomId } = req.params;
-    await roomService.endRoom(String(roomId || '').trim().toUpperCase(), 'API Termination');
+    const normalizedRoomId = String(roomId || '').trim().toUpperCase();
+    await roomService.endRoom(normalizedRoomId, 'API Termination');
+    await liveKitService.deleteRoom(normalizedRoomId);
     res.status(200).json({ success: true, message: `Room ${String(roomId)} ended successfully.` });
   } catch (err: any) {
     const status = err instanceof AppError ? err.statusCode : 500;
     res.status(status).json({ success: false, error: err.message || 'Internal server error', code: err.code });
+  }
+});
+
+/**
+ * @route POST /api/rooms/:roomId/token
+ * @desc Generate secure LiveKit access token with role grants
+ */
+roomRouter.post('/rooms/:roomId/token', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { roomId } = req.params;
+    const { userName, password, identity, role: requestedRole } = req.body;
+    if (!userName || userName.trim().length === 0) {
+      res.status(400).json({ success: false, error: 'User name is required.' });
+      return;
+    }
+
+    const normalizedRoomId = String(roomId || '').trim().toUpperCase();
+    const roomDetails = await roomService.getRoom(normalizedRoomId);
+
+    let role: UserRole = 'audience';
+    if (roomDetails.room.hostName.toLowerCase() === userName.trim().toLowerCase()) {
+      role = 'host';
+    } else {
+      await roomService.validateJoin({
+        roomId: normalizedRoomId,
+        userName: userName.trim(),
+        password,
+      });
+      if (requestedRole && ['dj', 'speaker', 'co-host'].includes(requestedRole)) {
+        role = requestedRole as UserRole;
+      }
+    }
+
+    const participantIdentity = identity || `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const tokenResponse = await liveKitService.generateToken({
+      roomId: normalizedRoomId,
+      participantIdentity,
+      participantName: userName.trim(),
+      role,
+    });
+
+    res.status(200).json({
+      success: true,
+      ...tokenResponse,
+    });
+  } catch (err: any) {
+    const status = err instanceof AppError ? err.statusCode : 500;
+    res.status(status).json({ success: false, error: err.message || 'Failed to generate token', code: err.code });
+  }
+});
+
+/**
+ * @route POST /api/livekit/token
+ * @desc Alias for LiveKit token generation passing roomId in payload
+ */
+roomRouter.post('/livekit/token', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { roomId, userName, password, identity, role } = req.body;
+    if (!roomId) {
+      res.status(400).json({ success: false, error: 'roomId is required.' });
+      return;
+    }
+    req.params.roomId = roomId;
+    const normalizedRoomId = String(roomId).trim().toUpperCase();
+    const roomDetails = await roomService.getRoom(normalizedRoomId);
+
+    let resolvedRole: UserRole = 'audience';
+    if (roomDetails.room.hostName.toLowerCase() === String(userName || '').trim().toLowerCase()) {
+      resolvedRole = 'host';
+    } else {
+      await roomService.validateJoin({
+        roomId: normalizedRoomId,
+        userName: String(userName || '').trim(),
+        password,
+      });
+      if (role && ['dj', 'speaker', 'co-host'].includes(role)) {
+        resolvedRole = role as UserRole;
+      }
+    }
+
+    const participantIdentity = identity || `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const tokenResponse = await liveKitService.generateToken({
+      roomId: normalizedRoomId,
+      participantIdentity,
+      participantName: String(userName || '').trim(),
+      role: resolvedRole,
+    });
+
+    res.status(200).json({
+      success: true,
+      ...tokenResponse,
+    });
+  } catch (err: any) {
+    const status = err instanceof AppError ? err.statusCode : 500;
+    res.status(status).json({ success: false, error: err.message || 'Failed to generate LiveKit token', code: err.code });
+  }
+});
+
+/**
+ * @route POST /api/livekit/webhook
+ * @desc Handle incoming server lifecycle events from LiveKit Cloud / SFU
+ */
+roomRouter.post('/livekit/webhook', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = (req.headers['authorization'] as string) || '';
+    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const event = await liveKitWebhookService.handleWebhook(rawBody, authHeader);
+    res.status(200).json({ success: true, event: event.event });
+  } catch (err: any) {
+    console.warn('[LiveKitWebhook] Webhook processing note:', err.message);
+    res.status(200).json({ success: false, message: err.message });
   }
 });
 

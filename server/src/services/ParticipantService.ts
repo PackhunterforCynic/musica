@@ -126,6 +126,18 @@ export class ParticipantService {
     return updated;
   }
 
+  public async updateRole(socketId: string, roomId: string, role: UserRole): Promise<Participant | undefined> {
+    let updated: Participant | undefined;
+    await storageService.updateJson<ParticipantsFileSchema>('participants.json', (data) => {
+      if (data.participants[socketId]) {
+        data.participants[socketId].role = role;
+        data.participants[socketId].permissions = getDefaultPermissions(role);
+        updated = data.participants[socketId];
+      }
+    });
+    return updated;
+  }
+
   public async banUser(roomId: string, socketId: string, reason = 'Banned by host'): Promise<void> {
     const file = await storageService.readJson<ParticipantsFileSchema>('participants.json');
     const target = file.participants[socketId];

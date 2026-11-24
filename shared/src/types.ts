@@ -230,3 +230,19 @@ export interface AppSettings {
   hostRecoveryGracePeriodSeconds: number;
   cleanupIntervalSeconds: number;
 }
+
+export interface LiveKitTokenResponse {
+  token: string;
+  serverUrl: string;
+  roomName: string;
+  participantIdentity: string;
+  participantName: string;
+  role: UserRole;
+}
+
+export interface LiveKitTokenRequest {
+  roomId: string;
+  userName: string;
+  password?: string;
+  role?: UserRole;
+}

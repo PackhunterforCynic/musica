@@ -20,6 +20,7 @@ interface ControlDockProps {
   onStartShare: (includeSystemAudio?: boolean) => void;
   onStartAudioOnly?: () => void;
   onStopShare: () => void;
+  onToggleMicrophone?: () => void;
   onToggleRaiseHand: (currentlyRaised: boolean) => void;
   onToggleLock: (currentlyLocked: boolean) => void;
   onSendReaction: (emoji: string) => void;
@@ -31,6 +32,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
   onStartShare,
   onStartAudioOnly,
   onStopShare,
+  onToggleMicrophone,
   onToggleRaiseHand,
   onToggleLock,
   onSendReaction,
@@ -40,7 +42,9 @@ export const ControlDock: React.FC<ControlDockProps> = ({
   const room = useRoomStore((s) => s.room);
   const localParticipant = useRoomStore((s) => s.localParticipant);
   const screenShareState = useRoomStore((s) => s.screenShareState);
+  const isMicMuted = useRoomStore((s) => s.isMicMuted);
   const isHost = useIsHost();
+  const canBroadcastAudio = isHost || Boolean(localParticipant?.permissions?.canBroadcastAudio);
 
   const isSharing = screenShareState === 'Sharing' || screenShareState === 'Preparing';
   const handRaised = localParticipant?.handRaised || false;
@@ -85,6 +89,22 @@ export const ControlDock: React.FC<ControlDockProps> = ({
 
       {/* Center Dock: Core Media Controls & Reactions */}
       <div className="flex items-center justify-center space-x-2 sm:space-x-4">
+        {/* LiveKit Microphone Toggle (for Host, DJ, Speaker) */}
+        {canBroadcastAudio && onToggleMicrophone && (
+          <button
+            onClick={onToggleMicrophone}
+            className={`px-4 py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center space-x-2 transition-all transform hover:scale-105 shadow-lg ${
+              !isMicMuted
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/30 ring-2 ring-emerald-400/50 animate-pulse'
+                : 'bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80'
+            }`}
+            title={!isMicMuted ? 'Mute Microphone (LiveKit SFU)' : 'Unmute Microphone (LiveKit SFU)'}
+          >
+            {!isMicMuted ? <Mic className="w-4 h-4 text-white" /> : <MicOff className="w-4 h-4 text-rose-400" />}
+            <span className="hidden md:inline">{!isMicMuted ? 'Mic Live' : 'Muted'}</span>
+          </button>
+        )}
+
         {/* HOST: Share Media Controls */}
         {isHost ? (
           isSharing ? (
