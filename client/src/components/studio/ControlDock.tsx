@@ -14,10 +14,9 @@ import {
   Maximize2,
   Sparkles,
   Speaker,
-  SpeakerOff,
   Palette,
-  Blur,
   Clapperboard,
+  X,
 } from 'lucide-react';
 import { notificationService } from '../../services/NotificationService';
 
@@ -65,7 +64,7 @@ export const ControlDock: React.FC<ControlDockProps> = ({
   };
 
   // Audio quality toggle state
-  const [audioQuality, setAudioQuality] = useState<'standard' 'high' 'ultra'>('standard');
+  const [audioQuality, setAudioQuality] = useState<'standard' | 'high' | 'ultra'>('standard');
 
   return (
     <div className="h-20 px-4 sm:px-8 glass-panel border-t border-slate-800/80 flex items-center justify-between gap-4 shrink-0 z-30">

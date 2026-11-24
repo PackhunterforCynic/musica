@@ -21,7 +21,7 @@ export const TopBar: React.FC = () => {
     };
     updateClock();
     const interval = setInterval(updateClock, 1000);
-    return () => clearInterval(updateClock);
+    return () => clearInterval(interval);
   }, [room]);
 
   if (!room) return null;
