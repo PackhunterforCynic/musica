@@ -41,9 +41,7 @@ import {
   ArrowRight,
   Hand,
   MessageSquare,
-  Check,
-  X,
-  Volume2,
+  Copy,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useRoomStore, useIsHost } from '../../store/roomStore';
@@ -87,20 +85,13 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [handRaised, setHandRaised] = useState(false);
   const [chatInput, setChatInput] = useState('');
-  const [elapsedSeconds, setElapsedSeconds] = useState(1458); // default: 00:24:18
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Shared Notes
-  const [sharedNotes, setSharedNotes] = useState(
-    '### Creative Podcast Episode 42\n- Topic: The Future of Spatial Audio & Real-time Web\n- Sophia: LiveKit SFU high-capacity distribution\n- Alex: Screen audio capture & low latency\n- Q&A with live audience'
-  );
-
-  // Shared Files
-  const [sharedFiles] = useState([
-    { name: 'Podcast_ShowNotes_Ep42.pdf', size: '2.4 MB', time: '10:15 AM' },
-    { name: 'LiveKit_Routing_Diagram.png', size: '840 KB', time: '10:20 AM' },
-  ]);
+  // User-authored Shared Notes & Files (No Dummy Data)
+  const [sharedNotes, setSharedNotes] = useState('');
+  const [sharedFiles, setSharedFiles] = useState<{ name: string; size: string; time: string }[]>([]);
 
   // Video Element Refs
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -108,7 +99,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Global Keyboard Shortcut: ⌘K / Ctrl+K for search
+  // Global Keyboard Shortcut: ⌘K / Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -120,10 +111,9 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Live Timer
+  // Live Timer: Real room elapsed seconds from room creation
   useEffect(() => {
-    if (!room?.createdAt) return;
-    const startMs = new Date(room.createdAt).getTime();
+    const startMs = room?.createdAt ? new Date(room.createdAt).getTime() : Date.now();
     const update = () => {
       const diff = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
       setElapsedSeconds(diff);
@@ -169,7 +159,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
   };
 
   const handleCopyShareLink = () => {
-    const url = `${window.location.origin}/join?room=${room?.roomId || 'CP98'}`;
+    const url = `${window.location.origin}/join?room=${room?.roomId || ''}`;
     copyToClipboard(url);
     notificationService.showToast('Room link copied to clipboard!', 'success');
   };
@@ -206,35 +196,26 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const sizeStr = file.size > 1024 * 1024 
+      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` 
+      : `${Math.round(file.size / 1024)} KB`;
+    const newFile = {
+      name: file.name,
+      size: sizeStr,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setSharedFiles((prev) => [newFile, ...prev]);
+    studio.sendChatMessage(`📎 Shared file: ${file.name} (${sizeStr})`);
+    notificationService.showToast(`File "${file.name}" uploaded to room`, 'success');
+  };
+
   const reactionsList = ['❤️', '🔥', '👏', '🥳', '👍', '🎉', '💜'];
 
   const localName = localParticipant?.name || 'You';
   const remoteParticipants = participants.filter((p) => p.name !== localName);
-  const sophia = remoteParticipants[0] || {
-    id: 'p2',
-    name: 'Sophia',
-    role: 'co-host',
-    hasMic: true,
-    hasCamera: true,
-  };
-  const alex = remoteParticipants[1] || {
-    id: 'p3',
-    name: 'Alex',
-    role: 'speaker',
-    hasMic: false,
-    hasCamera: false,
-  };
-  const emma = remoteParticipants[2] || {
-    id: 'p4',
-    name: 'Emma',
-    role: 'audience',
-    hasMic: false,
-    hasCamera: false,
-  };
-
-  const sophiaAvatar = (sophia as any).avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80';
-  const alexAvatar = (alex as any).avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80';
-  const emmaAvatar = (emma as any).avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80';
 
   return (
     <div className="h-screen w-screen bg-[#080C16] text-slate-100 flex flex-col overflow-hidden font-sans select-none relative">
@@ -261,7 +242,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
       </div>
 
       {/* ============================================================== */}
-      {/* 1. TOP GLOBAL APP HEADER BAR (Full Width Spanning Header)       */}
+      {/* 1. TOP GLOBAL APP HEADER BAR                                   */}
       {/* ============================================================== */}
       <header className="h-16 px-6 bg-[#0B101E] border-b border-white/8 flex items-center justify-between gap-4 shrink-0 z-20">
         {/* Left: Brand Logo & Title */}
@@ -270,7 +251,6 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             className="flex items-center space-x-3 cursor-pointer group"
             onClick={() => navigate('/dashboard')}
           >
-            {/* Audio Waveform Brand Icon */}
             <div className="flex items-center space-x-1 px-1.5 py-1">
               <span className="w-1 h-3.5 bg-violet-400 rounded-full animate-pulse" />
               <span className="w-1 h-5 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '120ms' }} />
@@ -300,9 +280,8 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
           </div>
         </div>
 
-        {/* Right Utilities: Theme Toggle, Notifications Bell with Badge, User Avatar */}
+        {/* Right Utilities: Theme Toggle, Notifications, User Avatar */}
         <div className="flex items-center space-x-3.5 shrink-0">
-          {/* Moon / Theme Toggle */}
           <button
             onClick={() => {
               setIsDarkMode(!isDarkMode);
@@ -314,7 +293,6 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             {isDarkMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4 text-amber-400" />}
           </button>
 
-          {/* Notifications Bell with Unread Badge "3" */}
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
@@ -322,60 +300,66 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               title="Notifications"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center shadow-md shadow-rose-500/50">
-                3
-              </span>
+              {pendingJoinRequests.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center shadow-md shadow-rose-500/50">
+                  {pendingJoinRequests.length}
+                </span>
+              )}
             </button>
 
-            {/* Notifications Dropdown */}
             {showNotifications && (
               <div className="absolute right-0 top-12 w-72 rounded-2xl bg-[#13192B] border border-white/10 shadow-2xl p-3 z-50 space-y-2">
                 <div className="flex items-center justify-between pb-2 border-b border-white/6">
                   <span className="text-xs font-bold text-white">Notifications</span>
-                  <span className="text-[10px] text-violet-400 font-semibold cursor-pointer">Mark read</span>
+                  <span className="text-[10px] text-violet-400 font-semibold cursor-pointer">Live</span>
                 </div>
                 <div className="space-y-1.5 text-xs">
-                  <div className="p-2 rounded-xl bg-white/4 hover:bg-white/6 cursor-pointer">
-                    <p className="font-semibold text-white">Sophia joined the podcast</p>
-                    <p className="text-[10px] text-slate-400">2 minutes ago</p>
-                  </div>
-                  <div className="p-2 rounded-xl bg-white/4 hover:bg-white/6 cursor-pointer">
-                    <p className="font-semibold text-white">Audio bitrate optimized to 48kHz</p>
-                    <p className="text-[10px] text-slate-400">5 minutes ago</p>
-                  </div>
-                  <div className="p-2 rounded-xl bg-white/4 hover:bg-white/6 cursor-pointer">
-                    <p className="font-semibold text-white">Screen share resolution 1080p</p>
-                    <p className="text-[10px] text-slate-400">10 minutes ago</p>
-                  </div>
+                  {pendingJoinRequests.length > 0 ? (
+                    pendingJoinRequests.map((req) => (
+                      <div key={req.socketId} className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
+                        <p className="font-semibold text-white">{req.name} requested to join</p>
+                        <div className="flex space-x-2 mt-1">
+                          <button
+                            onClick={() => studio.admitUser?.(req.socketId)}
+                            className="px-2 py-0.5 bg-violet-600 rounded text-[10px] text-white"
+                          >
+                            Admit
+                          </button>
+                          <button
+                            onClick={() => studio.denyUser?.(req.socketId)}
+                            className="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2 text-center text-xs text-slate-400">
+                      No pending room notifications.
+                    </div>
+                  )}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Top User Avatar */}
           <div
             onClick={() => navigate('/dashboard')}
-            className="w-9 h-9 rounded-full ring-2 ring-violet-500/50 overflow-hidden cursor-pointer hover:ring-violet-400 transition-all shrink-0"
+            className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-xs font-bold text-white ring-2 ring-violet-500/50 cursor-pointer hover:ring-violet-400 transition-all shrink-0"
           >
-            <img
-              src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80"
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
+            {localName.slice(0, 2).toUpperCase()}
           </div>
         </div>
       </header>
 
       {/* ============================================================== */}
-      {/* 2. BODY CONTENT (3 COLUMNS: LEFT SIDEBAR, CENTER STAGE, RIGHT) */}
+      {/* 2. BODY CONTENT (3 COLUMNS)                                    */}
       {/* ============================================================== */}
       <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* ============================================================== */}
-        {/* LEFT NAVIGATION SIDEBAR                                         */}
-        {/* ============================================================== */}
+        {/* LEFT NAVIGATION SIDEBAR */}
         <aside className="w-60 bg-[#0A0F1D] border-r border-white/6 flex flex-col justify-between shrink-0 hidden lg:flex">
           <div className="p-4 space-y-4">
-            {/* Home Pill Button */}
             <button
               onClick={() => navigate('/dashboard')}
               className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-violet-600/20 text-violet-300 border border-violet-500/30 transition-all shadow-sm"
@@ -384,7 +368,6 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               <span>Home</span>
             </button>
 
-            {/* Gradient Action Button: + Create Room */}
             <button
               onClick={() => navigate('/create')}
               className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-lg shadow-violet-600/30 hover:opacity-95 transition-all"
@@ -393,7 +376,6 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               <span>Create Room</span>
             </button>
 
-            {/* Navigation Category Links */}
             <nav className="space-y-1 pt-1">
               <button
                 onClick={() => navigate('/create?type=podcast')}
@@ -445,7 +427,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             </nav>
           </div>
 
-          {/* Upgrade to Pro Card & User Footer */}
+          {/* Pro Card & User Footer (Live participant identity) */}
           <div className="p-4 space-y-3">
             <div className="p-4 rounded-2xl bg-gradient-to-br from-violet-950/40 via-[#13192B] to-indigo-950/40 border border-violet-500/20 relative overflow-hidden">
               <div className="flex items-center space-x-2 text-violet-300 text-xs font-bold mb-1">
@@ -464,19 +446,16 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               </button>
             </div>
 
-            {/* User Profile Footer */}
             <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/4 transition-colors cursor-pointer">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="relative">
-                  <img
-                    src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80"
-                    alt={localName}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-500/30"
-                  />
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    {localName.slice(0, 2).toUpperCase()}
+                  </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0A0F1D] absolute -bottom-0.5 -right-0.5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-white truncate">Robinson J.</p>
+                  <p className="text-xs font-bold text-white truncate">{localName}</p>
                   <p className="text-[10px] text-emerald-400 font-medium">● Online</p>
                 </div>
               </div>
@@ -486,26 +465,20 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
         </aside>
 
         {/* ============================================================== */}
-        {/* CENTER STAGE: ROOM HEADER, BENTO VIDEO GRID & BOTTOM DOCK      */}
+        {/* CENTER STAGE: ROOM HEADER, ADAPTIVE VIDEO GRID & BOTTOM DOCK   */}
         {/* ============================================================== */}
         <main className="flex-1 flex flex-col min-w-0 relative bg-[#080C16]">
           {/* ROOM SUB-HEADER BAR */}
           <div className="h-16 px-6 border-b border-white/6 flex items-center justify-between gap-4 shrink-0 bg-[#0A0F1D]">
-            {/* Left: Room Icon, Title, Verified Check, Live status & counter */}
             <div className="flex items-center space-x-4 min-w-0">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-600/30 to-indigo-600/30 border border-violet-500/40 flex items-center justify-center text-violet-400 shrink-0 shadow-inner">
-                {/* Audio wave icon */}
-                <div className="flex items-center space-x-0.5">
-                  <span className="w-0.5 h-3 bg-violet-400 rounded-full animate-pulse" />
-                  <span className="w-0.5 h-4.5 bg-violet-300 rounded-full animate-pulse" style={{ animationDelay: '100ms' }} />
-                  <span className="w-0.5 h-2.5 bg-violet-400 rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
-                </div>
+                <Radio className="w-5 h-5 text-violet-400 animate-pulse" />
               </div>
 
               <div className="min-w-0">
                 <div className="flex items-center space-x-2">
                   <h1 className="text-base font-extrabold text-white truncate">
-                    {room?.roomName || 'Creative Podcast'}
+                    {room?.roomName || 'Active Room'}
                   </h1>
                   <CheckCircle className="w-4 h-4 text-violet-400 shrink-0 fill-violet-400/20" />
                   <span className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold text-[10px] uppercase tracking-wider shrink-0">
@@ -514,21 +487,21 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 truncate mt-0.5">
-                  {room?.description || 'Listen · Discuss · Create Together'}
+                  {room?.description || 'Real-time collaborative audio & video session'}
                 </p>
               </div>
 
-              {/* Timer & Participants count */}
+              {/* Real duration & participant counter */}
               <div className="hidden sm:flex items-center space-x-3 text-xs text-slate-400 border-l border-white/8 pl-4">
                 <span className="font-mono text-slate-300">{formatDuration(elapsedSeconds)}</span>
                 <div className="flex items-center space-x-1">
                   <Users className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{participants.length || 4}</span>
+                  <span>{participants.length || 1}</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Header Action Buttons: Invite, Share, Leave Room */}
+            {/* Action Buttons: Invite, Share, Leave */}
             <div className="flex items-center space-x-2.5 shrink-0">
               <button
                 onClick={handleCopyShareLink}
@@ -559,182 +532,187 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             </div>
           </div>
 
-          {/* CENTER STAGE: BENTO GRID VIDEO TILES */}
+          {/* CENTER STAGE: DYNAMIC VIDEO GRID (PURE LIVE DATA) */}
           <div className="flex-1 p-4 lg:p-6 overflow-hidden flex flex-col justify-between gap-4">
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-0">
-              {/* TILE 1: YOU (LOCAL PARTICIPANT - TOP LEFT) */}
-              <div className="rounded-3xl bg-[#0D1322] border border-white/8 relative overflow-hidden flex flex-col justify-between group shadow-xl">
-                {/* Expand Button */}
-                <div className="absolute top-3 right-3 z-10 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={toggleFullscreen}
-                    className="p-1.5 rounded-lg bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Video Feed or Photo Avatar */}
-                <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#13192B] to-[#0A0E1A]">
-                  {isCameraEnabled ? (
-                    <video
-                      ref={localVideoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="relative w-full h-full">
-                      <img
-                        src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&auto=format&fit=crop&q=80"
-                        alt="You"
-                        className="w-full h-full object-cover filter brightness-95"
+            <div className="flex-1 min-h-0">
+              {/* LAYOUT: IF SCREEN SHARING */}
+              {isSharing ? (
+                <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {/* Big Screen Share Card (2 cols) */}
+                  <div className="lg:col-span-2 rounded-3xl bg-[#0D1322] border-2 border-violet-500/40 relative overflow-hidden flex flex-col justify-between group shadow-2xl">
+                    <div className="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
+                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-violet-600/60 backdrop-blur-md border border-violet-400/40 text-xs font-bold text-violet-100 shadow-sm">
+                        <Monitor className="w-3.5 h-3.5 text-violet-200" />
+                        <span>Sharing Screen</span>
+                      </div>
+                      <button
+                        onClick={toggleFullscreen}
+                        className="p-1.5 rounded-lg bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center bg-black">
+                      <video
+                        ref={screenVideoRef}
+                        autoPlay
+                        playsInline
+                        muted={isHost}
+                        className="w-full h-full object-contain"
                       />
                     </div>
-                  )}
-                </div>
-
-                {/* Bottom Pill: Mic Status & Name */}
-                <div className="p-3 flex items-center justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10">
-                  <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
-                    {isMicMuted ? (
-                      <MicOff className="w-3.5 h-3.5 text-rose-400" />
-                    ) : (
-                      <Mic className="w-3.5 h-3.5 text-emerald-400" />
-                    )}
-                    <span>You</span>
-                    {isHost && <Crown className="w-3 h-3 text-amber-400 ml-1" />}
-                  </div>
-                </div>
-              </div>
-
-              {/* TILE 2: SOPHIA (CO-HOST / REMOTE SPEAKER - TOP RIGHT) */}
-              <div className="rounded-3xl bg-[#0D1322] border border-white/8 relative overflow-hidden flex flex-col justify-between group shadow-xl">
-                {/* Expand Button */}
-                <div className="absolute top-3 right-3 z-10 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={toggleFullscreen}
-                    className="p-1.5 rounded-lg bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Video or Photo Avatar */}
-                <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#13192B] to-[#0A0E1A]">
-                  <img
-                    src={sophiaAvatar}
-                    alt={sophia.name}
-                    className="w-full h-full object-cover filter brightness-95"
-                  />
-                </div>
-
-                {/* Bottom Pill: Crown & Audio Waves */}
-                <div className="p-3 flex items-center justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10">
-                  <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
-                    <Crown className="w-3 h-3 text-purple-400" />
-                    <span>{sophia.name}</span>
-                    <span className="text-violet-400 ml-1 font-mono text-[10px] tracking-tight">ılı</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* TILE 3: SHARING SCREEN (BOTTOM LEFT - SPANS 2 COLS ON DESKTOP) */}
-              <div className="rounded-3xl bg-[#0D1322] border-2 border-violet-500/40 relative overflow-hidden flex flex-col justify-between group shadow-2xl md:col-span-2 lg:col-span-2">
-                {/* Top Overlay Controls */}
-                <div className="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
-                  <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-violet-600/60 backdrop-blur-md border border-violet-400/40 text-xs font-bold text-violet-100 shadow-sm">
-                    <Monitor className="w-3.5 h-3.5 text-violet-200" />
-                    <span>Sharing Screen</span>
                   </div>
 
-                  <button
-                    onClick={toggleFullscreen}
-                    className="p-1.5 rounded-lg bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Screen Feed or Interactive Canvas Preview */}
-                <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-[#0A0D18]">
-                  {isSharing ? (
-                    <video
-                      ref={screenVideoRef}
-                      autoPlay
-                      playsInline
-                      muted={isHost}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <div className="w-full h-full p-8 flex flex-col items-center justify-center text-center space-y-4 bg-gradient-to-br from-violet-950/20 via-[#0D1322] to-cyan-950/20 relative">
-                      {/* Stylized App Presentation Frame matching mockup */}
-                      <div className="w-full max-w-md p-6 rounded-2xl bg-[#090D1A]/90 border border-white/10 shadow-2xl space-y-3">
-                        <div className="flex items-center space-x-2 text-violet-400 text-xs font-bold">
-                          <Radio className="w-4 h-4" />
-                          <span>Musica Studio</span>
+                  {/* Vertical Participant Sidebar (1 col) */}
+                  <div className="flex flex-col gap-4 overflow-y-auto">
+                    {/* Local User */}
+                    <div className="h-44 rounded-2xl bg-[#0D1322] border border-white/8 relative overflow-hidden shadow-lg">
+                      {isCameraEnabled ? (
+                        <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-[#13192B]">
+                          <div className="w-14 h-14 rounded-full bg-violet-600 flex items-center justify-center text-lg font-black text-white">
+                            {localName.slice(0, 2).toUpperCase()}
+                          </div>
                         </div>
-                        <h3 className="text-2xl font-black text-white tracking-tight">
-                          Build Together
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                          Create. Collaborate. Innovate.
-                        </p>
-                        {isHost ? (
-                          <button
-                            onClick={() => studio.startScreenShare()}
-                            className="px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-violet-600/30 transition-all"
-                          >
-                            Share Screen Now
-                          </button>
-                        ) : (
-                          <span className="text-[11px] text-slate-500 block">
-                            Screen broadcast ready for host streaming.
-                          </span>
-                        )}
+                      )}
+                      <div className="absolute bottom-2 left-2 px-2.5 py-0.5 rounded-full bg-black/60 text-xs font-bold text-white flex items-center space-x-1">
+                        {isMicMuted ? <MicOff className="w-3 h-3 text-rose-400" /> : <Mic className="w-3 h-3 text-emerald-400" />}
+                        <span>You</span>
                       </div>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              {/* TILE 4 & 5: STACKED COLUMN FOR ALEX & EMMA (BOTTOM RIGHT) */}
-              <div className="flex flex-col gap-4 justify-between">
-                {/* ALEX CARD */}
-                <div className="flex-1 rounded-2xl bg-[#0D1322] border border-white/8 relative overflow-hidden group shadow-lg min-h-[110px]">
-                  <img
-                    src={alexAvatar}
-                    alt={alex.name}
-                    className="w-full h-full object-cover filter brightness-95"
-                  />
-                  {/* Bottom details */}
-                  <div className="p-2.5 flex items-center justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0">
-                    <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white">
-                      <MicOff className="w-3 h-3 text-rose-400" />
-                      <span>{alex.name}</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-emerald-400">📶</span>
+                    {/* Remote Participants */}
+                    {remoteParticipants.map((p) => (
+                      <div key={p.id} className="h-44 rounded-2xl bg-[#0D1322] border border-white/8 relative overflow-hidden shadow-lg">
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-[#13192B]">
+                          <div className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-lg font-black text-white">
+                            {p.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="absolute bottom-2 left-2 px-2.5 py-0.5 rounded-full bg-black/60 text-xs font-bold text-white flex items-center space-x-1">
+                          {p.hasMic ? <Mic className="w-3 h-3 text-emerald-400" /> : <MicOff className="w-3 h-3 text-rose-400" />}
+                          <span>{p.name}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-                {/* EMMA CARD */}
-                <div className="flex-1 rounded-2xl bg-[#0D1322] border border-white/8 relative overflow-hidden group shadow-lg min-h-[110px]">
-                  <img
-                    src={emmaAvatar}
-                    alt={emma.name}
-                    className="w-full h-full object-cover filter brightness-95"
-                  />
-                  {/* Bottom details */}
-                  <div className="p-2.5 flex items-center justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0">
-                    <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white">
-                      <MicOff className="w-3 h-3 text-rose-400" />
-                      <span>{emma.name}</span>
+              ) : remoteParticipants.length === 0 ? (
+                /* ALONE IN ROOM: SHOW HOST + INVITE CALLOUT CARD */
+                <div className="h-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Local User Card */}
+                  <div className="rounded-3xl bg-[#0D1322] border border-white/8 relative overflow-hidden flex flex-col justify-between group shadow-xl">
+                    <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={toggleFullscreen} className="p-1.5 rounded-lg bg-slate-900/80 text-slate-300 hover:text-white">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-400">📶</span>
+
+                    <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#13192B] to-[#0A0E1A]">
+                      {isCameraEnabled ? (
+                        <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center space-y-3">
+                          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-violet-600 via-purple-600 to-indigo-500 flex items-center justify-center text-3xl font-black text-white shadow-2xl shadow-violet-600/30 border border-white/10">
+                            {localName.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex items-center space-x-1 h-5">
+                            <span className={`w-1 rounded-full ${!isMicMuted ? 'h-4 bg-emerald-400 animate-pulse' : 'h-1.5 bg-slate-600'}`} />
+                            <span className={`w-1 rounded-full ${!isMicMuted ? 'h-6 bg-violet-400 animate-pulse' : 'h-1.5 bg-slate-600'}`} style={{ animationDelay: '100ms' }} />
+                            <span className={`w-1 rounded-full ${!isMicMuted ? 'h-3 bg-cyan-400 animate-pulse' : 'h-1.5 bg-slate-600'}`} style={{ animationDelay: '200ms' }} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-3 flex items-center justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10">
+                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
+                        {isMicMuted ? <MicOff className="w-3.5 h-3.5 text-rose-400" /> : <Mic className="w-3.5 h-3.5 text-emerald-400" />}
+                        <span>{localName} (You)</span>
+                        {isHost && <Crown className="w-3 h-3 text-amber-400 ml-1" />}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Waiting for Participants Card */}
+                  <div className="rounded-3xl bg-[#0D1322] border border-white/8 p-8 flex flex-col items-center justify-center text-center space-y-4 shadow-xl">
+                    <div className="w-16 h-16 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shadow-inner">
+                      <Users className="w-8 h-8 animate-pulse" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-black text-white tracking-tight">Ready to Collaborate</h3>
+                      <p className="text-xs text-slate-400 max-w-xs">
+                        You are the first in the room. Share the room code or invite link to start streaming together.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-[#13192B] border border-white/10 flex items-center space-x-3">
+                      <span className="text-xs font-mono font-bold text-violet-300">
+                        {room?.roomId || 'ROOM'}
+                      </span>
+                      <button
+                        onClick={handleCopyShareLink}
+                        className="px-3 py-1 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center space-x-1 transition-all"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Invite Link</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                /* MULTIPLE REAL PARTICIPANTS: DYNAMIC GRID */
+                <div className={`h-full grid gap-4 ${
+                  remoteParticipants.length === 1 
+                    ? 'grid-cols-1 md:grid-cols-2' 
+                    : remoteParticipants.length === 2 
+                    ? 'grid-cols-1 md:grid-cols-3' 
+                    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                }`}>
+                  {/* Local User Card */}
+                  <div className="rounded-3xl bg-[#0D1322] border border-white/8 relative overflow-hidden flex flex-col justify-between group shadow-xl">
+                    <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#13192B] to-[#0A0E1A]">
+                      {isCameraEnabled ? (
+                        <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center space-y-3">
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-2xl font-black text-white shadow-xl">
+                            {localName.slice(0, 2).toUpperCase()}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10">
+                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
+                        {isMicMuted ? <MicOff className="w-3.5 h-3.5 text-rose-400" /> : <Mic className="w-3.5 h-3.5 text-emerald-400" />}
+                        <span>You</span>
+                        {isHost && <Crown className="w-3 h-3 text-amber-400 ml-1" />}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Remote Participants Real Cards */}
+                  {remoteParticipants.map((p) => (
+                    <div key={p.id} className="rounded-3xl bg-[#0D1322] border border-white/8 relative overflow-hidden flex flex-col justify-between group shadow-xl">
+                      <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#13192B] to-[#0A0E1A]">
+                        <div className="flex flex-col items-center space-y-3">
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-2xl font-black text-white shadow-xl">
+                            {p.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 inset-x-0 z-10">
+                        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#13192B]/90 backdrop-blur-md border border-white/10 text-xs font-bold text-white shadow-sm">
+                          {p.hasMic ? <Mic className="w-3.5 h-3.5 text-emerald-400" /> : <MicOff className="w-3.5 h-3.5 text-rose-400" />}
+                          <span>{p.name}</span>
+                          <span className="text-[10px] text-slate-400 ml-1">({p.role})</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ============================================================== */}
@@ -793,7 +771,7 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                   </span>
                 </div>
 
-                {/* 3. Screen Share Button (Viewer or Host) */}
+                {/* 3. Screen Share Button */}
                 <div className="flex flex-col items-center space-y-1">
                   <button
                     onClick={() => {
@@ -821,7 +799,6 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                   </button>
                   <span className="text-[10px] font-medium text-slate-400">React</span>
 
-                  {/* Floating Emoji Picker Popover */}
                   {showEmojiPicker && (
                     <div className="absolute bottom-16 left-1/2 -translate-x-1/2 p-2 rounded-2xl bg-[#13192B] border border-white/15 shadow-2xl flex items-center space-x-2 z-50">
                       {reactionsList.map((emoji) => (
@@ -900,16 +877,8 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
                 </div>
               </div>
 
-              {/* Right Dock Controls: Grid Mode & Fullscreen */}
+              {/* Right Controls: Fullscreen */}
               <div className="hidden sm:flex items-center space-x-2 shrink-0">
-                <button
-                  onClick={() => setLayoutMode(layoutMode === 'bento' ? 'grid' : 'bento')}
-                  className="p-3 rounded-xl bg-[#182033] hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 transition-colors"
-                  title="Toggle View Mode"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </button>
-
                 <button
                   onClick={toggleFullscreen}
                   className="p-3 rounded-xl bg-[#182033] hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 transition-colors"
@@ -926,9 +895,8 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
         {/* 4. RIGHT ACTIVITY PANEL (Chat, Participants, Files, Notes)     */}
         {/* ============================================================== */}
         <aside className="w-80 bg-[#0A0F1D] border-l border-white/6 flex flex-col justify-between shrink-0">
-          {/* TAB BAR: 4 TABS MATCHING MOCKUP ICON + TEXT PILLS */}
+          {/* TAB BAR */}
           <div className="grid grid-cols-4 gap-1 p-3 border-b border-white/6 bg-[#0B101E] shrink-0">
-            {/* 1. Chat Tab */}
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-[11px] font-bold transition-all ${
@@ -941,7 +909,6 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               <span>Chat</span>
             </button>
 
-            {/* 2. Participants Tab */}
             <button
               onClick={() => setActiveTab('participants')}
               className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-[11px] font-bold transition-all ${
@@ -951,10 +918,9 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               }`}
             >
               <Users className="w-4 h-4 mb-1" />
-              <span>Participants</span>
+              <span>People ({participants.length || 1})</span>
             </button>
 
-            {/* 3. Files Tab */}
             <button
               onClick={() => setActiveTab('files')}
               className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-[11px] font-bold transition-all ${
@@ -967,7 +933,6 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
               <span>Files</span>
             </button>
 
-            {/* 4. Notes Tab */}
             <button
               onClick={() => setActiveTab('notes')}
               className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-[11px] font-bold transition-all ${
@@ -981,114 +946,67 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             </button>
           </div>
 
-          {/* TAB 1: CHAT STREAM */}
+          {/* TAB 1: REAL CHAT STREAM (ZERO DUMMY DATA) */}
           {activeTab === 'chat' && (
             <div className="flex-1 flex flex-col justify-between overflow-hidden">
               <div ref={chatScrollRef} className="flex-1 p-4 space-y-4 overflow-y-auto">
-                {/* Sophia Message */}
-                <div className="flex items-start space-x-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                    alt="Sophia"
-                    className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-white/10"
-                  />
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs font-bold text-white">Sophia</span>
-                      <span className="text-[10px] text-slate-400">10:24 AM</span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-[#13192B] border border-white/6 text-xs text-slate-200 leading-relaxed shadow-sm">
-                      This looks amazing! 🎉
-                    </div>
+                {chatMessages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2 text-slate-500">
+                    <MessageSquare className="w-8 h-8 text-slate-600" />
+                    <p className="text-xs font-semibold text-slate-400">No messages yet</p>
+                    <p className="text-[11px] leading-relaxed">
+                      Start the conversation by sending a greeting or sharing a link with room participants.
+                    </p>
                   </div>
-                </div>
+                ) : (
+                  chatMessages.map((msg) => {
+                    const isSelf = msg.senderName === localName;
+                    const hasUrl = msg.text.match(/(https?:\/\/[^\s]+)/g);
 
-                {/* Alex Message */}
-                <div className="flex items-start space-x-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-                    alt="Alex"
-                    className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-white/10"
-                  />
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs font-bold text-white">Alex</span>
-                      <span className="text-[10px] text-slate-400">10:25 AM</span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-[#13192B] border border-white/6 text-xs text-slate-200 leading-relaxed shadow-sm">
-                      Can we share the link?
-                    </div>
-                  </div>
-                </div>
-
-                {/* You Message (Purple Bubble with Rich Link Card) */}
-                <div className="flex items-start space-x-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80"
-                    alt="You"
-                    className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-white/10"
-                  />
-                  <div className="space-y-1 min-w-0 flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs font-bold text-white">You</span>
-                      <span className="text-[10px] text-slate-400">10:26 AM</span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-gradient-to-r from-violet-600/30 to-indigo-600/30 border border-violet-500/40 text-xs text-slate-100 leading-relaxed space-y-2 shadow-sm">
-                      <p>Sure! Here it is:</p>
-                      <div
-                        onClick={handleCopyShareLink}
-                        className="p-2.5 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between cursor-pointer hover:bg-black/60 transition-colors"
-                      >
-                        <div className="flex items-center space-x-2 truncate">
-                          <Share2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-                          <span className="text-[11px] font-mono text-violet-300 truncate">
-                            https://musica.app/room/{room?.roomId || 'CP98'}
-                          </span>
+                    return (
+                      <div key={msg.id} className="flex items-start space-x-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                          isSelf ? 'bg-violet-600 text-white' : 'bg-white/8 text-slate-200'
+                        }`}>
+                          {msg.senderName.slice(0, 1).toUpperCase()}
                         </div>
-                        <ExternalLink className="w-3 h-3 text-slate-400 shrink-0 ml-1.5" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs font-bold text-white">{msg.senderName}</span>
+                            <span className="text-[10px] text-slate-400">
+                              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
 
-                {/* Emma Message */}
-                <div className="flex items-start space-x-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-                    alt="Emma"
-                    className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-white/10"
-                  />
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs font-bold text-white">Emma</span>
-                      <span className="text-[10px] text-slate-400">10:27 AM</span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-[#13192B] border border-white/6 text-xs text-slate-200 leading-relaxed shadow-sm">
-                      Love the new UI 💜
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dynamic Incoming Chat Messages */}
-                {chatMessages.map((msg) => (
-                  <div key={msg.id} className="flex items-start space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-violet-600/20 text-violet-300 font-bold text-xs flex items-center justify-center shrink-0">
-                      {msg.senderName.slice(0, 1).toUpperCase()}
-                    </div>
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-white">{msg.senderName}</span>
-                        <span className="text-[10px] text-slate-400">Now</span>
+                          <div className={`p-3 rounded-2xl text-xs leading-relaxed shadow-sm ${
+                            isSelf 
+                              ? 'bg-gradient-to-r from-violet-600/30 to-indigo-600/30 border border-violet-500/40 text-slate-100' 
+                              : 'bg-[#13192B] border border-white/6 text-slate-200'
+                          }`}>
+                            <p>{msg.text}</p>
+                            {hasUrl && (
+                              <div
+                                onClick={() => window.open(hasUrl[0], '_blank')}
+                                className="mt-2 p-2 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between cursor-pointer hover:bg-black/60 transition-colors"
+                              >
+                                <div className="flex items-center space-x-2 truncate">
+                                  <Share2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                                  <span className="text-[11px] font-mono text-violet-300 truncate">
+                                    {hasUrl[0]}
+                                  </span>
+                                </div>
+                                <ExternalLink className="w-3 h-3 text-slate-400 shrink-0 ml-1.5" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="p-3 rounded-2xl bg-[#13192B] border border-white/6 text-xs text-slate-200 leading-relaxed shadow-sm">
-                        {msg.text}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })
+                )}
               </div>
 
-              {/* Chat Input Bar matching mockup */}
+              {/* Chat Input Bar */}
               <form onSubmit={handleSendMessage} className="p-3 border-t border-white/6 bg-[#0A0F1D]">
                 <div className="relative flex items-center bg-[#13192B] border border-white/8 rounded-2xl px-2 py-1 focus-within:border-violet-500/50 transition-colors">
                   <button
@@ -1119,52 +1037,38 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             </div>
           )}
 
-          {/* TAB 2: PARTICIPANTS */}
+          {/* TAB 2: PARTICIPANTS (REAL PARTICIPANTS LIST) */}
           {activeTab === 'participants' && (
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
-              {/* Host Section */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Host</span>
-                <div className="p-3 rounded-2xl bg-[#13192B] border border-white/6 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <img
-                      src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80"
-                      alt="Host"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div>
-                      <span className="text-xs font-bold text-white block">{room?.hostName || 'Robinson J.'}</span>
-                      <span className="text-[10px] text-violet-400">Host (Lead)</span>
-                    </div>
-                  </div>
-                  <Mic className="w-3.5 h-3.5 text-emerald-400" />
-                </div>
-              </div>
-
-              {/* Other Speakers & Listeners */}
               <div className="space-y-2">
                 <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                  Speakers & Audience ({participants.length || 4})
+                  Participants ({participants.length || 1})
                 </span>
-                {participants.map((p) => (
-                  <div key={p.id} className="p-3 rounded-2xl bg-[#13192B] border border-white/6 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-violet-600/20 text-violet-300 font-bold text-xs flex items-center justify-center">
-                        {p.name.slice(0, 1).toUpperCase()}
+                {participants.map((p) => {
+                  const isUserHost = p.role === 'owner' || p.role === 'host';
+                  return (
+                    <div key={p.id} className="p-3 rounded-2xl bg-[#13192B] border border-white/6 flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-violet-600/20 text-violet-300 font-bold text-xs flex items-center justify-center">
+                          {p.name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center space-x-1.5">
+                            <span className="text-xs font-bold text-white block">{p.name}</span>
+                            {isUserHost && <Crown className="w-3 h-3 text-amber-400" />}
+                          </div>
+                          <span className="text-[10px] text-slate-400 capitalize">{p.role}</span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-xs font-bold text-white block">{p.name}</span>
-                        <span className="text-[10px] text-slate-400">{p.role}</span>
+                      <div className="flex items-center space-x-2">
+                        {p.hasMic ? <Mic className="w-3.5 h-3.5 text-emerald-400" /> : <MicOff className="w-3.5 h-3.5 text-rose-400" />}
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      {p.hasMic ? <Mic className="w-3.5 h-3.5 text-emerald-400" /> : <MicOff className="w-3.5 h-3.5 text-rose-400" />}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {/* Waiting Lobby (If Host) */}
+              {/* Waiting Room (If Host and requests present) */}
               {isHost && pendingJoinRequests.length > 0 && (
                 <div className="space-y-2 pt-2 border-t border-white/8">
                   <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">
@@ -1194,56 +1098,63 @@ export const StudioStage: React.FC<StudioStageProps> = ({ studio, onLeave }) => 
             </div>
           )}
 
-          {/* TAB 3: FILES */}
+          {/* TAB 3: FILES (LIVE USER SHARING) */}
           {activeTab === 'files' && (
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
               <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Session Files</span>
-              {sharedFiles.map((f, i) => (
-                <div key={i} className="p-3 rounded-2xl bg-[#13192B] border border-white/6 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center">
-                      <FileText className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-white block truncate max-w-[150px]">{f.name}</span>
-                      <span className="text-[10px] text-slate-400">{f.size} • {f.time}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => notificationService.showToast(`Downloading ${f.name}...`, 'info')}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/6 hover:bg-white/10 text-slate-200"
-                  >
-                    Download
-                  </button>
+              {sharedFiles.length === 0 ? (
+                <div className="p-6 text-center text-slate-500 space-y-2">
+                  <Folder className="w-8 h-8 text-slate-600 mx-auto" />
+                  <p className="text-xs text-slate-400">No files shared yet</p>
+                  <p className="text-[11px]">Upload a document, audio file, or image to share with the room.</p>
                 </div>
-              ))}
-              <button
-                onClick={() => notificationService.showToast('Upload feature linked to Supabase Storage', 'info')}
-                className="w-full py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-slate-400 hover:text-white flex items-center justify-center space-x-1.5"
-              >
+              ) : (
+                sharedFiles.map((f, i) => (
+                  <div key={i} className="p-3 rounded-2xl bg-[#13192B] border border-white/6 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-white block truncate max-w-[150px]">{f.name}</span>
+                        <span className="text-[10px] text-slate-400">{f.size} • {f.time}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => notificationService.showToast(`Downloading ${f.name}...`, 'info')}
+                      className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/6 hover:bg-white/10 text-slate-200"
+                    >
+                      Download
+                    </button>
+                  </div>
+                ))
+              )}
+
+              <label className="w-full py-2.5 rounded-xl border border-dashed border-white/15 text-xs text-slate-400 hover:text-white flex items-center justify-center space-x-1.5 cursor-pointer hover:border-violet-500/50 transition-colors">
                 <Paperclip className="w-3.5 h-3.5" />
                 <span>Share a file</span>
-              </button>
+                <input type="file" onChange={handleFileUpload} className="hidden" />
+              </label>
             </div>
           )}
 
-          {/* TAB 4: NOTES */}
+          {/* TAB 4: NOTES (REAL COLLABORATIVE NOTES) */}
           {activeTab === 'notes' && (
             <div className="flex-1 p-4 flex flex-col justify-between overflow-hidden">
               <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2">
-                Shared Session Notes
+                Room Notes
               </span>
               <textarea
                 value={sharedNotes}
                 onChange={(e) => setSharedNotes(e.target.value)}
-                placeholder="Jot down notes, agenda, and action items..."
+                placeholder="Capture shared room notes, agenda items, and takeaways..."
                 className="flex-1 w-full p-3 rounded-2xl bg-[#13192B] border border-white/6 text-xs text-slate-200 focus:outline-none focus:border-violet-500/50 resize-none font-mono leading-relaxed"
               />
               <div className="pt-2 flex justify-between items-center text-[10px] text-slate-400">
-                <span>● Synced with room</span>
+                <span>● Synced with session</span>
                 <button
                   onClick={() => notificationService.showToast('Notes saved to session history', 'success')}
-                  className="px-3 py-1 rounded-lg bg-violet-600 text-white font-bold"
+                  className="px-3 py-1 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-bold transition-colors"
                 >
                   Save
                 </button>

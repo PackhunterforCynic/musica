@@ -24,9 +24,9 @@ import { API_BASE_URL } from '../config/api';
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
-    activeRoomsCount: 1,
-    totalRoomsCreated: 12,
-    totalParticipantsJoined: 48,
+    activeRoomsCount: 0,
+    totalRoomsCreated: 0,
+    totalParticipantsJoined: 0,
   });
 
   useEffect(() => {

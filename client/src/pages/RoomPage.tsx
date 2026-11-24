@@ -46,7 +46,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
   }, []);
 
   // Synchronized Classroom Quiz Poll Votes
-  const [pollVotes, setPollVotes] = useState({ A: 4, B: 8 });
+  const [pollVotes, setPollVotes] = useState({ A: 0, B: 0 });
   useEffect(() => {
     const handlePollVote = (e: any) => {
       if (e.detail) {
