@@ -102,7 +102,7 @@ export default function App() {
             <div className="min-h-screen flex flex-col bg-[#0B1020] text-slate-100">
               <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="landing" />
               <main className="flex-1 flex flex-col">
-                <LandingPage onNavigate={(view) => navigate(`/${view}`)} />
+                <LandingPage onNavigate={(route) => navigate(route.startsWith('/') ? route : `/${route}`)} />
               </main>
               <Footer />
             </div>

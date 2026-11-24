@@ -297,6 +297,49 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
 
   return (
     <div className="h-screen w-screen bg-[#0B1020] overflow-hidden relative select-none">
+      {/* GLOBAL HOST ADMISSION NOTIFICATION BANNER */}
+      {isHost && pendingJoinRequests.length > 0 && (
+        <div className="absolute top-4 inset-x-0 mx-auto max-w-lg z-50 px-4">
+          <div className="bg-[#151C2E]/95 backdrop-blur-xl border border-violet-500/40 text-white p-4 rounded-2xl shadow-2xl shadow-violet-950/60 flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center shrink-0">
+                <span className="text-lg">👋</span>
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-white truncate">
+                    {pendingJoinRequests[0].name}
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                    Wants to join
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 truncate">
+                  {pendingJoinRequests.length > 1
+                    ? `+ ${pendingJoinRequests.length - 1} more waiting in lobby`
+                    : 'Awaiting your permission to enter this room'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => studio.denyUser?.(pendingJoinRequests[0].socketId)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+              >
+                Decline
+              </button>
+              <button
+                onClick={() => studio.admitUser?.(pendingJoinRequests[0].socketId)}
+                className="px-4 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-md shadow-violet-500/25 transition-all flex items-center gap-1.5"
+              >
+                <span>Admit</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ReactionsOverlay />
       {renderRoomExperience()}
     </div>

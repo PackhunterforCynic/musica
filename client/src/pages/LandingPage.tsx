@@ -1,15 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Radio, Headphones, Monitor, Users, Shield, Sparkles, ArrowRight, Activity, Clock } from 'lucide-react';
+import {
+  Radio,
+  Headphones,
+  Monitor,
+  Users,
+  Shield,
+  Sparkles,
+  ArrowRight,
+  Activity,
+  Clock,
+  Mic2,
+  GraduationCap,
+  Headset,
+  Lock,
+  Zap,
+} from 'lucide-react';
+import { motion } from 'motion/react';
 import { getBrowserCompatibility } from '../utils/browserCompat';
 import { notificationService } from '../services/NotificationService';
 import { API_BASE_URL } from '../config/api';
+import { formatRoomIdInput, validateRoomId } from '../utils/formatters';
 
 interface LandingPageProps {
-  onNavigate: (view: 'create' | 'join' | 'create-couple') => void;
+  onNavigate: (route: string) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
-  const [stats, setStats] = useState<{ activeRoomsCount: number; totalRoomsCreated: number; totalBroadcastMinutes: number }>({
+  const [quickRoomCode, setQuickRoomCode] = useState('');
+  const [stats, setStats] = useState<{
+    activeRoomsCount: number;
+    totalRoomsCreated: number;
+    totalBroadcastMinutes: number;
+  }>({
     activeRoomsCount: 0,
     totalRoomsCreated: 0,
     totalBroadcastMinutes: 0,
@@ -35,108 +57,274 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
       });
   }, []);
 
+  const handleQuickJoin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = quickRoomCode.trim().toUpperCase();
+    if (!validateRoomId(cleanCode)) {
+      notificationService.showToast('Please enter a valid 4-character Room ID (e.g. ABX9).', 'error', 'Invalid Code');
+      return;
+    }
+    onNavigate(`/join?room=${cleanCode}`);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start pb-12 relative overflow-y-auto">
-      {/* Background Graphic / Waves */}
-      <div className="fixed top-0 left-0 w-full h-[60vh] bg-gradient-to-b from-blue-900/20 via-purple-900/10 to-transparent pointer-events-none mix-blend-screen" />
-      <div className="absolute top-1/2 -left-20 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen"></div>
+    <div className="min-h-screen flex flex-col bg-[#0B1020] text-slate-100 overflow-x-hidden">
+      {/* Background Glow Elements */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-[-100px] left-1/4 w-[500px] h-[500px] bg-violet-600/15 rounded-full blur-[140px]" />
+        <div className="absolute top-[50px] right-1/4 w-[450px] h-[450px] bg-cyan-500/10 rounded-full blur-[140px]" />
+      </div>
 
-      <div className="w-full max-w-md px-6 z-10">
-        {/* Header */}
-        <header className="flex items-center justify-between py-6">
-          <h1 className="text-xl font-bold text-white tracking-wide">Musica</h1>
-          <button className="p-2 text-slate-300">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
-        </header>
-
-        {/* Hero Copy */}
-        <div className="mt-4 space-y-4">
-          <h2 className="text-3xl font-bold text-white leading-tight">
-            Real-Time Audio &<br />Screen Sharing
-          </h2>
-          <p className="text-sm text-slate-300 leading-relaxed max-w-sm">
-            Create or join a room and experience seamless collaboration, learning, and entertainment.
-          </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mt-8 space-y-4">
-          <div className="flex space-x-3 w-full">
-            <button
-              onClick={() => onNavigate('create')}
-              className="flex-1 py-4 rounded-3xl bg-gradient-to-r from-indigo-500 to-purple-500 font-semibold text-white flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/20"
-            >
-              <Monitor className="w-4 h-4" />
-              <span>Studio</span>
-            </button>
-
-            <button
-              onClick={() => onNavigate('create-couple')}
-              className="flex-1 py-4 rounded-3xl bg-gradient-to-r from-pink-500 to-rose-500 font-semibold text-white flex items-center justify-center space-x-2 shadow-lg shadow-pink-500/20"
-            >
-              <Users className="w-4 h-4" />
-              <span>Couple</span>
-            </button>
-          </div>
-
-          <button
-            onClick={() => onNavigate('join')}
-            className="w-full py-4 rounded-3xl bg-[#101423] border border-slate-700/80 text-white font-semibold flex items-center justify-center space-x-2"
+      <div className="relative z-10 flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col justify-between">
+        {/* HERO SECTION */}
+        <section className="text-center max-w-4xl mx-auto pt-6 pb-14 space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 text-violet-300 text-xs font-semibold shadow-inner"
           >
-            <ArrowRight className="w-4 h-4 text-slate-400" />
-            <span>Join a Room</span>
-          </button>
-        </div>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Musica 2.0 • LiveKit SFU + Supabase Real-Time</span>
+          </motion.div>
 
-        {/* Mockup Illustration Placeholder */}
-        <div className="mt-10 mb-8 relative w-full aspect-video rounded-2xl bg-gradient-to-br from-[#1a1f35] to-[#0a0f1c] border border-slate-800/80 flex items-center justify-center overflow-hidden">
-          <Monitor className="w-16 h-16 text-indigo-500/50" />
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-screen"></div>
-        </div>
+          <motion.h1
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight"
+          >
+            Listen together. Watch together.{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-fuchsia-300 to-cyan-400">
+              Connect in real time.
+            </span>
+          </motion.h1>
 
-        {/* Features Section */}
-        <div className="mt-8">
-          <h3 className="text-lg font-bold text-white mb-6">Why Musica?</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-[#101423] border border-slate-800/80">
-              <div className="flex items-center space-x-2 mb-2">
-                <Monitor className="w-4 h-4 text-indigo-400" />
-                <h4 className="text-xs font-bold text-white">Screen Sharing</h4>
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed"
+          >
+            A high-performance real-time platform engineered with four dedicated room experiences: 1-to-1 encrypted calls, podcast broadcasting, interactive online classrooms, and remote screen assistance.
+          </motion.p>
+
+          {/* ACTION ROW / QUICK JOIN BAR */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto"
+          >
+            <button
+              onClick={() => onNavigate('/dashboard')}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-violet-600/25 transition-all flex items-center justify-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Zap className="w-4 h-4 text-cyan-300" />
+              <span>Launch Studio Dashboard</span>
+              <ArrowRight className="w-4 h-4 text-violet-200" />
+            </button>
+
+            {/* Quick Code Input */}
+            <form onSubmit={handleQuickJoin} className="w-full sm:w-auto flex items-center gap-2">
+              <div className="relative flex-1 sm:w-44">
+                <input
+                  type="text"
+                  maxLength={4}
+                  placeholder="CODE (e.g. ABX9)"
+                  value={quickRoomCode}
+                  onChange={(e) => setQuickRoomCode(formatRoomIdInput(e.target.value))}
+                  className="w-full pl-3.5 pr-3 py-3.5 rounded-2xl bg-[#151C2E] border border-white/10 text-white placeholder-slate-500 font-mono text-sm tracking-widest text-center focus:outline-none focus:border-violet-500 uppercase transition-colors"
+                />
               </div>
-              <p className="text-[10px] text-slate-400 leading-relaxed">Share your screen, window or tab</p>
+              <button
+                type="submit"
+                className="px-5 py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-white/10 text-slate-200 font-bold text-sm transition-all shadow-sm shrink-0"
+              >
+                Join
+              </button>
+            </form>
+          </motion.div>
+        </section>
+
+        {/* 4 EXPERIENCES CARDS GRID */}
+        <section className="py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Four Core Room Experiences
+            </h2>
+            <p className="text-sm text-slate-400 mt-2">
+              Configurable, purpose-built stages powered by LiveKit SFU media transport.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* 1. Private Room */}
+            <div className="group rounded-3xl bg-[#151C2E]/80 border border-white/8 p-6 flex flex-col justify-between hover:border-violet-500/40 hover:bg-[#151C2E] transition-all hover:shadow-xl hover:shadow-violet-950/30">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 group-hover:scale-105 transition-transform">
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/20">
+                    Max 2 Users
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white group-hover:text-violet-300 transition-colors">
+                    Private Room
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mt-2">
+                    1-on-1 confidential calls with encrypted audio/video, system audio screen sharing, live timer, and automatic lobby admission.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => onNavigate('/create?type=private')}
+                className="mt-6 w-full py-2.5 rounded-xl bg-violet-600/15 hover:bg-violet-600/30 text-violet-300 border border-violet-500/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Start 1:1 Call</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-            
-            <div className="p-4 rounded-2xl bg-[#101423] border border-slate-800/80">
-              <div className="flex items-center space-x-2 mb-2">
-                <Headphones className="w-4 h-4 text-purple-400" />
-                <h4 className="text-xs font-bold text-white">High Quality Audio</h4>
+
+            {/* 2. Podcast Studio */}
+            <div className="group rounded-3xl bg-[#151C2E]/80 border border-white/8 p-6 flex flex-col justify-between hover:border-fuchsia-500/40 hover:bg-[#151C2E] transition-all hover:shadow-xl hover:shadow-fuchsia-950/30">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-fuchsia-600/20 border border-fuchsia-500/30 flex items-center justify-center text-fuchsia-400 group-hover:scale-105 transition-transform">
+                    <Radio className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">
+                    Broadcast Stage
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white group-hover:text-fuchsia-300 transition-colors">
+                    Podcast Studio
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mt-2">
+                    Multi-speaker audio/video stage with audience listeners, raise-hand promotion queue, live recording status, and studio audio dock.
+                  </p>
+                </div>
               </div>
-              <p className="text-[10px] text-slate-400 leading-relaxed">Mic, system audio & more</p>
+              <button
+                onClick={() => onNavigate('/create?type=podcast')}
+                className="mt-6 w-full py-2.5 rounded-xl bg-fuchsia-600/15 hover:bg-fuchsia-600/30 text-fuchsia-300 border border-fuchsia-500/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Launch Podcast</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#101423] border border-slate-800/80">
-              <div className="flex items-center space-x-2 mb-2">
-                <Users className="w-4 h-4 text-cyan-400" />
-                <h4 className="text-xs font-bold text-white">Real-time Chat</h4>
+            {/* 3. Interactive Classroom */}
+            <div className="group rounded-3xl bg-[#151C2E]/80 border border-white/8 p-6 flex flex-col justify-between hover:border-cyan-500/40 hover:bg-[#151C2E] transition-all hover:shadow-xl hover:shadow-cyan-950/30">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform">
+                    <GraduationCap className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                    Online Education
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">
+                    Classroom
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mt-2">
+                    Teacher presentation stage (screen, notes, whiteboard), student attendance grid, question hand-raising, and live quiz polls.
+                  </p>
+                </div>
               </div>
-              <p className="text-[10px] text-slate-400 leading-relaxed">Stay connected with everyone</p>
+              <button
+                onClick={() => onNavigate('/create?type=classroom')}
+                className="mt-6 w-full py-2.5 rounded-xl bg-cyan-600/15 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Create Classroom</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#101423] border border-slate-800/80">
-              <div className="flex items-center space-x-2 mb-2">
-                <Shield className="w-4 h-4 text-emerald-400" />
-                <h4 className="text-xs font-bold text-white">Secure & Simple</h4>
+            {/* 4. Remote Support */}
+            <div className="group rounded-3xl bg-[#151C2E]/80 border border-white/8 p-6 flex flex-col justify-between hover:border-emerald-500/40 hover:bg-[#151C2E] transition-all hover:shadow-xl hover:shadow-emerald-950/30">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+                    <Headset className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                    AnyViewer Style
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    Remote Support
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mt-2">
+                    Browser screen sharing with live laser pointer annotations, technician voice, and persistent customer stop-sharing safety banner.
+                  </p>
+                </div>
               </div>
-              <p className="text-[10px] text-slate-400 leading-relaxed">No installation required</p>
+              <button
+                onClick={() => onNavigate('/create?type=remote-support')}
+                className="mt-6 w-full py-2.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Start Support</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
-        </div>
+        </section>
 
+        {/* METRICS & RELIABILITY BANNER */}
+        <section className="py-8 border-t border-white/8 mt-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+            <div className="p-4 rounded-2xl bg-[#151C2E]/40 border border-white/5">
+              <div className="flex items-center justify-center gap-2 text-violet-400 mb-1">
+                <Activity className="w-4 h-4" />
+                <span className="text-xs uppercase font-bold tracking-wider text-slate-400">Status</span>
+              </div>
+              <div className="text-xl font-black text-white flex items-center justify-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Operational</span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">LiveKit SFU Connected</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#151C2E]/40 border border-white/5">
+              <div className="flex items-center justify-center gap-2 text-cyan-400 mb-1">
+                <Radio className="w-4 h-4" />
+                <span className="text-xs uppercase font-bold tracking-wider text-slate-400">Active Rooms</span>
+              </div>
+              <div className="text-xl font-black text-white">
+                {stats.activeRoomsCount > 0 ? stats.activeRoomsCount : 'Live'}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">4-Char Code Rooms</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#151C2E]/40 border border-white/5">
+              <div className="flex items-center justify-center gap-2 text-fuchsia-400 mb-1">
+                <Clock className="w-4 h-4" />
+                <span className="text-xs uppercase font-bold tracking-wider text-slate-400">Broadcasts</span>
+              </div>
+              <div className="text-xl font-black text-white">
+                {stats.totalRoomsCreated > 0 ? stats.totalRoomsCreated : '24/7'}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">Host 60s Failover</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#151C2E]/40 border border-white/5">
+              <div className="flex items-center justify-center gap-2 text-emerald-400 mb-1">
+                <Shield className="w-4 h-4" />
+                <span className="text-xs uppercase font-bold tracking-wider text-slate-400">Security</span>
+              </div>
+              <div className="text-xl font-black text-white">
+                DTLS-SRTP
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">Supabase RLS & JWKS</p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
