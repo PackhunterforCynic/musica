@@ -176,6 +176,14 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
       });
     });
 
+    socket.on(SOCKET_EVENTS.SUPPORT_ANNOTATION_BROADCAST, (data: { annotation: any }) => {
+      window.dispatchEvent(new CustomEvent('musica:annotation', { detail: data.annotation }));
+    });
+
+    socket.on(SOCKET_EVENTS.CLASSROOM_POLL_BROADCAST, (data: { optionIndex: number }) => {
+      window.dispatchEvent(new CustomEvent('musica:poll_vote', { detail: data }));
+    });
+
     socket.on(SOCKET_EVENTS.QUEUE_UPDATED, (data: { queue: any[]; action?: string; item?: any }) => {
       useRoomStore.getState().setQueue(data.queue || []);
       if (data.action === 'added' && data.item) {
@@ -515,6 +523,30 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     }
   };
 
+  const sendSupportAnnotation = (annotation: any) => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.SUPPORT_ANNOTATION_CREATE, { annotation });
+    }
+  };
+
+  const clearSupportAnnotations = () => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.SUPPORT_ANNOTATIONS_CLEAR, {});
+    }
+  };
+
+  const voteClassroomPoll = (optionIndex: number) => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.CLASSROOM_POLL_VOTE, { optionIndex });
+    }
+  };
+
+  const promotePodcastSpeaker = (participantId: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit(SOCKET_EVENTS.PODCAST_PROMOTE_SPEAKER, { participantId });
+    }
+  };
+
   return {
     startScreenShare,
     stopScreenShare,
@@ -532,6 +564,10 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     leaveRoom,
     admitUser,
     denyUser,
+    sendSupportAnnotation,
+    clearSupportAnnotations,
+    voteClassroomPoll,
+    promotePodcastSpeaker,
     startYoutubeShare,
     stopYoutubeShare,
     syncYoutubeState,

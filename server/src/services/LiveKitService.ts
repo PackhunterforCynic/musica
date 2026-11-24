@@ -30,9 +30,10 @@ export class LiveKitService {
     participantIdentity: string;
     participantName: string;
     role: UserRole;
+    roomType?: string;
     metadata?: Record<string, any>;
   }): Promise<LiveKitTokenResponse> {
-    const { roomId, participantIdentity, participantName, role, metadata } = params;
+    const { roomId, participantIdentity, participantName, role, roomType, metadata } = params;
 
     if (!roomId) {
       throw new AppError('roomId is required for LiveKit token generation', 400, 'INVALID_ROOM_ID');
@@ -43,13 +44,16 @@ export class LiveKitService {
 
     const normalizedRoomId = roomId.trim().toUpperCase();
 
-    // Determine permissions according to role
+    // In 1:1 calls and remote support, both peers must have full media publishing rights
+    const isPeerToPeerExperience =
+      roomType === 'private' || roomType === 'couple' || roomType === 'remote-support';
+
     const isHostOrOwner = role === 'host' || role === 'owner';
     const isCoHost = role === 'co-host';
     const isDj = role === 'dj';
     const isSpeaker = role === 'speaker';
 
-    const canPublish = isHostOrOwner || isCoHost || isDj || isSpeaker;
+    const canPublish = isPeerToPeerExperience || isHostOrOwner || isCoHost || isDj || isSpeaker;
     const roomAdmin = isHostOrOwner;
 
     // Track sources that can be published
@@ -57,11 +61,11 @@ export class LiveKitService {
     if (canPublish) {
       canPublishSources.push(TrackSource.MICROPHONE);
     }
-    if (isHostOrOwner || isCoHost || isDj) {
+    if (isPeerToPeerExperience || isHostOrOwner || isCoHost || isDj) {
       canPublishSources.push(TrackSource.SCREEN_SHARE);
       canPublishSources.push(TrackSource.SCREEN_SHARE_AUDIO);
     }
-    if (isHostOrOwner || isCoHost || isSpeaker) {
+    if (isPeerToPeerExperience || isHostOrOwner || isCoHost || isSpeaker) {
       canPublishSources.push(TrackSource.CAMERA);
     }
 

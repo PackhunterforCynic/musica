@@ -1,4 +1,4 @@
-import { UserPermissions, UserRole } from './types';
+import { UserPermissions, UserRole, RoomType } from './types';
 
 export const OWNER_PERMISSIONS: UserPermissions = {
   canKick: true,
@@ -123,7 +123,27 @@ export const AUDIENCE_PERMISSIONS: UserPermissions = {
   canBroadcastVideo: false,
 };
 
-export function getDefaultPermissions(role: UserRole): UserPermissions {
+export function getDefaultPermissions(role: UserRole, roomType?: RoomType): UserPermissions {
+  // In 1:1 and remote support sessions, peers need full peer communication permissions
+  if (roomType === 'private' || roomType === 'couple' || roomType === 'remote-support') {
+    return {
+      canKick: role === 'host' || role === 'owner',
+      canBan: role === 'host' || role === 'owner',
+      canMute: false,
+      canShare: true,
+      canEndRoom: role === 'host' || role === 'owner',
+      canLock: role === 'host' || role === 'owner',
+      canChat: true,
+      canRaiseHand: false,
+      canReact: true,
+      canAddQueue: true,
+      canSkipQueue: true,
+      canManageDJ: false,
+      canBroadcastAudio: true,
+      canBroadcastVideo: true,
+    };
+  }
+
   switch (role) {
     case 'owner':
       return { ...OWNER_PERMISSIONS };

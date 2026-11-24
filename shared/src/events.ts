@@ -84,6 +84,19 @@ export const SOCKET_EVENTS = {
   SFU_TOKEN_RESPONSE: 'sfu-token-response',
   SFU_TRACK_PUBLISHED: 'sfu-track-published',
   SFU_TRACK_UNPUBLISHED: 'sfu-track-unpublished',
+
+  // Remote Support Real-time Annotations
+  SUPPORT_ANNOTATION_CREATE: 'support-annotation-create',
+  SUPPORT_ANNOTATION_BROADCAST: 'support-annotation-broadcast',
+  SUPPORT_ANNOTATIONS_CLEAR: 'support-annotations-clear',
+
+  // Classroom Live Polls
+  CLASSROOM_POLL_VOTE: 'classroom-poll-vote',
+  CLASSROOM_POLL_BROADCAST: 'classroom-poll-broadcast',
+
+  // Podcast Live Controls
+  PODCAST_PROMOTE_SPEAKER: 'podcast-promote-speaker',
+  PODCAST_RECORDING_CHANGE: 'podcast-recording-change',
 } as const;
 
 export type SocketEventName = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS];

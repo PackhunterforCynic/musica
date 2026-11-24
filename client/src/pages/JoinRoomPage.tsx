@@ -68,7 +68,7 @@ export const JoinRoomPage: React.FC<JoinRoomPageProps> = ({ onBack, onRoomJoined
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start relative bg-[#050511] overflow-y-auto">
+    <div className="min-h-screen flex flex-col items-center justify-start relative bg-[#0B1020] text-slate-100 overflow-y-auto">
       <div className="w-full max-w-md px-6 py-6 pb-32">
         {/* Header */}
         <header className="flex items-center justify-between mb-8 relative">

@@ -1,131 +1,118 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
+
+@theme {
+  --color-primary: #0B1020;
+  --color-surface: #151C2E;
+  --color-surface-elevated: #1F293D;
+  --color-surface-hover: #26344E;
+  --color-brand: #8B5CF6;
+  --color-brand-hover: #7C3AED;
+  --color-brand-secondary: #22D3EE;
+  --color-status-live: #22C55E;
+  --color-status-attention: #F97316;
+  --color-status-danger: #EF4444;
+  --color-text-primary: #E5E7EB;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+}
 
 @layer base {
-  :root {
-    --bg-primary: #050511; /* Very dark navy/black */
-    --bg-secondary: #0a0f1c;
-    --bg-card: #101423;
-    --border-color: rgba(255, 255, 255, 0.08);
-    --accent-glow: rgba(99, 102, 241, 0.5);
-  }
-
   body {
     background-color: var(--bg-primary);
-    color: #F8FAFC;
+    color: var(--text-primary);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
     margin: 0;
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Studio Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
 
-/* Premium Glassmorphism */
-.glass-panel {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px -4px rgba(0, 0, 0, 0.6);
+/* Studio Glass Panels */
+.studio-panel {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.875rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
-.glass-card {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.glass-card:hover {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 40px -10px rgba(139, 92, 246, 0.3);
-  transform: translateY(-4px) scale(1.01);
+.studio-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glow-btn {
-  position: relative;
-  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 25px -4px rgba(99, 102, 241, 0.5);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-}
-.glow-btn::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%; width: 50%; height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
-  transform: skewX(-20deg);
-  transition: all 0.5s ease;
-}
-.glow-btn:hover::after {
-  left: 200%;
-}
-.glow-btn:hover {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 12px 30px -4px rgba(99, 102, 241, 0.7);
+.studio-card:hover {
+  background-color: var(--bg-surface-elevated);
+  border-color: var(--border-active);
   transform: translateY(-2px);
-}
-.glow-btn:active {
-  transform: translateY(1px);
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6), var(--glow-primary);
 }
 
-/* Floating Reactions Keyframes */
-@keyframes floatUpAndFade {
-  0% {
-    transform: translateY(0) scale(0.6) rotate(0deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-    transform: translateY(-30px) scale(1.1) rotate(-10deg);
-  }
-  50% {
-    transform: translateY(-100px) scale(1) rotate(10deg);
-  }
-  100% {
-    transform: translateY(-220px) scale(0.8) rotate(-15deg);
-    opacity: 0;
-  }
+/* Studio Primary Button */
+.btn-studio-primary {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: #FFFFFF;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.35);
+  transition: all 0.2s ease;
 }
 
-.animate-reaction {
-  animation: floatUpAndFade 2.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  will-change: transform, opacity;
+.btn-studio-primary:hover {
+  background: linear-gradient(135deg, #9333EA 0%, #6D28D9 100%);
+  box-shadow: 0 6px 20px 0 rgba(139, 92, 246, 0.5);
+  transform: translateY(-1px);
 }
 
-/* Pulse animation for Live Badge */
-@keyframes studioPulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.08);
-  }
+.btn-studio-primary:active {
+  transform: translateY(0);
 }
 
-.live-pulse {
-  animation: studioPulse 2s infinite ease-in-out;
+/* Active Speaker Halo */
+.speaker-halo {
+  box-shadow: 0 0 0 2px #22C55E, 0 0 20px 2px rgba(34, 197, 94, 0.4);
+}
+
+/* Laser Pointer in Remote Support */
+@keyframes laserPulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.laser-pointer {
+  animation: laserPulse 1.2s infinite ease-in-out;
+}
+
+/* Reduced Motion Support (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .laser-pointer,
+  .speaker-halo {
+    animation: none !important;
+  }
 }

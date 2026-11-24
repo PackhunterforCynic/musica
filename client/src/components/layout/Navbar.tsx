@@ -32,11 +32,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentView }) => {
         </div>
 
         {/* Server status & quick navigation */}
-        <div className="flex items-center space-x-4">
-          <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-900/60 border border-slate-800 text-xs text-slate-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Atomic JSON Engine Active</span>
-          </div>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-violet-600/15 hover:bg-violet-600/25 text-violet-300 border border-violet-500/30 transition-all flex items-center gap-1.5"
+          >
+            <span>Dashboard</span>
+          </button>
 
           {currentView !== 'create' && (
             <button

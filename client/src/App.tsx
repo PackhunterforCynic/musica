@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate, useParams, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { ToastContainer } from './components/common/ToastContainer';
 import { LandingPage } from './pages/LandingPage';
+import { DashboardPage } from './pages/DashboardPage';
 import { CreateRoomPage } from './pages/CreateRoomPage';
 import { JoinRoomPage } from './pages/JoinRoomPage';
 import { RoomPage } from './pages/RoomPage';
+import { AppMotion } from './components/animation/AppMotion';
 
 interface SessionData {
   roomId: string;
@@ -59,6 +62,7 @@ const RoomRoute: React.FC<{
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeSession, setActiveSession] = useState<SessionData | null>(() => {
     try {
       const last = sessionStorage.getItem('musica_last_session');
@@ -89,76 +93,80 @@ export default function App() {
   };
 
   return (
-    <>
+    <AppMotion>
       <ToastContainer />
-      <Routes>
-        {/* Landing */}
-        <Route path="/" element={
-          <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-            <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="landing" />
-            <main className="flex-1 flex flex-col">
-              <LandingPage onNavigate={(view) => navigate(`/${view}`)} />
-            </main>
-            <Footer />
-          </div>
-        } />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {/* Landing */}
+          <Route path="/" element={
+            <div className="min-h-screen flex flex-col bg-[#0B1020] text-slate-100">
+              <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="landing" />
+              <main className="flex-1 flex flex-col">
+                <LandingPage onNavigate={(view) => navigate(`/${view}`)} />
+              </main>
+              <Footer />
+            </div>
+          } />
 
-        {/* Create Studio Room */}
-        <Route path="/create" element={
-          <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-            <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="create" />
-            <main className="flex-1 flex flex-col">
-              <CreateRoomPage
-                initialRoomType="studio"
-                onBack={() => navigate('/')}
-                onRoomCreated={handleRoomCreatedOrJoined}
-              />
-            </main>
-            <Footer />
-          </div>
-        } />
+          {/* Studio Dashboard */}
+          <Route path="/dashboard" element={<DashboardPage />} />
 
-        {/* Create Couple Room */}
-        <Route path="/create-couple" element={
-          <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-            <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="create-couple" />
-            <main className="flex-1 flex flex-col">
-              <CreateRoomPage
-                initialRoomType="couple"
-                onBack={() => navigate('/')}
-                onRoomCreated={handleRoomCreatedOrJoined}
-              />
-            </main>
-            <Footer />
-          </div>
-        } />
+          {/* Create Studio Room */}
+          <Route path="/create" element={
+            <div className="min-h-screen flex flex-col bg-[#0B1020] text-slate-100">
+              <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="create" />
+              <main className="flex-1 flex flex-col">
+                <CreateRoomPage
+                  onBack={() => navigate('/dashboard')}
+                  onRoomCreated={handleRoomCreatedOrJoined}
+                />
+              </main>
+              <Footer />
+            </div>
+          } />
 
-        {/* Join Room */}
-        <Route path="/join" element={
-          <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-            <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="join" />
-            <main className="flex-1 flex flex-col">
-              <JoinRoomPage
-                onBack={() => navigate('/')}
-                onRoomJoined={handleRoomCreatedOrJoined}
-              />
-            </main>
-            <Footer />
-          </div>
-        } />
+          {/* Create Couple Room */}
+          <Route path="/create-couple" element={
+            <div className="min-h-screen flex flex-col bg-[#0B1020] text-slate-100">
+              <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="create-couple" />
+              <main className="flex-1 flex flex-col">
+                <CreateRoomPage
+                  initialRoomType="couple"
+                  onBack={() => navigate('/dashboard')}
+                  onRoomCreated={handleRoomCreatedOrJoined}
+                />
+              </main>
+              <Footer />
+            </div>
+          } />
 
-        {/* Room / Stream */}
-        <Route path="/room/:roomId" element={
-          <RoomRoute
-            activeSession={activeSession}
-            onLeave={handleLeaveRoom}
-            onRestoreSession={setActiveSession}
-          />
-        } />
+          {/* Join Room */}
+          <Route path="/join" element={
+            <div className="min-h-screen flex flex-col bg-[#0B1020] text-slate-100">
+              <Navbar onNavigate={(view) => navigate(`/${view === 'landing' ? '' : view}`)} currentView="join" />
+              <main className="flex-1 flex flex-col">
+                <JoinRoomPage
+                  onBack={() => navigate('/dashboard')}
+                  onRoomJoined={handleRoomCreatedOrJoined}
+                />
+              </main>
+              <Footer />
+            </div>
+          } />
 
-        {/* Catch-all redirect */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
+          {/* Room / Stream */}
+          <Route path="/room/:roomId" element={
+            <RoomRoute
+              activeSession={activeSession}
+              onLeave={handleLeaveRoom}
+              onRestoreSession={setActiveSession}
+            />
+          } />
+
+          {/* Catch-all redirect */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </AnimatePresence>
+    </AppMotion>
   );
 }

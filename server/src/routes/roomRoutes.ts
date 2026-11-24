@@ -129,7 +129,12 @@ roomRouter.post('/rooms/:roomId/token', async (req: Request, res: Response): Pro
     const normalizedRoomId = String(roomId || '').trim().toUpperCase();
     const roomDetails = await roomService.getRoom(normalizedRoomId);
 
-    let role: UserRole = 'audience';
+    const isPeerToPeerRoom =
+      roomDetails.room.roomType === 'private' ||
+      roomDetails.room.roomType === 'couple' ||
+      roomDetails.room.roomType === 'remote-support';
+
+    let role: UserRole = isPeerToPeerRoom ? 'speaker' : 'audience';
     if (roomDetails.room.hostName.toLowerCase() === userName.trim().toLowerCase()) {
       role = 'host';
     } else {
@@ -149,6 +154,7 @@ roomRouter.post('/rooms/:roomId/token', async (req: Request, res: Response): Pro
       participantIdentity,
       participantName: userName.trim(),
       role,
+      roomType: roomDetails.room.roomType,
     });
 
     res.status(200).json({

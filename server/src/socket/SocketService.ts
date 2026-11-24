@@ -70,7 +70,15 @@ export class SocketService {
         // Validate credentials & ban state
         const roomData = await roomService.validateJoin({ roomId, userName, password: payload.password });
 
-        if (role !== 'host') {
+        const isPeerToPeerRoom =
+          roomData.roomType === 'private' ||
+          roomData.roomType === 'couple' ||
+          roomData.roomType === 'remote-support';
+
+        // 1:1 and remote support rooms never block peers in the waiting room
+        const requireApproval = roomData.settings?.requireApprovalToJoin ?? (!isPeerToPeerRoom);
+
+        if (role !== 'host' && requireApproval) {
           // AUDIENCE WAITING ROOM APPROVAL
           if (!this.pendingJoinRequests.has(roomId)) {
             this.pendingJoinRequests.set(roomId, new Map());
@@ -106,16 +114,19 @@ export class SocketService {
           return;
         }
 
+        // In 1:1 and remote-support rooms, assign peer as speaker so both can speak & share
+        const effectiveRole: UserRole = isPeerToPeerRoom && role !== 'host' ? 'speaker' : role;
+
         // Register participant
         const participant = await participantService.addParticipant({
           socketId: socket.id,
           roomId,
           name: userName,
-          role,
+          role: effectiveRole,
         });
 
         // Store session info on socket object
-        (socket.data as SocketData) = { roomId, userName, role };
+        (socket.data as SocketData) = { roomId, userName, role: effectiveRole };
 
         socket.join(roomId);
 
@@ -131,7 +142,8 @@ export class SocketService {
             roomId,
             participantIdentity: socket.id,
             participantName: userName,
-            role,
+            role: effectiveRole,
+            roomType: roomData.roomType,
           });
         } catch (lkErr: any) {
           console.warn(`[SocketService] LiveKit token generation warning for ${userName}:`, lkErr?.message);
@@ -556,14 +568,20 @@ export class SocketService {
       roomRequests!.delete(payload.requesterSocketId);
       try {
         const roomData = await roomService.validateJoin({ roomId, userName: pending.userName, password: pending.password });
+        const isPeerToPeerRoom =
+          roomData.roomType === 'private' ||
+          roomData.roomType === 'couple' ||
+          roomData.roomType === 'remote-support';
+        const effectiveRole: UserRole = isPeerToPeerRoom ? 'speaker' : 'audience';
+
         const participant = await participantService.addParticipant({
           socketId: pending.socket.id,
           roomId,
           name: pending.userName,
-          role: 'audience',
+          role: effectiveRole,
         });
 
-        (pending.socket.data as SocketData) = { roomId, userName: pending.userName, role: 'audience' };
+        (pending.socket.data as SocketData) = { roomId, userName: pending.userName, role: effectiveRole };
         pending.socket.join(roomId);
 
         const roster = await participantService.getParticipantsInRoom(roomId);
@@ -577,7 +595,8 @@ export class SocketService {
             roomId,
             participantIdentity: pending.socket.id,
             participantName: pending.userName,
-            role: 'audience',
+            role: effectiveRole,
+            roomType: roomData.roomType,
           });
         } catch (lkErr: any) {
           console.warn(`[SocketService] LiveKit token generation warning for admitted user ${pending.userName}:`, lkErr?.message);
@@ -616,6 +635,47 @@ export class SocketService {
         pending.socket.emit(SOCKET_EVENTS.JOIN_REQUEST_DENIED, { reason: 'The host declined your request to join this broadcast.' });
         console.log(`[SocketService] Host denied entry to ${pending.userName} (${pending.socket.id}) for room ${roomId}`);
       }
+    });
+
+    // REMOTE SUPPORT ANNOTATIONS
+    socket.on(SOCKET_EVENTS.SUPPORT_ANNOTATION_CREATE, (payload: { annotation: any }) => {
+      const { roomId } = (socket.data as SocketData) || {};
+      if (!roomId) return;
+      socket.to(roomId).emit(SOCKET_EVENTS.SUPPORT_ANNOTATION_BROADCAST, payload);
+    });
+
+    socket.on(SOCKET_EVENTS.SUPPORT_ANNOTATIONS_CLEAR, () => {
+      const { roomId } = (socket.data as SocketData) || {};
+      if (!roomId) return;
+      socket.to(roomId).emit(SOCKET_EVENTS.SUPPORT_ANNOTATIONS_CLEAR, {});
+    });
+
+    // CLASSROOM LIVE POLL VOTE
+    socket.on(SOCKET_EVENTS.CLASSROOM_POLL_VOTE, (payload: { optionIndex: number }) => {
+      const { roomId } = (socket.data as SocketData) || {};
+      if (!roomId) return;
+      this.io?.to(roomId).emit(SOCKET_EVENTS.CLASSROOM_POLL_BROADCAST, payload);
+    });
+
+    // PODCAST PROMOTE SPEAKER
+    socket.on(SOCKET_EVENTS.PODCAST_PROMOTE_SPEAKER, async (payload: { participantId: string }) => {
+      const { roomId, role } = (socket.data as SocketData) || {};
+      if (role !== 'host' || !roomId || !payload.participantId) return;
+
+      await participantService.updateRole(payload.participantId, roomId, 'speaker');
+      this.io?.to(roomId).emit(SOCKET_EVENTS.PARTICIPANT_UPDATED, {
+        participantId: payload.participantId,
+        updates: { role: 'speaker' },
+      });
+      try {
+        const token = await liveKitService.generateToken({
+          roomId,
+          participantIdentity: payload.participantId,
+          participantName: 'Speaker',
+          role: 'speaker',
+        });
+        this.io?.to(payload.participantId).emit(SOCKET_EVENTS.SFU_TOKEN_RESPONSE, token);
+      } catch (err) {}
     });
 
     // LEAVE ROOM

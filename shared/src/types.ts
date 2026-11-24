@@ -21,7 +21,11 @@ export type RoomType =
   | 'watch'
   | 'radio'
   | 'hangout'
-  | 'event';
+  | 'event'
+  | 'private'
+  | 'podcast'
+  | 'classroom'
+  | 'remote-support';
 
 export type RoomCategory =
   | 'music'
@@ -255,3 +259,52 @@ export interface UserProfile {
   avatarUrl?: string;
   createdAt: string;
 }
+
+export interface SupportAnnotation {
+  id: string;
+  xRatio: number; // 0-1 relative to screen width
+  yRatio: number; // 0-1 relative to screen height
+  type: 'laser' | 'pin' | 'arrow';
+  label?: string;
+  technicianName: string;
+  timestamp: number;
+}
+
+export interface SupportSessionState {
+  technicianId: string | null;
+  technicianName: string | null;
+  customerId: string;
+  customerName: string;
+  isScreenSharing: boolean;
+  annotations: SupportAnnotation[];
+  sessionStartedAt: string;
+  expiresAt: string;
+}
+
+export interface ClassroomPoll {
+  id: string;
+  question: string;
+  options: string[];
+  votes: Record<number, number>; // optionIndex -> count
+  active: boolean;
+  createdAt: string;
+}
+
+export interface ClassroomState {
+  teacherId: string;
+  teacherName: string;
+  raisedHands: { studentId: string; studentName: string; timestamp: number }[];
+  activePoll?: ClassroomPoll;
+  whiteboardEnabled: boolean;
+  lectureNotes?: string;
+}
+
+export interface PodcastState {
+  hostId: string;
+  hostName: string;
+  approvedSpeakers: string[]; // participant IDs
+  raisedHands: { participantId: string; participantName: string; timestamp: number }[];
+  isRecording: boolean;
+  recordingStartedAt?: string;
+}
+

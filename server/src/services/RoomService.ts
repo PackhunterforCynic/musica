@@ -36,10 +36,17 @@ export class RoomService {
       throw new ValidationError(`Room name cannot exceed ${limitsConfig.maxRoomNameLength} characters.`);
     }
 
-    const maxP = Math.min(
-      Math.max(params.maxParticipants || limitsConfig.defaultRoomSize, 2),
-      limitsConfig.maxRoomSize
-    );
+    const isTwoPartyRoom =
+      params.roomType === 'private' ||
+      params.roomType === 'remote-support' ||
+      params.roomType === 'couple';
+
+    const maxP = isTwoPartyRoom
+      ? 2
+      : Math.min(
+          Math.max(params.maxParticipants || limitsConfig.defaultRoomSize, 2),
+          limitsConfig.maxRoomSize
+        );
 
     const roomId = await generateUniqueRoomId();
     const hostAuthToken = generateHostAuthToken();
