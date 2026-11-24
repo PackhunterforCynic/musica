@@ -517,6 +517,10 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     return await liveKitManager.toggleMicrophone();
   };
 
+  const toggleCamera = async () => {
+    return await liveKitManager.toggleCamera();
+  };
+
   const requestSfuToken = () => {
     if (socketRef.current) {
       socketRef.current.emit(SOCKET_EVENTS.SFU_TOKEN_REQUEST, {});
@@ -552,6 +556,7 @@ export function useWebRTCStudio(roomId?: string, userName?: string, password?: s
     stopScreenShare,
     startAudioOnlyShare,
     toggleMicrophone,
+    toggleCamera,
     requestSfuToken,
     sendChatMessage,
     sendReaction,

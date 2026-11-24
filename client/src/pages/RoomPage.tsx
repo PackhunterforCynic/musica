@@ -8,6 +8,7 @@ import { PrivateRoomStage } from '../components/studio/PrivateRoomStage';
 import { PodcastRoomStage } from '../components/studio/PodcastRoomStage';
 import { ClassroomStage } from '../components/studio/ClassroomStage';
 import { RemoteSupportStage } from '../components/studio/RemoteSupportStage';
+import { StudioStage } from '../components/studio/StudioStage';
 import { ReactionsOverlay } from '../components/studio/ReactionsOverlay';
 import { Loader2 } from 'lucide-react';
 
@@ -177,47 +178,8 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
           />
         );
 
-      case 'podcast': {
-        const isHandRaised = room.participants.find((p) => p.name === userName)?.handRaised || false;
-        const speakers = room.participants
-          .filter((p) => p.role === 'host' || p.role === 'speaker' || p.role === 'co-host')
-          .map((p) => ({
-            identity: p.id,
-            name: p.name,
-            role: p.role,
-            hasMic: p.hasMic,
-            hasCamera: p.hasCamera,
-            isSpeaking: activeSpeakerIds.includes(p.id) || p.presence === 'Speaking',
-          }));
-
-        const listeners = room.participants
-          .filter((p) => p.role !== 'host' && p.role !== 'speaker' && p.role !== 'co-host')
-          .map((p) => ({
-            identity: p.id,
-            name: p.name,
-            hasMic: p.hasMic,
-            hasCamera: p.hasCamera,
-            isSpeaking: false,
-          }));
-
-        return (
-          <PodcastRoomStage
-            localName={userName}
-            isHost={isHost}
-            hasLocalAudio={!isMicMuted}
-            speakers={speakers.length > 0 ? speakers : [{ identity: 'host', name: room.hostName, hasMic: true, hasCamera: false, role: 'host' }]}
-            listeners={listeners}
-            handRaised={isHandRaised}
-            onToggleMic={() => studio.toggleMicrophone?.()}
-            onToggleRaiseHand={() => studio.toggleRaiseHand?.(isHandRaised)}
-            onApproveSpeaker={(participantId) => studio.promotePodcastSpeaker(participantId)}
-            onLeave={() => {
-              studio.leaveRoom();
-              onLeave();
-            }}
-          />
-        );
-      }
+      case 'podcast':
+        return <StudioStage studio={studio} onLeave={onLeave} />;
 
       case 'classroom': {
         const isHandRaised = room.participants.find((p) => p.name === userName)?.handRaised || false;
@@ -287,11 +249,7 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
         return <CoupleRoomInterface studio={studio} onLeave={onLeave} />;
 
       default:
-        return isHost ? (
-          <HostDashboard studio={studio} onLeave={onLeave} />
-        ) : (
-          <AudienceInterface studio={studio} onLeave={onLeave} />
-        );
+        return <StudioStage studio={studio} onLeave={onLeave} />;
     }
   };
 

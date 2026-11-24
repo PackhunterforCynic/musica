@@ -262,6 +262,69 @@ export class LiveKitManager {
   }
 
   /**
+   * Toggle local participant camera
+   */
+  public async toggleCamera(): Promise<boolean> {
+    if (!this.room || this.room.state !== 'connected') {
+      // Fallback for local preview if not yet connected to LiveKit SFU
+      try {
+        const isEnabled = useRoomStore.getState().isCameraEnabled;
+        if (!isEnabled) {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+          useRoomStore.getState().setLocalCameraStream(stream);
+          useRoomStore.getState().setIsCameraEnabled(true);
+          notificationService.showToast('📹 Camera Started', 'info');
+          return true;
+        } else {
+          const stream = useRoomStore.getState().localCameraStream;
+          stream?.getTracks().forEach((t) => t.stop());
+          useRoomStore.getState().setLocalCameraStream(null);
+          useRoomStore.getState().setIsCameraEnabled(false);
+          notificationService.showToast('📷 Camera Stopped', 'info');
+          return false;
+        }
+      } catch (err: any) {
+        notificationService.showToast('Camera access denied or unavailable', 'warning');
+        return false;
+      }
+    }
+
+    try {
+      const current = this.room.localParticipant.isCameraEnabled;
+      const target = !current;
+      await this.room.localParticipant.setCameraEnabled(target);
+      useRoomStore.getState().setIsCameraEnabled(target);
+      const pub = this.room.localParticipant.getTrackPublication(Track.Source.Camera);
+      if (pub && pub.track?.mediaStreamTrack) {
+        useRoomStore.getState().setLocalCameraStream(new MediaStream([pub.track.mediaStreamTrack]));
+      } else {
+        useRoomStore.getState().setLocalCameraStream(null);
+      }
+      notificationService.showToast(target ? '📹 Camera Started' : '📷 Camera Stopped', 'info');
+      return target;
+    } catch (err: any) {
+      console.error('[LiveKitManager] Failed to toggle camera:', err);
+      notificationService.showToast('Camera access error: ' + err.message, 'error');
+      return false;
+    }
+  }
+
+  /**
+   * Set camera state explicitly
+   */
+  public async setCameraEnabled(enabled: boolean): Promise<boolean> {
+    if (!this.room || this.room.state !== 'connected') return false;
+    try {
+      await this.room.localParticipant.setCameraEnabled(enabled);
+      useRoomStore.getState().setIsCameraEnabled(enabled);
+      return enabled;
+    } catch (err: any) {
+      console.error('[LiveKitManager] setCameraEnabled error:', err);
+      return false;
+    }
+  }
+
+  /**
    * Start LiveKit screen sharing with high definition 1080p and system audio capture
    */
   public async startScreenShare(includeAudio: boolean = true): Promise<boolean> {

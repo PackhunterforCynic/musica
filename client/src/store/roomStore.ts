@@ -14,7 +14,7 @@ import {
   Track,
 } from '@musica/shared';
 
-export type SidebarTab = 'participants' | 'chat' | 'queue';
+export type SidebarTab = 'chat' | 'participants' | 'files' | 'notes' | 'queue';
 
 export interface StreamTelemetry {
   fps: number;
@@ -51,7 +51,9 @@ export interface RoomState {
   liveKitConnected: boolean;
   liveKitToken: string | null;
   isMicMuted: boolean;
+  isCameraEnabled: boolean;
   isScreenSharing: boolean;
+  localCameraStream: MediaStream | null;
   activeSpeakerIds: string[];
   remoteScreenTrack: any | null;
 
@@ -60,6 +62,8 @@ export interface RoomState {
   setLiveKitConnected: (connected: boolean) => void;
   setLiveKitToken: (token: string | null) => void;
   setIsMicMuted: (muted: boolean) => void;
+  setIsCameraEnabled: (enabled: boolean) => void;
+  setLocalCameraStream: (stream: MediaStream | null) => void;
   setIsScreenSharing: (sharing: boolean) => void;
   setActiveSpeakerIds: (ids: string[]) => void;
   setRemoteScreenTrack: (track: any | null) => void;
@@ -123,7 +127,9 @@ export const useRoomStore = create<RoomState>((set) => ({
   liveKitConnected: false,
   liveKitToken: null,
   isMicMuted: true,
+  isCameraEnabled: false,
   isScreenSharing: false,
+  localCameraStream: null,
   activeSpeakerIds: [],
   remoteScreenTrack: null,
 
@@ -133,6 +139,8 @@ export const useRoomStore = create<RoomState>((set) => ({
   setLiveKitConnected: (liveKitConnected) => set({ liveKitConnected }),
   setLiveKitToken: (liveKitToken) => set({ liveKitToken }),
   setIsMicMuted: (isMicMuted) => set({ isMicMuted }),
+  setIsCameraEnabled: (isCameraEnabled) => set({ isCameraEnabled }),
+  setLocalCameraStream: (localCameraStream) => set({ localCameraStream }),
   setIsScreenSharing: (isScreenSharing) => set({ isScreenSharing }),
   setActiveSpeakerIds: (activeSpeakerIds) => set({ activeSpeakerIds }),
   setRemoteScreenTrack: (remoteScreenTrack) => set({ remoteScreenTrack }),
