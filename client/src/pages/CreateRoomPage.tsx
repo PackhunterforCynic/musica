@@ -32,7 +32,7 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({
   initialRoomType,
 }) => {
   const [searchParams] = useSearchParams();
-  const queryType = (searchParams.get('type') as RoomType) || initialRoomType || 'studio';
+  const queryType = (searchParams.get('type') as RoomType) || initialRoomType || 'podcast';
 
   const prefs = storageService.getPreferences();
   const [displayName, setDisplayName] = useState(prefs.displayName || '');
@@ -40,11 +40,11 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({
   const [roomName, setRoomName] = useState(() => {
     switch (queryType) {
       case 'private': return 'Confidential 1:1 Call';
-      case 'podcast': return 'Live Podcast Episode';
+      case 'podcast': return 'Creative Podcast';
       case 'classroom': return 'Interactive Class Session';
       case 'remote-support': return 'Support & Assistance Session';
       case 'couple': return 'Private Couple Chat';
-      default: return 'Musica Live Studio';
+      default: return 'Creative Podcast';
     }
   });
   const [password, setPassword] = useState('');
@@ -68,8 +68,8 @@ export const CreateRoomPage: React.FC<CreateRoomPageProps> = ({
     icon: any;
     badge?: string;
   }> = [
+    { id: 'podcast', label: 'Podcast Studio', sublabel: 'Multi-Speaker Broadcasting & Live Stage', icon: Mic2, badge: 'Studio' },
     { id: 'private', label: 'Private Call', sublabel: '1-to-1 Encrypted (Max 2)', icon: Users, badge: '1:1' },
-    { id: 'podcast', label: 'Podcast Studio', sublabel: 'Multi-Speaker Broadcasting', icon: Mic2, badge: 'Studio' },
     { id: 'classroom', label: 'Classroom', sublabel: 'Interactive Teaching & Quiz', icon: GraduationCap, badge: 'Edu' },
     { id: 'remote-support', label: 'Remote Support', sublabel: 'Screen Viewing & Laser Pointer', icon: Headset, badge: 'Assist' },
     { id: 'studio', label: 'Media Studio', sublabel: 'General Audio & Video', icon: Monitor },

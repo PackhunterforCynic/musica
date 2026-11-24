@@ -143,44 +143,6 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
 
   const renderRoomExperience = () => {
     switch (room?.roomType) {
-      case 'private':
-        return (
-          <PrivateRoomStage
-            localParticipantName={userName}
-            isHost={isHost}
-            hasLocalVideo={false}
-            hasLocalAudio={!isMicMuted}
-            isScreenSharing={isSharing}
-            localStream={localShareStream}
-            remoteStream={remoteMediaStream}
-            pendingRequests={pendingJoinRequests}
-            remoteParticipants={room.participants
-              .filter((p) => p.name !== userName)
-              .map((p) => ({
-                identity: p.id,
-                name: p.name,
-                hasMic: p.hasMic,
-                hasCamera: p.hasCamera,
-                isSpeaking: activeSpeakerIds.includes(p.id) || p.presence === 'Speaking',
-              }))}
-            onToggleMic={() => studio.toggleMicrophone?.()}
-            onToggleCamera={() => {}}
-            onToggleScreenShare={() => {
-              if (isSharing) studio.stopScreenShare();
-              else studio.startScreenShare();
-            }}
-            onEndCall={() => {
-              studio.leaveRoom();
-              onLeave();
-            }}
-            onAdmitUser={(sid) => studio.admitUser(sid)}
-            onDenyUser={(sid) => studio.denyUser(sid)}
-          />
-        );
-
-      case 'podcast':
-        return <StudioStage studio={studio} onLeave={onLeave} />;
-
       case 'classroom': {
         const isHandRaised = room.participants.find((p) => p.name === userName)?.handRaised || false;
         const activePresentationStream = isHost ? localShareStream : remoteMediaStream;
@@ -248,6 +210,9 @@ export const RoomPage: React.FC<RoomPageProps> = ({ roomId, userName, password, 
       case 'couple':
         return <CoupleRoomInterface studio={studio} onLeave={onLeave} />;
 
+      case 'private':
+      case 'podcast':
+      case 'studio':
       default:
         return <StudioStage studio={studio} onLeave={onLeave} />;
     }
