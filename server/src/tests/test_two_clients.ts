@@ -2,7 +2,7 @@ import assert from 'assert';
 import http from 'http';
 import express from 'express';
 import { Server as SocketIOServer } from 'socket.io';
-import { io as ClientIO } from '../../../client/node_modules/socket.io-client';
+import { io as ClientIO } from 'socket.io-client';
 import { roomRouter } from '../routes/roomRoutes';
 import { roomService } from '../services/RoomService';
 import { storageService } from '../services/StorageService';
@@ -60,7 +60,7 @@ async function runTwoClientsTest() {
         });
       });
 
-      clientA.on(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, (data) => {
+      clientA.on(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, (data: any) => {
         console.log(`  ✅ Client A joined room. Roster count: ${data.participants.length}`);
         clientAParticipantsListOnJoin = data.participants;
         assert(data.participants.length === 1, 'Client A should see only itself initially');
@@ -69,13 +69,13 @@ async function runTwoClientsTest() {
         resolve();
       });
 
-      clientA.on(SOCKET_EVENTS.ERROR_NOTIFICATION, (err) => reject(new Error(err.message)));
+      clientA.on(SOCKET_EVENTS.ERROR_NOTIFICATION, (err: any) => reject(new Error(err.message)));
       setTimeout(() => reject(new Error('Client A join timeout')), 5000);
     });
 
     // Setup listener on Client A for Client B joining
     let participantJoinedPromise = new Promise<any>((resolve) => {
-      clientA.on(SOCKET_EVENTS.PARTICIPANT_JOINED, (data) => {
+      clientA.on(SOCKET_EVENTS.PARTICIPANT_JOINED, (data: any) => {
         console.log(`  🎉 Client A received PARTICIPANT_JOINED for: ${data.participant.name}`);
         clientAParticipantJoinedReceived = true;
         resolve(data);
@@ -99,7 +99,7 @@ async function runTwoClientsTest() {
         });
       });
 
-      clientB.on(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, (data) => {
+      clientB.on(SOCKET_EVENTS.ROOM_JOINED_SUCCESS, (data: any) => {
         console.log(`  ✅ Client B joined room. Roster count: ${data.participants.length}`);
         clientBParticipantsListOnJoin = data.participants;
         // Verify Client B sees BOTH RobinHost and Me!
@@ -122,7 +122,7 @@ async function runTwoClientsTest() {
         resolve();
       });
 
-      clientB.on(SOCKET_EVENTS.ERROR_NOTIFICATION, (err) => reject(new Error(err.message)));
+      clientB.on(SOCKET_EVENTS.ERROR_NOTIFICATION, (err: any) => reject(new Error(err.message)));
       setTimeout(() => reject(new Error('Client B join timeout')), 5000);
     });
 
@@ -135,7 +135,7 @@ async function runTwoClientsTest() {
     // 5. Test Chat: Client B sends chat to room
     console.log('[4] Testing chat messaging between Client B and Client A...');
     const chatPromise = new Promise<any>((resolve) => {
-      clientA.on(SOCKET_EVENTS.CHAT_RECEIVE, (data) => {
+      clientA.on(SOCKET_EVENTS.CHAT_RECEIVE, (data: any) => {
         console.log(`  💬 Client A received chat from ${data.message.senderName}: "${data.message.text}"`);
         clientAChatReceived = data.message;
         resolve(data.message);
@@ -151,7 +151,7 @@ async function runTwoClientsTest() {
     // 6. Test Reaction: Client A sends emoji to Client B
     console.log('[5] Testing emoji reaction from Client A to Client B...');
     const reactionPromise = new Promise<any>((resolve) => {
-      clientB.on(SOCKET_EVENTS.REACTION_RECEIVE, (data) => {
+      clientB.on(SOCKET_EVENTS.REACTION_RECEIVE, (data: any) => {
         console.log(`  💜 Client B received reaction: ${data.reaction.emoji} from ${data.reaction.senderName}`);
         resolve(data.reaction);
       });
@@ -166,7 +166,7 @@ async function runTwoClientsTest() {
     // 7. Test Leave
     console.log('[6] Testing participant departure...');
     const leavePromise = new Promise<any>((resolve) => {
-      clientA.on(SOCKET_EVENTS.PARTICIPANT_LEFT, (data) => {
+      clientA.on(SOCKET_EVENTS.PARTICIPANT_LEFT, (data: any) => {
         console.log(`  👋 Client A received PARTICIPANT_LEFT for: ${data.name}`);
         resolve(data);
       });
